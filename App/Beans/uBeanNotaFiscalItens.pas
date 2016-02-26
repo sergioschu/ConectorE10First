@@ -11,21 +11,27 @@ type
     FID: TFieldInteger;
     FVALORTOTAL: TFieldCurrency;
     FQUANTIDADE: TFieldCurrency;
+    FQUANTIDADEREC: TFieldCurrency;
+    FQUANTIDADEAVA: TFieldCurrency;
     procedure SetID(const Value: TFieldInteger);
     procedure SetID_PRODUTO(const Value: TFieldInteger);
     procedure SetQUANTIDADE(const Value: TFieldCurrency);
     procedure SetSEQUENCIA(const Value: TFieldInteger);
     procedure SetVALORTOTAL(const Value: TFieldCurrency);
     procedure SetVALORUNITARIO(const Value: TFieldFloat);
+    procedure SetQUANTIDADEAVA(const Value: TFieldCurrency);
+    procedure SetQUANTIDADEREC(const Value: TFieldCurrency);
   protected
     procedure InitInstance; override;
   published
-    property ID      : TFieldInteger read FID write SetID;
-    property SEQUENCIA : TFieldInteger read FSEQUENCIA write SetSEQUENCIA;
-    property ID_PRODUTO : TFieldInteger read FID_PRODUTO write SetID_PRODUTO;
-    property QUANTIDADE : TFieldCurrency read FQUANTIDADE write SetQUANTIDADE;
+    property ID            : TFieldInteger read FID write SetID;
+    property SEQUENCIA     : TFieldInteger read FSEQUENCIA write SetSEQUENCIA;
+    property ID_PRODUTO    : TFieldInteger read FID_PRODUTO write SetID_PRODUTO;
+    property QUANTIDADE    : TFieldCurrency read FQUANTIDADE write SetQUANTIDADE;
+    property QUANTIDADEREC : TFieldCurrency read FQUANTIDADEREC write SetQUANTIDADEREC;
+    property QUANTIDADEAVA : TFieldCurrency read FQUANTIDADEAVA write SetQUANTIDADEAVA;
     property VALORUNITARIO : TFieldFloat read FVALORUNITARIO write SetVALORUNITARIO;
-    property VALORTOTAL : TFieldCurrency read FVALORTOTAL write SetVALORTOTAL;
+    property VALORTOTAL    : TFieldCurrency read FVALORTOTAL write SetVALORTOTAL;
   End;
 implementation
 
@@ -34,13 +40,15 @@ implementation
 procedure TNOTAFISCALITENS.InitInstance;
 begin
   inherited;
-  ID.isPK                := True;
+  ID.isPK                    := True;
 
-  SEQUENCIA.isNotNull    := True;
-  ID_PRODUTO.isNotNull   := True;
-  QUANTIDADE.isNotNull   := True;
-  VALORUNITARIO.isNotNull:= True;
-  VALORTOTAL.isNotNull   := True;
+  SEQUENCIA.isNotNull        := True;
+  ID_PRODUTO.isNotNull       := True;
+  QUANTIDADE.isNotNull       := True;
+  QUANTIDADEREC.isNotNull    := True;
+  QUANTIDADEAVA.isNotNull    := True;
+  VALORUNITARIO.isNotNull    := True;
+  VALORTOTAL.isNotNull       := True;
 end;
 
 procedure TNOTAFISCALITENS.SetID(const Value: TFieldInteger);
@@ -56,6 +64,16 @@ end;
 procedure TNOTAFISCALITENS.SetQUANTIDADE(const Value: TFieldCurrency);
 begin
   FQUANTIDADE := Value;
+end;
+
+procedure TNOTAFISCALITENS.SetQUANTIDADEAVA(const Value: TFieldCurrency);
+begin
+  FQUANTIDADEAVA := Value;
+end;
+
+procedure TNOTAFISCALITENS.SetQUANTIDADEREC(const Value: TFieldCurrency);
+begin
+  FQUANTIDADEREC := Value;
 end;
 
 procedure TNOTAFISCALITENS.SetSEQUENCIA(const Value: TFieldInteger);

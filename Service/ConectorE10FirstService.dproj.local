@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions>
-    <Transaction>2016/02/25 21:08:12.289,=C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2016/02/25 21:08:48.802,C:\Projetos\ConectorE10First\Service\uPrincipal.dfm=C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
-    <Transaction>2016/02/25 21:08:48.802,C:\Projetos\ConectorE10First\Service\uPrincipal.pas=C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2016/02/25 21:09:19.624,C:\Projetos\ConectorE10First\Service\ConectorE10FirstService.dproj=C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
-    <Transaction>2016/02/25 21:36:56.885,=C:\Projetos\ConectorE10First\App\uFWConnection.pas</Transaction>
-    <Transaction>2016/02/25 21:37:15.639,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario.pas</Transaction>
-    <Transaction>2016/02/25 21:37:15.745,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario_Permissao.pas</Transaction>
-    <Transaction>2016/02/25 21:37:40.636,=C:\Projetos\ConectorE10First\App\Units\uConstantes.pas</Transaction>
-    <Transaction>2016/02/25 21:37:40.776,=C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas</Transaction>
-    <Transaction>2016/02/25 21:38:06.739,=C:\Projetos\ConectorE10First\App\Diversos\uDMUtil.pas</Transaction>
-    <Transaction>2016/02/25 21:38:06.905,=C:\Projetos\ConectorE10First\App\Diversos\uDomains.pas</Transaction>
-    <Transaction>2016/02/25 21:38:07.009,=C:\Projetos\ConectorE10First\App\Diversos\uFWPersistence.pas</Transaction>
-    <Transaction>2016/02/25 21:39:53.932,C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas=</Transaction>
-    <Transaction>2016/02/25 21:40:30.286,C:\Projetos\ConectorE10First\App\Diversos\uDMUtil.pas=</Transaction>
-    <Transaction>2016/02/25 21:41:03.074,=C:\Projetos\ConectorE10First\Service\Unit1.pas</Transaction>
-    <Transaction>2016/02/25 21:41:29.587,C:\Projetos\ConectorE10First\App\Beans\uBeanNotaFiscal.pas=C:\Projetos\ConectorE10First\Service\Unit1.pas</Transaction>
-    <Transaction>2016/02/25 21:50:18.759,=C:\Projetos\ConectorE10First\Service\Unit1.pas</Transaction>
-    <Transaction>2016/02/25 21:50:47.660,C:\Projetos\ConectorE10First\App\Beans\uBeanNotaFiscalItens.pas=C:\Projetos\ConectorE10First\Service\Unit1.pas</Transaction>
+	<Transactions>
+    <Transaction>2016/02/25 21:08:12.000.289,=C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2016/02/25 21:08:48.000.802,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Projetos\ConectorE10First\Service\uPrincipal.dfm</Transaction>
+    <Transaction>2016/02/25 21:08:48.000.802,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Projetos\ConectorE10First\Service\uPrincipal.pas</Transaction>
+    <Transaction>2016/02/25 21:09:19.000.624,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Projetos\ConectorE10First\Service\ConectorE10FirstService.dproj</Transaction>
+    <Transaction>2016/02/25 21:36:56.000.885,=C:\Projetos\ConectorE10First\App\uFWConnection.pas</Transaction>
+    <Transaction>2016/02/25 21:37:15.000.639,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario.pas</Transaction>
+    <Transaction>2016/02/25 21:37:15.000.745,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario_Permissao.pas</Transaction>
+    <Transaction>2016/02/25 21:37:40.000.636,=C:\Projetos\ConectorE10First\App\Units\uConstantes.pas</Transaction>
+    <Transaction>2016/02/25 21:37:40.000.776,=C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas</Transaction>
+    <Transaction>2016/02/25 21:38:06.000.739,=C:\Projetos\ConectorE10First\App\Diversos\uDMUtil.pas</Transaction>
+    <Transaction>2016/02/25 21:38:06.000.905,=C:\Projetos\ConectorE10First\App\Diversos\uDomains.pas</Transaction>
+    <Transaction>2016/02/25 21:38:07.000.009,=C:\Projetos\ConectorE10First\App\Diversos\uFWPersistence.pas</Transaction>
+    <Transaction>2016/02/25 21:39:53.000.932,C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas=</Transaction>
+    <Transaction>2016/02/25 21:40:30.000.286,C:\Projetos\ConectorE10First\App\Diversos\uDMUtil.pas=</Transaction>
+    <Transaction>2016/02/25 21:41:03.000.074,=C:\Projetos\ConectorE10First\Service\Unit1.pas</Transaction>
+    <Transaction>2016/02/25 21:41:29.000.587,C:\Projetos\ConectorE10First\Service\Unit1.pas=C:\Projetos\ConectorE10First\App\Beans\uBeanNotaFiscal.pas</Transaction>
+    <Transaction>2016/02/25 21:50:18.000.759,=C:\Projetos\ConectorE10First\Service\Unit1.pas</Transaction>
+    <Transaction>2016/02/25 21:50:47.000.660,C:\Projetos\ConectorE10First\Service\Unit1.pas=C:\Projetos\ConectorE10First\App\Beans\uBeanNotaFiscalItens.pas</Transaction>
   </Transactions>
 </BorlandProject>
