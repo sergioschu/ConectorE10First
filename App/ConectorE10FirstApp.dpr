@@ -17,7 +17,8 @@ uses
   uRedefinirSenha in 'uRedefinirSenha.pas' {FrmRedefinirSenha},
   uConfiguracoesSistema in 'uConfiguracoesSistema.pas' {frmConfiguracoesSistema},
   uCadastroUsuario in 'Cadastros\uCadastroUsuario.pas' {FrmCadastroUsuario},
-  uDMUtil in 'Diversos\uDMUtil.pas' {DMUtil: TDataModule};
+  uDMUtil in 'Diversos\uDMUtil.pas' {DMUtil: TDataModule},
+  uBeanProduto in 'Beans\uBeanProduto.pas';
 
 {$R *.res}
 
