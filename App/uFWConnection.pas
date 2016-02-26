@@ -43,7 +43,7 @@ type
 implementation
 
 uses
-  uConstantes, uMensagem;
+  uConstantes;
 
 { TFWConnection }
 
