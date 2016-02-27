@@ -36,8 +36,7 @@ Uses
   uFWConnection,
   uBeanUsuario,
   uBeanUsuario_Permissao,
-  uDomains,
-  uMensagem;
+  uDomains;
 
 procedure CarregarConfigLocal;
 Var
@@ -51,7 +50,8 @@ begin
     LOGIN.LembrarUsuario        := ArqINI.ReadBool('LOGIN', 'LEMBRARUSUARIO', True);
 
     CONFIG_LOCAL.DirRelatorios  := ArqINI.ReadString('CONFIGURACOES', 'DIR_RELATORIOS', 'C:\CrossAbacos\Relatorios\');
-
+    CONFIG_LOCAL.FTPUsuario     := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
+    CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
   finally
     FreeAndNil(ArqINI);
   end;
@@ -173,7 +173,7 @@ begin
       end;
     end;
   end else begin
-    DisplayMsg(MSG_WAR, 'Menu não Específicado, Verifique!');
+    raise Exception.Create('Menu não Específicado, Verifique!');
     Exit;
   end;
 end;
@@ -216,7 +216,7 @@ begin
       end;
     except
       on E : exception do
-        DisplayMsg(MSG_ERR, 'Erro ao validar Usuário, Verifique!', '', E.Message);
+        raise Exception.Create('Erro ao validar Usuário, Verifique!');
     end;
   finally
     FreeAndNil(USU);

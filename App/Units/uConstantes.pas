@@ -32,6 +32,8 @@ type
 
   TCONFIGURACOESLOCAIS = record
     DirRelatorios : string;
+    FTPUsuario : string;
+    FTPSenha : string;
   end;
 
 Const

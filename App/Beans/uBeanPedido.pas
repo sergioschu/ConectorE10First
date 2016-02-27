@@ -16,6 +16,7 @@ type
     FDEST_COMPLEMENTO: TFieldString;
     FDEST_NOME: TFieldString;
     FENVIADO: TFieldBoolean;
+    FSEQUENCIA: TFieldInteger;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -27,12 +28,14 @@ type
     procedure SetTRANSP_CNPJ(const Value: TFieldString);
     procedure SetVIAGEM(const Value: TFieldString);
     procedure SetENVIADO(const Value: TFieldBoolean);
+    procedure SetSEQUENCIA(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
     property ID : TFieldInteger read FID write SetID;
     property PEDIDO : TFieldString read FPEDIDO write SetPEDIDO;
     property VIAGEM : TFieldString read FVIAGEM write SetVIAGEM;
+    property SEQUENCIA : TFieldInteger read FSEQUENCIA write SetSEQUENCIA;
     property TRANSP_CNPJ : TFieldString read FTRANSP_CNPJ write SetTRANSP_CNPJ;
     property DEST_CNPJ : TFieldString read FDEST_CNPJ write SetDEST_CNPJ;
     property DEST_NOME : TFieldString read FDEST_NOME write SetDEST_NOME;
@@ -115,6 +118,11 @@ end;
 procedure TPEDIDO.SetPEDIDO(const Value: TFieldString);
 begin
   FPEDIDO := Value;
+end;
+
+procedure TPEDIDO.SetSEQUENCIA(const Value: TFieldInteger);
+begin
+  FSEQUENCIA := Value;
 end;
 
 procedure TPEDIDO.SetTRANSP_CNPJ(const Value: TFieldString);

@@ -45,16 +45,17 @@ CREATE TABLE produto
 CREATE TABLE pedido
 (
   id serial NOT NULL,
-  PEDIDO character varying(10) NOT NULL,
-  VIAGEM character varying(10) NOT NULL,
-  TRANSP_CNPJ character varying(10) NOT NULL,
-  DEST_CNPJ character varying(10) NOT NULL,
-  DEST_NOME character varying(10) NOT NULL,
-  DEST_ENDERECO character varying(10) NOT NULL,
-  DEST_COMPLEMENTO character varying(10) NOT NULL,
-  DEST_CEP character varying(10) NOT NULL,
-  DEST_MUNICIPIO character varying(10) NOT NULL,
-  ENVIADO BOOLEAN,
+  pedido character varying(10) NOT NULL,
+  viagem character varying(10) NOT NULL,
+  sequencia smallint NOT NULL default 0,
+  transp_cnpj character varying(10) NOT NULL,
+  dest_cnpj character varying(10) NOT NULL,
+  dest_nome character varying(10) NOT NULL,
+  dest_endereco character varying(10) NOT NULL,
+  dest_complemento character varying(10) NOT NULL,
+  dest_cep character varying(10) NOT NULL,
+  dest_municipio character varying(10) NOT NULL,
+  enviado BOOLEAN,
   CONSTRAINT pk_lote PRIMARY KEY (id)
 );
 CREATE TABLE pedidoitens
@@ -69,6 +70,37 @@ CREATE TABLE pedidoitens
       REFERENCES pedido (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_pi_produto FOREIGN KEY (id_produto)
+      REFERENCES produto (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT
+);
+CREATE TABLE notafiscal
+(
+  id serial NOT NULL,
+  documento integer NOT NULL,
+  serie integer NOT NULL,
+  cnpjcpf character varying(19),
+  dataemissao timestamp without time zone,
+  cfop integer,
+  valortotal numeric(17,2),
+  especie character varying(2),
+  CONSTRAINT pk_notafiscal PRIMARY KEY (id)
+);
+CREATE TABLE notafiscalitens
+(
+  id serial NOT NULL,
+  id_notafiscal integer NOT NULL,
+  sequencia integer NOT NULL,
+  id_produto integer NOT NULL,
+  quantidade numeric(12,3),
+  quantidaderec numeric(12,3),
+  quantidadeava numeric(12,3),
+  valorunitario numeric(17,6),
+  valortotal numeric(17,2),
+  CONSTRAINT pk_notafiscalitens PRIMARY KEY (id),
+  CONSTRAINT fk_ni_notafiscal FOREIGN KEY (id_notafiscal)
+      REFERENCES notafiscal (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_ni_produto FOREIGN KEY (id_produto)
       REFERENCES produto (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
