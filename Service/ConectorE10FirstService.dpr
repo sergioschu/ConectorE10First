@@ -10,7 +10,10 @@ uses
   uDomains in '..\App\Diversos\uDomains.pas',
   uFWPersistence in '..\App\Diversos\uFWPersistence.pas',
   uBeanNotaFiscal in '..\App\Beans\uBeanNotaFiscal.pas',
-  uBeanNotaFiscalItens in '..\App\Beans\uBeanNotaFiscalItens.pas';
+  uBeanNotaFiscalItens in '..\App\Beans\uBeanNotaFiscalItens.pas',
+  uBeanPedido in '..\App\Beans\uBeanPedido.pas',
+  uBeanPedidoItens in '..\App\Beans\uBeanPedidoItens.pas',
+  uBeanProduto in '..\App\Beans\uBeanProduto.pas';
 
 {$R *.RES}
 
