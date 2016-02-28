@@ -1,7 +1,7 @@
 unit uConexaoFTP;
 
 interface
-uses IdFTP, System.SysUtils, System.Classes;
+uses IdFTP, System.SysUtils, System.Classes, IdFTPCommon, IdFTPList;
 type
   TConexaoFTP = Class
   private
@@ -17,6 +17,8 @@ type
   public
     constructor Create;
     procedure EnviarProdutos;
+    procedure BuscaMDD;
+    procedure BuscaCONF;
     procedure EnviarPedidos;
     procedure EnviarNotasFiscais;
     destructor Destroy; override;
@@ -25,10 +27,44 @@ implementation
 uses uConstantes;
 { TConexaoFTP }
 
+procedure TConexaoFTP.BuscaCONF;
+var
+  I : Integer;
+begin
+  if FFTP.Connected then begin
+    FFTP.ChangeDir('/conf/');
+    FFTP.List;
+    for I := 0 to Pred(FFTP.DirectoryListing.Count) do begin
+      if FFTP.DirectoryListing.Items[I].ItemType = ditFile then begin
+        FFTP.Get(FFTP.DirectoryListing.Items[I].FileName, DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName);
+//        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
+      end;
+    end;
+  end;
+end;
+
+procedure TConexaoFTP.BuscaMDD;
+var
+  I : Integer;
+begin
+  if FFTP.Connected then begin
+    FFTP.ChangeDir('/mdd/');
+    FFTP.List;
+    for I := 0 to Pred(FFTP.DirectoryListing.Count) do begin
+      if FFTP.DirectoryListing.Items[I].ItemType = ditFile then begin
+        FFTP.Get(FFTP.DirectoryListing.Items[I].FileName, DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName);
+//        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
+      end;
+    end;
+  end;
+end;
+
 constructor TConexaoFTP.Create;
 begin
   inherited;
-  FFTP      := TIdFTP.Create(nil);
+  FFTP              := TIdFTP.Create(nil);
+  FFTP.Passive      := True;
+  FFTP.TransferType := ftBinary;
 end;
 
 destructor TConexaoFTP.Destroy;
@@ -42,7 +78,7 @@ procedure TConexaoFTP.EnviarNotasFiscais;
 var
   search_rec: TSearchRec;
 begin
-  if FindFirst(DirArquivosFTP, faAnyFile, search_rec) = 0 then begin
+  if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
     repeat
       if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
         Login;
@@ -60,7 +96,7 @@ procedure TConexaoFTP.EnviarPedidos;
 var
   search_rec: TSearchRec;
 begin
-  if FindFirst(DirArquivosFTP, faAnyFile, search_rec) = 0 then begin
+  if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
     repeat
       if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
         Login;
@@ -78,7 +114,7 @@ procedure TConexaoFTP.EnviarProdutos;
 var
   search_rec: TSearchRec;
 begin
-  if FindFirst(DirArquivosFTP, faAnyFile, search_rec) = 0 then begin
+  if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
     repeat
       if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
         Login;

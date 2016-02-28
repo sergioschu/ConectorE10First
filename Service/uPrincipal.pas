@@ -22,6 +22,7 @@ type
   public
     function GetServiceController: TServiceController; override;
     function EnviaPedidos : Boolean;
+    function BuscaMDD : Boolean;
     procedure SaveLog(Msg: String);
     { Public declarations }
   end;
@@ -36,12 +37,83 @@ uses
   uFWConnection,
   uBeanPedido,
   uBeanPedidoItens,
-  uBeanProduto;
+  uBeanProduto,
+  uConexaoFTP;
 {$R *.dfm}
 
 procedure ServiceController(CtrlCode: DWord); stdcall;
 begin
   ServiceConectorE10.Controller(CtrlCode);
+end;
+
+function TServiceConectorE10.BuscaMDD: Boolean;
+var
+  search_rec  : TSearchRec;
+  FTP         : TConexaoFTP;
+  Lista       : TStringList;
+  MDD         : TStringList;
+  I,
+  J           : Integer;
+  CON         : TFWConnection;
+  PR          : TPRODUTO;
+  PI          : TPEDIDOITENS;
+begin
+  FTP   := TConexaoFTP.Create;
+  try
+    FTP.BuscaMDD;
+  finally
+    FreeAndNil(FTP);
+  end;
+
+  CON    := TFWConnection.Create;
+  PR     := TPRODUTO.Create(CON);
+  PI     := TPEDIDOITENS.Create(CON);
+  try
+    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+      CON.StartTransaction;
+      try
+        repeat
+          if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
+            Lista    := TStringList.Create;
+            MDD      := TStringList.Create;
+            try
+              Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+              for I := 0 to Pred(Lista.Count) do begin
+                MDD.Delimiter       := ';';
+                MDD.StrictDelimiter := True;
+                MDD.DelimitedText   := Lista[I];
+                if MDD.Count = 7 then begin
+                  PR.SelectList('codigoproduto = ' + MDD[2]);
+                  if PR.Count > 0 then begin
+                    PI.SelectList('id_pedido = ' + MDD[0] + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                    if PI.Count > 0 then begin
+                      PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
+                      PI.RECEBIDO.Value     := True;
+                      PI.Update;
+                    end;
+                  end;
+                end;
+              end;
+            finally
+              FreeAndNil(Lista);
+              FreeAndNil(MDD);
+            end;
+          end;
+        until FindNext(search_rec) <> 0;
+        CON.Commit;
+      except
+        on E : Exception do begin
+          CON.Rollback;
+          SaveLog('Erro ao bucar MDD: ' + E.Message);
+        end;
+      end;
+      FindClose(search_rec);
+    end;
+  finally
+    FreeAndNil(PI);
+    FreeAndNil(PR);
+    FreeAndNil(CON);
+  end;
 end;
 
 function TServiceConectorE10.EnviaPedidos: Boolean;
@@ -53,6 +125,7 @@ var
   Lista   : TStringList;
   I,
   J       : Integer;
+  FTP     : TConexaoFTP;
 begin
   Con    := TFWConnection.Create;
   P      := TPEDIDO.Create(Con);
@@ -87,12 +160,21 @@ begin
             end;
           end;
         end;
+        P.ID.Value       := TPEDIDO(P.Itens[I]).ID.Value;
+        P.ENVIADO.Value  := True;
+        P.Update;
       end;
     end;
     if Lista.Count > 0 then begin
       if not DirectoryExists(DirArquivosFTP) then
         ForceDirectories(DirArquivosFTP);
       Lista.SaveToFile(DirArquivosFTP + 'SC.txt');
+      FTP     := TConexaoFTP.Create;
+      try
+        FTP.EnviarPedidos;
+      finally
+        FreeAndNil(FTP);
+      end;
     end;
 
   finally
@@ -151,9 +233,12 @@ begin
 end;
 
 procedure TServiceConectorE10.ServiceExecute(Sender: TService);
+var
+  ConFTP : TConexaoFTP;
 begin
   while not Self.Terminated do begin
-    SaveLog('Serviço em Execução!');
+//    SaveLog('Serviço em Execução!');
+    BuscaMDD;
     ServiceThread.ProcessRequests(False);
     Sleep(5000);
   end;
