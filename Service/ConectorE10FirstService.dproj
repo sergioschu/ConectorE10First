@@ -103,6 +103,8 @@
         <DCCReference Include="..\App\Beans\uBeanPedido.pas"/>
         <DCCReference Include="..\App\Beans\uBeanPedidoItens.pas"/>
         <DCCReference Include="..\App\Beans\uBeanProduto.pas"/>
+        <DCCReference Include="uConexaoFTP.pas"/>
+        <DCCReference Include="..\App\Units\uFuncoes.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -131,6 +133,12 @@
             </Delphi.Personality>
             <Deployment>
                 <DeployFile LocalName="Win32\Debug\ConectorE10FirstService.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ConectorE10FirstService.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="C:\ConectorE10First\ConectorE10FirstService.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ConectorE10FirstService.exe</RemoteName>
                         <Overwrite>true</Overwrite>

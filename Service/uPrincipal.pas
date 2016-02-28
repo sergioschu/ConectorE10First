@@ -89,6 +89,12 @@ begin
         end;
       end;
     end;
+    if Lista.Count > 0 then begin
+      if not DirectoryExists(DirArquivosFTP) then
+        ForceDirectories(DirArquivosFTP);
+      Lista.SaveToFile(DirArquivosFTP + 'SC.txt');
+    end;
+
   finally
     FreeAndNil(PR);
     FreeAndNil(PI);

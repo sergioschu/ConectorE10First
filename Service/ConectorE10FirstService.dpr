@@ -13,7 +13,9 @@ uses
   uBeanNotaFiscalItens in '..\App\Beans\uBeanNotaFiscalItens.pas',
   uBeanPedido in '..\App\Beans\uBeanPedido.pas',
   uBeanPedidoItens in '..\App\Beans\uBeanPedidoItens.pas',
-  uBeanProduto in '..\App\Beans\uBeanProduto.pas';
+  uBeanProduto in '..\App\Beans\uBeanProduto.pas',
+  uConexaoFTP in 'uConexaoFTP.pas',
+  uFuncoes in '..\App\Units\uFuncoes.pas';
 
 {$R *.RES}
 

@@ -38,6 +38,7 @@ type
 
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
+  DirArquivosFTP : string = 'C:\ConectorE10First\arquivosFTP\';
   DirInstall: String = 'C:\ConectorE10First\';
   DirArquivosExcel: String = 'C:\ConectorE10First\Arquivos\';
   Alfabeto: String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

@@ -16,7 +16,9 @@ type
     property Connected : Boolean read FConnected write SetConnected;
   public
     constructor Create;
-    procedure EnviarPedidos(Texto : String; Numero : Integer);
+    procedure EnviarProdutos;
+    procedure EnviarPedidos;
+    procedure EnviarNotasFiscais;
     destructor Destroy; override;
   End;
 implementation
@@ -36,14 +38,58 @@ begin
   inherited;
 end;
 
-procedure TConexaoFTP.EnviarPedidos(Texto: String; Numero: Integer);
+procedure TConexaoFTP.EnviarNotasFiscais;
 var
-  Stream : TStream;
+  search_rec: TSearchRec;
 begin
-  FFTP.ChangeDir('SC');
-  Login;
-  FFTP.Put(Texto, '');
+  if FindFirst(DirArquivosFTP, faAnyFile, search_rec) = 0 then begin
+    repeat
+      if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
+        Login;
+        FFTP.ChangeDir('ARMZ');
+        FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+        DeleteFile(DirArquivosFTP + search_rec.Name);
+      end;
+    until FindNext(search_rec) <> 0;
 
+    FindClose(search_rec);
+  end;
+end;
+
+procedure TConexaoFTP.EnviarPedidos;
+var
+  search_rec: TSearchRec;
+begin
+  if FindFirst(DirArquivosFTP, faAnyFile, search_rec) = 0 then begin
+    repeat
+      if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
+        Login;
+        FFTP.ChangeDir('SC');
+        FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+        DeleteFile(DirArquivosFTP + search_rec.Name);
+      end;
+    until FindNext(search_rec) <> 0;
+
+    FindClose(search_rec);
+  end;
+end;
+
+procedure TConexaoFTP.EnviarProdutos;
+var
+  search_rec: TSearchRec;
+begin
+  if FindFirst(DirArquivosFTP, faAnyFile, search_rec) = 0 then begin
+    repeat
+      if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
+        Login;
+        FFTP.ChangeDir('PROD');
+        FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+        DeleteFile(DirArquivosFTP + search_rec.Name);
+      end;
+    until FindNext(search_rec) <> 0;
+
+    FindClose(search_rec);
+  end;
 end;
 
 procedure TConexaoFTP.Login;
