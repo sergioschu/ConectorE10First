@@ -22,7 +22,9 @@ type
   public
     function GetServiceController: TServiceController; override;
     function EnviaPedidos : Boolean;
+    function EnviaProdutos : Boolean;
     function BuscaMDD : Boolean;
+    function BuscaCONF : Boolean;
     procedure SaveLog(Msg: String);
     { Public declarations }
   end;
@@ -44,6 +46,11 @@ uses
 procedure ServiceController(CtrlCode: DWord); stdcall;
 begin
   ServiceConectorE10.Controller(CtrlCode);
+end;
+
+function TServiceConectorE10.BuscaCONF: Boolean;
+begin
+//implementar
 end;
 
 function TServiceConectorE10.BuscaMDD: Boolean;
@@ -133,47 +140,57 @@ begin
   PR     := TPRODUTO.Create(Con);
   Lista  := TStringList.Create;
   try
-    P.SelectList(' not enviado');
-    if P.Count > 0 then begin
-      for I := 0 to Pred(P.Count) do begin
-        PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
-        if PI.Count > 0 then begin
-          for J := 0 to Pred(PI.Count) do begin
-            PR.SelectList('id_produto = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
-            if PR.Count > 0 then begin
-              Lista.Add(TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
-                TPEDIDO(P.Itens[I]).PEDIDO.asString + ';' +
-                TPEDIDO(P.Itens[I]).VIAGEM.asString + ';' +
-                TPEDIDO(P.Itens[I]).SEQUENCIA.asString + ';' +
-                TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
-                TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
-                TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString + ';' +
-                TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString + ';' +
-                TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString + ';' +
-                TPEDIDO(P.Itens[I]).DEST_CNPJ.asString + ';' +
-                TPEDIDO(P.Itens[I]).DEST_NOME.asString + ';' +
-                TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString + ';' +
-                TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString + ';' +
-                TPEDIDO(P.Itens[I]).DEST_CEP.asString + ';' +
-                TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';'
-              );
+    Con.StartTransaction;
+    try
+      P.SelectList(' not enviado');
+      if P.Count > 0 then begin
+        for I := 0 to Pred(P.Count) do begin
+          PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
+          if PI.Count > 0 then begin
+            for J := 0 to Pred(PI.Count) do begin
+              PR.SelectList('id_produto = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
+              if PR.Count > 0 then begin
+                Lista.Add(TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
+                  TPEDIDO(P.Itens[I]).PEDIDO.asString + ';' +
+                  TPEDIDO(P.Itens[I]).VIAGEM.asString + ';' +
+                  TPEDIDO(P.Itens[I]).SEQUENCIA.asString + ';' +
+                  TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
+                  TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
+                  TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString + ';' +
+                  TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString + ';' +
+                  TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString + ';' +
+                  TPEDIDO(P.Itens[I]).DEST_CNPJ.asString + ';' +
+                  TPEDIDO(P.Itens[I]).DEST_NOME.asString + ';' +
+                  TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString + ';' +
+                  TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString + ';' +
+                  TPEDIDO(P.Itens[I]).DEST_CEP.asString + ';' +
+                  TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';'
+                );
+              end;
             end;
           end;
+          P.ID.Value       := TPEDIDO(P.Itens[I]).ID.Value;
+          P.ENVIADO.Value  := True;
+          P.Update;
         end;
-        P.ID.Value       := TPEDIDO(P.Itens[I]).ID.Value;
-        P.ENVIADO.Value  := True;
-        P.Update;
       end;
-    end;
-    if Lista.Count > 0 then begin
-      if not DirectoryExists(DirArquivosFTP) then
-        ForceDirectories(DirArquivosFTP);
-      Lista.SaveToFile(DirArquivosFTP + 'SC.txt');
-      FTP     := TConexaoFTP.Create;
-      try
-        FTP.EnviarPedidos;
-      finally
-        FreeAndNil(FTP);
+      if Lista.Count > 0 then begin
+        if not DirectoryExists(DirArquivosFTP) then
+          ForceDirectories(DirArquivosFTP);
+        Lista.SaveToFile(DirArquivosFTP + 'SC.txt');
+        FTP     := TConexaoFTP.Create;
+        try
+          FTP.EnviarPedidos;
+        finally
+          FreeAndNil(FTP);
+        end;
+      end;
+      Con.Commit;
+    except
+      on E : Exception do begin
+        Con.Rollback;
+        SaveLog('Erro ao Enviar Pedido : ' + E.Message);
+        Exit;
       end;
     end;
 
@@ -183,6 +200,75 @@ begin
     FreeAndNil(P);
     Freeandnil(Con);
     FreeAndNil(Lista);
+  end;
+end;
+
+function TServiceConectorE10.EnviaProdutos: Boolean;
+var
+  Con     : TFWConnection;
+  FTP     : TConexaoFTP;
+  PR      : TPRODUTO;
+  I       : Integer;
+  Lista   : TStringList;
+begin
+  Con := TFWConnection.Create;
+  PR  := TPRODUTO.Create(Con);
+  try
+    Con.StartTransaction;
+    try
+      PR.SelectList('not status');
+      if PR.Count > 0 then begin
+        Lista        := TStringList.Create;
+        try
+          for I := 0 to Pred(PR.Count) do begin
+            Lista.Add(TPRODUTO(PR.Itens[I]).CODIGOPRODUTO.asString + ';' +
+              TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDA.asString + ';' +
+              TPRODUTO(PR.Itens[I]).DESCRICAO.asString + ';' +
+              TPRODUTO(PR.Itens[I]).DESCRICAOSKU.asString + ';' +
+              TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDASKU.asString + ';' +
+              TPRODUTO(PR.Itens[I]).QUANTIDADEPOREMBALAGEM.asString + ';' +
+              TPRODUTO(PR.Itens[I]).UNIDADEDEMEDIDA.asString + ';' +
+              TPRODUTO(PR.Itens[I]).CODIGOBARRAS.asString + ';' +
+              TPRODUTO(PR.Itens[I]).ALTURAEMBALAGEM.asString + ';' +
+              TPRODUTO(PR.Itens[I]).COMPRIMENTOEMBALAGEM.asString + ';' +
+              TPRODUTO(PR.Itens[I]).LARGURAEMBALAGEM.asString + ';' +
+              TPRODUTO(PR.Itens[I]).PESOEMBALAGEM.asString + ';' +
+              TPRODUTO(PR.Itens[I]).PESOPRODUTO.asString + ';' +
+              TPRODUTO(PR.Itens[I]).QUANTIDADECAIXASALTURAPALET.asString + ';' +
+              TPRODUTO(PR.Itens[I]).QUANTIDADESCAIXASLASTROPALET.asString + ';' +
+              TPRODUTO(PR.Itens[I]).ALIQUOTAIPI.asString + ';' +
+              TPRODUTO(PR.Itens[I]).CLASSIFICACAOFISCAL.asString + ';' +
+              TPRODUTO(PR.Itens[I]).CATEGORIAPRODUTO.asString + ';'
+            );
+
+            PR.ID.Value       := TPRODUTO(PR.Itens[I]).ID.Value;
+            PR.STATUS.Value   := True;
+            PR.Update;
+          end;
+          if Lista.Count > 0 then begin
+            Lista.SaveToFile(DirArquivosFTP + 'PROD.txt');
+            FTP := TConexaoFTP.Create;
+            try
+              FTP.EnviarProdutos;
+            finally
+              FreeAndNil(FTP);
+            end;
+          end;
+        finally
+          FreeAndNil(Lista);
+        end;
+      end;
+      Con.Commit;
+    except
+      on E : Exception do begin
+        Con.Rollback;
+        SaveLog('Erro ao Enviar Produtos : ' + E.Message);
+        Exit;
+      end;
+    end;
+  finally
+    FreeAndNil(PR);
+    FreeAndNil(Con);
   end;
 end;
 
