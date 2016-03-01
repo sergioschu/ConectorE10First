@@ -18,7 +18,8 @@ uses
   uConfiguracoesSistema in 'uConfiguracoesSistema.pas' {frmConfiguracoesSistema},
   uCadastroUsuario in 'Cadastros\uCadastroUsuario.pas' {FrmCadastroUsuario},
   uDMUtil in 'Diversos\uDMUtil.pas' {DMUtil: TDataModule},
-  uBeanProduto in 'Beans\uBeanProduto.pas';
+  uBeanProduto in 'Beans\uBeanProduto.pas',
+  uCadastroProdutos in 'Cadastros\uCadastroProdutos.pas' {frmCadastroProdutos};
 
 {$R *.res}
 

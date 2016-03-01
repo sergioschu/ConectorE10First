@@ -16,12 +16,14 @@ type
     ConfigGerais1: TMenuItem;
     RedefinirSenha: TMenuItem;
     miSair: TMenuItem;
+    Produtos1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
     procedure Usuario1Click(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
+    procedure Produtos1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -40,7 +42,8 @@ uses
   uFuncoes,
   uRedefinirSenha,
   uConfiguracoesSistema,
-  uCadastroUsuario;
+  uCadastroUsuario,
+  uCadastroProdutos;
 
 {$R *.dfm}
 
@@ -96,6 +99,17 @@ begin
 
   if (ResultMsgModal = mrYes) then
     Close;
+end;
+
+procedure TfrmPrincipal.Produtos1Click(Sender: TObject);
+begin
+  try
+    if frmCadastroProdutos = nil then
+      frmCadastroProdutos := TfrmCadastroProdutos.Create(Self);
+    frmCadastroProdutos.ShowModal;
+  finally
+    FreeAndNil(frmCadastroProdutos);
+  end;
 end;
 
 procedure TfrmPrincipal.RedefinirSenhaClick(Sender: TObject);
