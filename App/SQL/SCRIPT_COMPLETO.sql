@@ -83,6 +83,7 @@ CREATE TABLE notafiscal
   cfop integer,
   valortotal numeric(17,2),
   especie character varying(2),
+  status boolean default false,
   CONSTRAINT pk_notafiscal PRIMARY KEY (id)
 );
 CREATE TABLE notafiscalitens

@@ -1,39 +1,40 @@
-object frmCadastroProdutos: TfrmCadastroProdutos
+object frmNotaFiscal: TfrmNotaFiscal
   Left = 0
   Top = 0
-  BorderIcons = []
   BorderStyle = bsNone
-  Caption = 'Cadastro de Produtos'
-  ClientHeight = 541
-  ClientWidth = 755
+  Caption = 'Painel de Controle de Notas Fiscais de Entrada'
+  ClientHeight = 461
+  ClientWidth = 769
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  KeyPreview = True
-  OldCreateOrder = True
+  OldCreateOrder = False
   OnCreate = FormCreate
-  OnKeyDown = FormKeyDown
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pnVisualizacao: TPanel
     Left = 0
     Top = 0
-    Width = 755
-    Height = 541
+    Width = 769
+    Height = 461
     Align = alClient
     TabOrder = 0
-    object gdProdutos: TDBGrid
+    ExplicitLeft = -2
+    ExplicitTop = -119
+    ExplicitWidth = 755
+    ExplicitHeight = 541
+    object dgNotaFiscal: TDBGrid
       AlignWithMargins = True
       Left = 4
       Top = 92
-      Width = 747
-      Height = 379
+      Width = 761
+      Height = 299
       Align = alClient
-      DataSource = dsProdutos
+      DataSource = dsNotaFiscal
       DrawingStyle = gdsGradient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -48,16 +49,15 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       TitleFont.Height = -20
       TitleFont.Name = 'Tahoma'
       TitleFont.Style = []
-      OnDrawColumnCell = gdProdutosDrawColumnCell
       Columns = <
         item
           Expanded = False
-          FieldName = 'CODIGOPRODUTO'
+          FieldName = 'DOCUMENTO'
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'DESCRICAO'
+          FieldName = 'DATAEMISSAO'
           Visible = True
         end
         item
@@ -69,7 +69,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
     object pnPequisa: TPanel
       Left = 1
       Top = 49
-      Width = 753
+      Width = 767
       Height = 40
       Align = alTop
       BevelOuter = bvNone
@@ -82,9 +82,10 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
+      ExplicitWidth = 753
       object btPesquisar: TSpeedButton
         AlignWithMargins = True
-        Left = 650
+        Left = 664
         Top = 3
         Width = 100
         Height = 34
@@ -146,14 +147,13 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC2C2
           C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-        OnClick = btPesquisarClick
         ExplicitLeft = 685
       end
       object edPesquisa: TEdit
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 641
+        Width = 655
         Height = 34
         Align = alClient
         AutoSize = False
@@ -166,18 +166,18 @@ object frmCadastroProdutos: TfrmCadastroProdutos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        OnKeyDown = edPesquisaKeyDown
+        ExplicitWidth = 641
       end
     end
     object Panel2: TPanel
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 747
+      Width = 761
       Height = 42
       Align = alTop
       BevelOuter = bvNone
-      Caption = 'Cadastro de Produtos'
+      Caption = 'Painel de Controle de Notas Fiscais de Entrada'
       Color = clSkyBlue
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -187,12 +187,13 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
+      ExplicitWidth = 747
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 4
-      Top = 477
-      Width = 747
+      Top = 397
+      Width = 761
       Height = 60
       Align = alBottom
       ColumnCollection = <
@@ -218,18 +219,21 @@ object frmCadastroProdutos: TfrmCadastroProdutos
           Value = 100.000000000000000000
         end>
       TabOrder = 3
+      ExplicitTop = 477
+      ExplicitWidth = 747
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 4
         Top = 4
-        Width = 366
+        Width = 373
         Height = 52
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 366
         object btAtualizar: TSpeedButton
           AlignWithMargins = True
-          Left = 263
+          Left = 270
           Top = 3
           Width = 100
           Height = 46
@@ -334,13 +338,12 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
             FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
             FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-          OnClick = btAtualizarClick
           ExplicitLeft = 12
           ExplicitTop = 8
           ExplicitHeight = 44
         end
         object pbAtualizaProduto: TGauge
-          Left = 208
+          Left = 215
           Top = 0
           Width = 52
           Height = 52
@@ -354,13 +357,15 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       end
       object Panel3: TPanel
         AlignWithMargins = True
-        Left = 376
+        Left = 383
         Top = 4
-        Width = 367
+        Width = 374
         Height = 52
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 376
+        ExplicitWidth = 367
         object btFechar: TSpeedButton
           AlignWithMargins = True
           Left = 3
@@ -426,42 +431,11 @@ object frmCadastroProdutos: TfrmCadastroProdutos
             545C610101010101010101010101015C5C5CFFFFFFFFFFFFFFFFFFFFFFFFFFFF
             FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE8E8E8565A5B6266675D626359
             5D5F55595B515556494C4D5C5C5C5C5C5C5C5C5C5C5C5C8A8A8A}
-          OnClick = btFecharClick
           ExplicitLeft = 12
           ExplicitTop = 8
           ExplicitHeight = 104
         end
       end
-    end
-  end
-  object dsProdutos: TDataSource
-    DataSet = csProdutos
-    Left = 312
-    Top = 208
-  end
-  object csProdutos: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    OnFilterRecord = csProdutosFilterRecord
-    Left = 416
-    Top = 208
-    object csProdutosID: TIntegerField
-      FieldName = 'ID'
-    end
-    object csProdutosCODIGOPRODUTO: TStringField
-      DisplayLabel = 'C'#243'd. Produto'
-      FieldName = 'CODIGOPRODUTO'
-      Size = 25
-    end
-    object csProdutosDESCRICAO: TStringField
-      DisplayLabel = 'Nome Produto'
-      FieldName = 'DESCRICAO'
-      Size = 76
-    end
-    object csProdutosSTATUS: TBooleanField
-      DisplayLabel = 'Status'
-      DisplayWidth = 25
-      FieldName = 'STATUS'
     end
   end
   object OpenDialog1: TOpenDialog
@@ -472,7 +446,7 @@ object frmCadastroProdutos: TfrmCadastroProdutos
     Left = 440
     Top = 328
     Bitmap = {
-      494C010102000C00640010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000C00680010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -610,5 +584,28 @@ object frmCadastroProdutos: TfrmCadastroProdutos
       C007C00700000000C007C00700000000C007C00700000000E007E00F00000000
       E00FE00F00000000F01FF01F0000000000000000000000000000000000000000
       000000000000}
+  end
+  object csNotaFiscal: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 416
+    Top = 208
+    object csNotaFiscalDOCUMENTO: TIntegerField
+      DisplayLabel = 'Documento'
+      FieldName = 'DOCUMENTO'
+    end
+    object csNotaFiscalDATAEMISSAO: TDateField
+      DisplayLabel = 'Data Emiss'#227'o'
+      FieldName = 'DATAEMISSAO'
+    end
+    object csNotaFiscalSTATUS: TBooleanField
+      DisplayLabel = 'Status'
+      FieldName = 'STATUS'
+    end
+  end
+  object dsNotaFiscal: TDataSource
+    DataSet = csNotaFiscal
+    Left = 312
+    Top = 208
   end
 end

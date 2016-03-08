@@ -14,6 +14,7 @@ type
     FID: TFieldInteger;
     FESPECIE: TFieldString;
     FVALORTOTAL: TFieldCurrency;
+    FSTATUS: TFieldBoolean;
     procedure SetCFOP(const Value: TFieldInteger);
     procedure SetCNPJCPF(const Value: TFieldString);
     procedure SetDATAEMISSAO(const Value: TFieldDateTime);
@@ -22,6 +23,7 @@ type
     procedure SetID(const Value: TFieldInteger);
     procedure SetESPECIE(const Value: TFieldString);
     procedure SetVALORTOTAL(const Value: TFieldCurrency);
+    procedure SetSTATUS(const Value: TFieldBoolean);
   protected
     procedure InitInstance; override;
   published
@@ -33,6 +35,7 @@ type
     property CFOP        : TFieldInteger read FCFOP write SetCFOP;
     property VALORTOTAL  : TFieldCurrency read FVALORTOTAL write SetVALORTOTAL;
     property ESPECIE     : TFieldString read FESPECIE write SetESPECIE;
+    property STATUS      : TFieldBoolean read FSTATUS write SetSTATUS;
   End;
 
 implementation
@@ -92,6 +95,11 @@ end;
 procedure TNOTAFISCAL.SetSERIE(const Value: TFieldInteger);
 begin
   FSERIE := Value;
+end;
+
+procedure TNOTAFISCAL.SetSTATUS(const Value: TFieldBoolean);
+begin
+  FSTATUS := Value;
 end;
 
 procedure TNOTAFISCAL.SetVALORTOTAL(const Value: TFieldCurrency);

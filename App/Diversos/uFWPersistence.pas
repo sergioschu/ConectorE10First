@@ -263,8 +263,12 @@ begin
 
         if FieldType.isNull then begin
             SQLDS.ParamByName(List[I]^.Name).Clear;
-        end else
-          SQLDS.ParamByName(List[I]^.Name).Value := FieldType.asVariant;
+        end else begin
+          if FieldType is TFieldString then
+            SQLDS.ParamByName(List[I]^.Name).AsString := Copy(FieldType.asString, 0, TFieldString(FieldType).Size)
+          else
+            SQLDS.ParamByName(List[I]^.Name).Value    := FieldType.asVariant;
+        end;
 
       end;
     end;
@@ -490,9 +494,8 @@ begin
     Count := GetPropList(Self.ClassInfo, tkProperties, @List, False);
     for Column := 1 to TotalColumns do begin
       for I := 0 to Count - 1 do begin
-        if AnsiUpperCase(TFieldTypeDomain(GetObjectProp(Self, List[I]^.Name)).excelTitulo) = AnsiUpperCase(Excel.Workbooks[ExtractFileName(Arquivo)].WorkSheets[1].Cells.Item[1, Column].Value) then begin
+        if AnsiUpperCase(TFieldTypeDomain(GetObjectProp(Self, List[I]^.Name)).excelTitulo) = AnsiUpperCase(Excel.Cells.Item[1, Column].Value) then begin
           TFieldTypeDomain(GetObjectProp(Self, List[I]^.Name)).excelIndice := Column;
-          Break;
         end;
       end;
     end;

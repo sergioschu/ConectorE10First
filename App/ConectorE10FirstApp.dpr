@@ -19,7 +19,12 @@ uses
   uCadastroUsuario in 'Cadastros\uCadastroUsuario.pas' {FrmCadastroUsuario},
   uDMUtil in 'Diversos\uDMUtil.pas' {DMUtil: TDataModule},
   uBeanProduto in 'Beans\uBeanProduto.pas',
-  uCadastroProdutos in 'Cadastros\uCadastroProdutos.pas' {frmCadastroProdutos};
+  uCadastroProdutos in 'Cadastros\uCadastroProdutos.pas' {frmCadastroProdutos},
+  uNotaFiscal in 'uNotaFiscal.pas' {frmNotaFiscal},
+  uBeanNotaFiscal in 'Beans\uBeanNotaFiscal.pas',
+  uBeanPedido in 'Beans\uBeanPedido.pas',
+  uBeanPedidoItens in 'Beans\uBeanPedidoItens.pas',
+  uBeanNotaFiscalItens in 'Beans\uBeanNotaFiscalItens.pas';
 
 {$R *.res}
 
