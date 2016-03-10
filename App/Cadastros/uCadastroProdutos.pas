@@ -133,11 +133,21 @@ begin
           for I := 0 to Pred(Count) do begin
             if (TFieldTypeDomain(GetObjectProp(P, List[I]^.Name)).excelTitulo <> '') and (TFieldTypeDomain(GetObjectProp(P, List[I]^.Name)).excelIndice <= 0) then begin
               DisplayMsg(MSG_WAR, 'Estrutura do Arquivo Inválida, Verifique!', '', 'Colunas: ' + sLineBreak + 'SKU, ' + sLineBreak +
-                                                                                    'Código de barras, ' + sLineBreak +
-                                                                                    'Nome');
+                                                                                    'Nome Reduzido, ' + sLineBreak +
+                                                                                    'Nome Reduzido, ' + sLineBreak +
+                                                                                    'Nome, ' + sLineBreak +
+                                                                                    'Nome, ' + sLineBreak +
+                                                                                    'Peso, ' + sLineBreak +
+                                                                                    'Peso, ' + sLineBreak +
+                                                                                    'Qtde. por embalagem, ' + sLineBreak +
+                                                                                    'C, ' + sLineBreak +
+                                                                                    'L, ' + sLineBreak +
+                                                                                    'E, ' + sLineBreak +
+                                                                                    'UN');
               Exit;
             end;
           end;
+
           for I := 2 to vrow do begin
             for J := 0 to Pred(Count) do begin
               if (TFieldTypeDomain(GetObjectProp(P, List[J]^.Name)).excelIndice > 0) then begin
@@ -155,6 +165,7 @@ begin
             P.CATEGORIAPRODUTO.Value             := 1;
             P.STATUS.Value                       := 0;
             P.ID_ARQUIVO.Value                   := 0;
+
             P.SelectList('codigoproduto = ' + P.CODIGOPRODUTO.asSQL);
             if P.Count > 0 then begin
               P.ID.Value    := TPRODUTO(P.Itens[0]).ID.Value;
@@ -163,8 +174,11 @@ begin
               P.Insert;
             pbAtualizaProduto.Progress           := I;
           end;
+
           FWC.Commit;
-          DisplayMsgFinaliza;
+
+          DisplayMsg(MSG_OK, 'Produtos Atualizados com Sucesso!');
+
         except
           on E : Exception do begin
             FWC.Rollback;
