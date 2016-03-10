@@ -18,6 +18,23 @@ CREATE TABLE usuario_permissao
       ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE arquivosftp
+(
+  id serial NOT NULL,
+  tipo smallint NOT NULL, -- 0-Produtos...
+  dataenvio timestamp with time zone,
+  mensagem character varying(255),
+  CONSTRAINT pk_arquivosftp PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE arquivosftp
+  OWNER TO postgres;
+COMMENT ON COLUMN arquivosftp.tipo IS '0-Produtos
+1-NotaFiscal
+2-Pedido';
+
 CREATE TABLE produto
 (
   id serial NOT NULL,
@@ -39,9 +56,14 @@ CREATE TABLE produto
   aliquotaipi numeric(6,3) NOT NULL default 0,
   classificacaofiscal character varying(10) NOT NULL default 0,
   categoriaproduto integer NOT NULL default 1,
-  status boolean NOT NULL default false,
-  CONSTRAINT pk_produto PRIMARY KEY (id)  
+  status smallint default 0,
+  id_arquivo integer Default 0,
+  CONSTRAINT pk_produto PRIMARY KEY (id),
+  CONSTRAINT fk_p_arquivosftp FOREIGN KEY (id_arquivo)
+      REFERENCES arquivosftp (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
 CREATE TABLE pedido
 (
   id serial NOT NULL,
@@ -55,9 +77,14 @@ CREATE TABLE pedido
   dest_complemento character varying(10) NOT NULL,
   dest_cep character varying(10) NOT NULL,
   dest_municipio character varying(10) NOT NULL,
-  enviado BOOLEAN,
-  CONSTRAINT pk_lote PRIMARY KEY (id)
+  status smallint default 0,
+  id_arquivo integer NOT NULL,
+  CONSTRAINT pk_lote PRIMARY KEY (id),
+  CONSTRAINT fk_ped_arquivosftp FOREIGN KEY (id_arquivo)
+      REFERENCES arquivosftp (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
 CREATE TABLE pedidoitens
 (
   id serial NOT NULL,
@@ -83,8 +110,12 @@ CREATE TABLE notafiscal
   cfop integer,
   valortotal numeric(17,2),
   especie character varying(2),
-  status boolean default false,
-  CONSTRAINT pk_notafiscal PRIMARY KEY (id)
+  status smallint default 0,
+  id_arquivo integer NOT NULL,
+  CONSTRAINT pk_notafiscal PRIMARY KEY (id),
+  CONSTRAINT fk_pi_arquivosftp FOREIGN KEY (id_arquivo)
+      REFERENCES arquivosftp (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT
 );
 CREATE TABLE notafiscalitens
 (

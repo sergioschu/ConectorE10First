@@ -42,6 +42,13 @@ object frmPrincipal: TfrmPrincipal
         OnClick = Produtos1Click
       end
     end
+    object Lanamentos1: TMenuItem
+      Caption = 'Lan'#231'amentos'
+      object NotasFiscaisdeEntrada1: TMenuItem
+        Caption = 'Notas Fiscais de Entrada'
+        OnClick = NotasFiscaisdeEntrada1Click
+      end
+    end
     object Configuraes1: TMenuItem
       Caption = 'Configura'#231#245'es'
       object ConfigGerais1: TMenuItem

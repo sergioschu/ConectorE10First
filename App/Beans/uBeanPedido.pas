@@ -15,8 +15,9 @@ type
     FDEST_MUNICIPIO: TFieldString;
     FDEST_COMPLEMENTO: TFieldString;
     FDEST_NOME: TFieldString;
-    FENVIADO: TFieldBoolean;
     FSEQUENCIA: TFieldInteger;
+    FSTATUS: TFieldInteger;
+    FID_ARQUIVO: TFieldInteger;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -27,8 +28,9 @@ type
     procedure SetPEDIDO(const Value: TFieldString);
     procedure SetTRANSP_CNPJ(const Value: TFieldString);
     procedure SetVIAGEM(const Value: TFieldString);
-    procedure SetENVIADO(const Value: TFieldBoolean);
     procedure SetSEQUENCIA(const Value: TFieldInteger);
+    procedure SetSTATUS(const Value: TFieldInteger);
+    procedure SetID_ARQUIVO(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
@@ -43,7 +45,8 @@ type
     property DEST_COMPLEMENTO : TFieldString read FDEST_COMPLEMENTO write SetDEST_COMPLEMENTO;
     property DEST_CEP : TFieldString read FDEST_CEP write SetDEST_CEP;
     property DEST_MUNICIPIO : TFieldString read FDEST_MUNICIPIO write SetDEST_MUNICIPIO;
-    property ENVIADO : TFieldBoolean read FENVIADO write SetENVIADO;
+    property STATUS : TFieldInteger read FSTATUS write SetSTATUS;
+    property ID_ARQUIVO : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
   End;
 implementation
 
@@ -105,14 +108,14 @@ begin
   FDEST_NOME := Value;
 end;
 
-procedure TPEDIDO.SetENVIADO(const Value: TFieldBoolean);
-begin
-  FENVIADO := Value;
-end;
-
 procedure TPEDIDO.SetID(const Value: TFieldInteger);
 begin
   FID := Value;
+end;
+
+procedure TPEDIDO.SetID_ARQUIVO(const Value: TFieldInteger);
+begin
+  FID_ARQUIVO := Value;
 end;
 
 procedure TPEDIDO.SetPEDIDO(const Value: TFieldString);
@@ -123,6 +126,11 @@ end;
 procedure TPEDIDO.SetSEQUENCIA(const Value: TFieldInteger);
 begin
   FSEQUENCIA := Value;
+end;
+
+procedure TPEDIDO.SetSTATUS(const Value: TFieldInteger);
+begin
+  FSTATUS := Value;
 end;
 
 procedure TPEDIDO.SetTRANSP_CNPJ(const Value: TFieldString);

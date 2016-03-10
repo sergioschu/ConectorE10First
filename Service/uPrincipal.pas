@@ -25,7 +25,6 @@ type
     function EnviaProdutos : Boolean;
     function BuscaMDD : Boolean;
     function BuscaCONF : Boolean;
-    procedure SaveLog(Msg: String);
     { Public declarations }
   end;
 
@@ -40,7 +39,8 @@ uses
   uBeanPedido,
   uBeanPedidoItens,
   uBeanProduto,
-  uConexaoFTP;
+  uConexaoFTP,
+  uBeanArquivosFTP;
 {$R *.dfm}
 
 procedure ServiceController(CtrlCode: DWord); stdcall;
@@ -90,7 +90,7 @@ begin
                 MDD.StrictDelimiter := True;
                 MDD.DelimitedText   := Lista[I];
                 if MDD.Count = 7 then begin
-                  PR.SelectList('codigoproduto = ' + MDD[2]);
+                  PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
                   if PR.Count > 0 then begin
                     PI.SelectList('id_pedido = ' + MDD[0] + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
                     if PI.Count > 0 then begin
@@ -170,7 +170,7 @@ begin
             end;
           end;
           P.ID.Value       := TPEDIDO(P.Itens[I]).ID.Value;
-          P.ENVIADO.Value  := True;
+          P.STATUS.Value   := 2;
           P.Update;
         end;
       end;
@@ -208,16 +208,19 @@ var
   Con     : TFWConnection;
   FTP     : TConexaoFTP;
   PR      : TPRODUTO;
+  AR      : TARQUIVOSFTP;
   I       : Integer;
   Lista   : TStringList;
 begin
   Con := TFWConnection.Create;
   PR  := TPRODUTO.Create(Con);
+  AR  := TARQUIVOSFTP.Create(Con);
   try
     Con.StartTransaction;
     try
-      PR.SelectList('not status');
+      PR.SelectList('status = 0');
       if PR.Count > 0 then begin
+        SaveLog('Tem produtos para exportar');
         Lista        := TStringList.Create;
         try
           for I := 0 to Pred(PR.Count) do begin
@@ -242,11 +245,16 @@ begin
             );
 
             PR.ID.Value       := TPRODUTO(PR.Itens[I]).ID.Value;
-            PR.STATUS.Value   := True;
+            PR.STATUS.Value   := 1;
             PR.Update;
           end;
           if Lista.Count > 0 then begin
-            Lista.SaveToFile(DirArquivosFTP + 'PROD.txt');
+            SaveLog('Tem algo na lista tio');
+            AR.TIPO.Value       := 0;
+            AR.DATAENVIO.Value  := Now;
+            AR.Insert;
+
+            Lista.SaveToFile(DirArquivosFTP + 'PROD' + AR.ID.asString + '.txt');
             FTP := TConexaoFTP.Create;
             try
               FTP.EnviarProdutos;
@@ -268,6 +276,7 @@ begin
     end;
   finally
     FreeAndNil(PR);
+    FreeAndNil(AR);
     FreeAndNil(Con);
   end;
 end;
@@ -275,30 +284,6 @@ end;
 function TServiceConectorE10.GetServiceController: TServiceController;
 begin
   Result := ServiceController;
-end;
-
-procedure TServiceConectorE10.SaveLog(Msg: String);
-Var
-  Log : TStringList;
-  ArqLog  : String;
-begin
-  ArqLog  := 'C:\ConectorE10First\Log.txt';
-  try
-    Log := TStringList.Create;
-    try
-      if FileExists(ArqLog) then
-        Log.LoadFromFile(ArqLog);
-      Log.Add(DateTimeToStr(Now) + ' ' + Msg)
-
-    except
-      on E : Exception do
-        Log.Add('Erro.: ' + E.Message);
-
-    end;
-  finally
-    Log.SaveToFile(ArqLog);
-    FreeAndNil(Log);
-  end;
 end;
 
 procedure TServiceConectorE10.ServiceAfterInstall(Sender: TService);
@@ -322,8 +307,11 @@ procedure TServiceConectorE10.ServiceExecute(Sender: TService);
 var
   ConFTP : TConexaoFTP;
 begin
+  SaveLog('Serviço em Execução!');
   while not Self.Terminated do begin
-//    SaveLog('Serviço em Execução!');
+    SaveLog('Enviar Produtos');
+    EnviaProdutos;
+    SaveLog('Enviar MDD');
     BuscaMDD;
     ServiceThread.ProcessRequests(False);
     Sleep(5000);
@@ -351,6 +339,8 @@ begin
   SaveLog('Serviço iniciado!');
 
   CarregarConexaoBD;
+
+  CarregarConfigLocal;
 
   CON   := TFWConnection.Create;
   try

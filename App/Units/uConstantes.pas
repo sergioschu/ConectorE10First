@@ -36,6 +36,23 @@ type
     FTPSenha : string;
   end;
 
+  TITEM = record
+    SEQUENCIA : Integer;
+    SKU : String;
+    QUANTIDADE : Double;
+    UNITARIO : Double;
+    TOTAL : Double;
+  end;
+
+  TNOTA = record
+     DOCUMENTO : Integer;
+     SERIE : Integer;
+     DATA : TDateTime;
+     CNPJ : String;
+     ITENS : array of TITEM;
+     VALOR : Double;
+  end;
+
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
   DirArquivosFTP : string = 'C:\ConectorE10First\arquivosFTP\';

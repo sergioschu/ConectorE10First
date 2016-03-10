@@ -17,6 +17,8 @@ type
     RedefinirSenha: TMenuItem;
     miSair: TMenuItem;
     Produtos1: TMenuItem;
+    Lanamentos1: TMenuItem;
+    NotasFiscaisdeEntrada1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -24,6 +26,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure Produtos1Click(Sender: TObject);
+    procedure NotasFiscaisdeEntrada1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -43,7 +46,8 @@ uses
   uRedefinirSenha,
   uConfiguracoesSistema,
   uCadastroUsuario,
-  uCadastroProdutos;
+  uCadastroProdutos,
+  uNotaFiscal;
 
 {$R *.dfm}
 
@@ -99,6 +103,17 @@ begin
 
   if (ResultMsgModal = mrYes) then
     Close;
+end;
+
+procedure TfrmPrincipal.NotasFiscaisdeEntrada1Click(Sender: TObject);
+begin
+  if not Assigned(frmNotaFiscal) then
+    frmNotaFiscal   := TfrmNotaFiscal.Create(nil);
+  try
+    frmNotaFiscal.ShowModal;
+  finally
+    FreeAndNil(frmNotaFiscal);
+  end;
 end;
 
 procedure TfrmPrincipal.Produtos1Click(Sender: TObject);

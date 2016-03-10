@@ -24,7 +24,7 @@ type
     destructor Destroy; override;
   End;
 implementation
-uses uConstantes;
+uses uConstantes, ufuncoes;
 { TConexaoFTP }
 
 procedure TConexaoFTP.BuscaCONF;
@@ -65,6 +65,9 @@ begin
   FFTP              := TIdFTP.Create(nil);
   FFTP.Passive      := True;
   FFTP.TransferType := ftBinary;
+  SaveLog('Antes do Login!');
+  Login;
+  SaveLog('Depois do Login!');
 end;
 
 destructor TConexaoFTP.Destroy;
@@ -117,10 +120,13 @@ begin
   if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
     repeat
       if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
-        Login;
-        FFTP.ChangeDir('PROD');
+        SaveLog('Antes do Change!');
+        FFTP.ChangeDir('prod');
+        SaveLog('Passou do Change!');
         FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+        SaveLog('Passou do upload!');
         DeleteFile(DirArquivosFTP + search_rec.Name);
+        SaveLog('Deletar arquivo!');
       end;
     until FindNext(search_rec) <> 0;
 
@@ -130,7 +136,6 @@ end;
 
 procedure TConexaoFTP.Login;
 begin
-  if FFTP.Connected then Logout;
   FFTP.Host        := 'ftp.firstlog.com.br';
   FFTP.Username    := CONFIG_LOCAL.FTPUsuario;
   FFTP.Password    := CONFIG_LOCAL.FTPSenha;

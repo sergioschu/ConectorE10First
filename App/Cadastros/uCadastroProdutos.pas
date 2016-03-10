@@ -6,7 +6,10 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB,
   Datasnap.DBClient, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids, Vcl.DBGrids,
-  System.Win.ComObj, System.TypInfo, Vcl.Samples.Gauges, Vcl.ImgList;
+  System.Win.ComObj, System.TypInfo, Vcl.Samples.Gauges, Vcl.ImgList,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TfrmCadastroProdutos = class(TForm)
@@ -28,8 +31,8 @@ type
     csProdutosID: TIntegerField;
     OpenDialog1: TOpenDialog;
     pbAtualizaProduto: TGauge;
-    csProdutosSTATUS: TBooleanField;
     ImageList1: TImageList;
+    csProdutosSTATUS: TIntegerField;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
@@ -111,16 +114,18 @@ begin
           pbAtualizaProduto.MaxValue           := vrow;
           arrData                              := Excel.Range['A1', Excel.WorkSheets[1].Cells[vrow, vcol].Address].Value;
 
-          P.CODIGOPRODUTO.excelTitulo          := 'CODIGO PRODUTO';
-          P.DESCRICAOREDUZIDA.excelTitulo      := 'DESCRICAO REDUZIDA';
-          P.DESCRICAOREDUZIDASKU.excelTitulo   := 'DESCRICAO REDUZIDA';
-          P.DESCRICAOSKU.excelTitulo           := 'DESCRICAO DO SKU';
-          P.DESCRICAO.excelTitulo              := 'DESCRICAO PRODUTO';
-          P.PESOEMBALAGEM.excelTitulo          := 'PESO EMBALAGEM';
-          P.QUANTIDADEPOREMBALAGEM.excelTitulo := 'QUANTIDADE POR EMBALAGEM';
-          P.COMPRIMENTOEMBALAGEM.excelTitulo   := 'COMPRIMENTO';
-          P.LARGURAEMBALAGEM.excelTitulo       := 'LARGURA';
-          P.ALTURAEMBALAGEM.excelTitulo        := 'ALTURA';
+          P.CODIGOPRODUTO.excelTitulo          := 'SKU';
+          P.DESCRICAOREDUZIDA.excelTitulo      := 'Nome Reduzido';
+          P.DESCRICAOREDUZIDASKU.excelTitulo   := 'Nome Reduzido';
+          P.DESCRICAOSKU.excelTitulo           := 'Nome';
+          P.DESCRICAO.excelTitulo              := 'Nome';
+          P.PESOEMBALAGEM.excelTitulo          := 'Peso';
+          P.PESOPRODUTO.excelTitulo            := 'Peso';
+          P.QUANTIDADEPOREMBALAGEM.excelTitulo := 'Qtde. por embalagem';
+          P.COMPRIMENTOEMBALAGEM.excelTitulo   := 'C';
+          P.LARGURAEMBALAGEM.excelTitulo       := 'L';
+          P.ALTURAEMBALAGEM.excelTitulo        := 'E';
+          P.UNIDADEDEMEDIDA.excelTitulo        := 'UN';
 
           P.buscaIndicesExcel(Arquivo, Excel);
 
@@ -141,15 +146,15 @@ begin
                   TFieldTypeDomain(GetObjectProp(P, List[J]^.Name)).asVariant := Valor;
               end;
             end;
-            P.UNIDADEDEMEDIDA.Value              := 'UND';
+
             P.CODIGOBARRAS.Value                 := P.CODIGOPRODUTO.Value;
-            P.PESOPRODUTO.Value                  := 0;
             P.QUANTIDADECAIXASALTURAPALET.Value  := 0;
             P.QUANTIDADESCAIXASLASTROPALET.Value := 0;
             P.ALIQUOTAIPI.Value                  := 0;
-            P.CLASSIFICACAOFISCAL.Value          := 'A';
+            P.CLASSIFICACAOFISCAL.Value          := '0';
             P.CATEGORIAPRODUTO.Value             := 1;
-            P.STATUS.Value                       := False;
+            P.STATUS.Value                       := 0;
+            P.ID_ARQUIVO.Value                   := 0;
             P.SelectList('codigoproduto = ' + P.CODIGOPRODUTO.asSQL);
             if P.Count > 0 then begin
               P.ID.Value    := TPRODUTO(P.Itens[0]).ID.Value;
@@ -213,26 +218,35 @@ end;
 procedure TfrmCadastroProdutos.CarregaDados;
 Var
   FWC : TFWConnection;
-  P   : TPRODUTO;
+  SQL : TFDQuery;
   I   : Integer;
 begin
 
   FWC := TFWConnection.Create;
-  P   := TPRODUTO.Create(FWC);
+  SQL := TFDQuery.Create(nil);
   try
     try
 
       csProdutos.EmptyDataSet;
 
-      P.SelectList();
-      if P.Count > 0 then begin
-        for I := 0 to P.Count -1 do begin
+      SQL.Close;
+      SQL.SQL.Clear;
+      SQL.SQL.Add('select id, codigoproduto, descricao, status from produto');
+      SQL.Connection                      := FWC.FDConnection;
+      SQL.Prepare;
+      SQL.Open();
+
+      if not SQL.IsEmpty then begin
+        SQL.First;
+        while not SQL.Eof do begin
           csProdutos.Append;
-          csProdutosID.Value              := TPRODUTO(P.Itens[I]).ID.Value;
-          csProdutosCODIGOPRODUTO.Value   := TPRODUTO(P.Itens[I]).CODIGOPRODUTO.Value;
-          csProdutosDESCRICAO.Value       := TPRODUTO(P.Itens[I]).DESCRICAO.Value;
-          csProdutosSTATUS.Value          := TPRODUTO(P.Itens[I]).STATUS.Value;
+          csProdutosID.Value              := SQL.Fields[0].Value;
+          csProdutosCODIGOPRODUTO.Value   := SQL.Fields[1].Value;
+          csProdutosDESCRICAO.Value       := SQL.Fields[2].Value;
+          csProdutosSTATUS.Value          := SQL.Fields[3].Value;
           csProdutos.Post;
+
+          SQL.Next;
         end;
       end;
 
@@ -243,7 +257,7 @@ begin
     end;
 
   finally
-    FreeAndNil(P);
+    FreeAndNil(SQL);
     FreeAndNil(FWC);
   end;
 end;
@@ -321,10 +335,7 @@ begin
 
   if Column.FieldName = csProdutosSTATUS.FieldName then begin
     gdProdutos.Canvas.FillRect(Rect);
-    if csProdutosSTATUS.Value then // Cadastro está ativo
-      ImageList1.Draw(gdProdutos.Canvas, (Rect.Left + (Rect.Width div 2) - 1), Rect.Top + 2, 1)
-    else
-      ImageList1.Draw(gdProdutos.Canvas, (Rect.Left + (Rect.Width div 2) - 1), Rect.Top + 2, 0);
+    ImageList1.Draw(gdProdutos.Canvas, (Rect.Left + (Rect.Width div 2) - 1), Rect.Top + 2, csProdutosSTATUS.Value);
   end;
 end;
 

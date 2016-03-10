@@ -12,7 +12,8 @@ uses
   DateUtils,
   Winapi.Windows,
   Vcl.Menus,
-  Vcl.Forms;
+  Vcl.Forms,
+  System.Classes;
 
   procedure CarregarConfigLocal;
   procedure CarregaArrayMenus(Menu : TMainMenu);
@@ -27,6 +28,7 @@ uses
   function SoNumeros(Texto: String): String;
   function CalculaPercentualDiferenca(ValorAnterior, ValorNovo : Currency) : Currency;
   function StrZero(Zeros : string; Quant : Integer): string;
+  procedure SaveLog(Msg: String);
 
 implementation
 
@@ -393,5 +395,26 @@ begin
   if Quant > 0 then
    Result := StringOfChar('0', Quant)+Result;
 end;
+procedure SaveLog(Msg: String);
+Var
+  Log : TStringList;
+  ArqLog  : String;
+begin
+  ArqLog  := 'C:\ConectorE10First\Log.txt';
+  try
+    Log := TStringList.Create;
+    try
+      if FileExists(ArqLog) then
+        Log.LoadFromFile(ArqLog);
+      Log.Add(DateTimeToStr(Now) + ' ' + Msg)
 
+    except
+      on E : Exception do
+        Log.Add('Erro.: ' + E.Message);
+    end;
+  finally
+    Log.SaveToFile(ArqLog);
+    FreeAndNil(Log);
+  end;
+end;
 end.

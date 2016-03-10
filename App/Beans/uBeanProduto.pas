@@ -20,13 +20,14 @@ type
     FCATEGORIAPRODUTO: TFieldInteger;
     FCOMPRIMENTOEMBALAGEM: TFieldCurrency;
     FALIQUOTAIPI: TFieldCurrency;
-    FSTATUS: TFieldBoolean;
+    FSTATUS: TFieldInteger;
     FPESOEMBALAGEM: TFieldCurrency;
     FDESCRICAOREDUZIDASKU: TFieldString;
     FCLASSIFICACAOFISCAL: TFieldString;
     FQUANTIDADECAIXASALTURAPALET: TFieldInteger;
     FQUANTIDADEPOREMBALAGEM: TFieldCurrency;
     FALTURAEMBALAGEM: TFieldCurrency;
+    FID_ARQUIVO: TFieldInteger;
     procedure SetALIQUOTAIPI(const Value: TFieldCurrency);
     procedure SetALTURAEMBALAGEM(const Value: TFieldCurrency);
     procedure SetCATEGORIAPRODUTO(const Value: TFieldInteger);
@@ -45,8 +46,9 @@ type
     procedure SetQUANTIDADECAIXASALTURAPALET(const Value: TFieldInteger);
     procedure SetQUANTIDADEPOREMBALAGEM(const Value: TFieldCurrency);
     procedure SetQUANTIDADESCAIXASLASTROPALET(const Value: TFieldInteger);
-    procedure SetSTATUS(const Value: TFieldBoolean);
+    procedure SetSTATUS(const Value: TFieldInteger);
     procedure SetUNIDADEDEMEDIDA(const Value: TFieldString);
+    procedure SetID_ARQUIVO(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
@@ -69,7 +71,8 @@ type
     property ALIQUOTAIPI                  : TFieldCurrency  read FALIQUOTAIPI                   write SetALIQUOTAIPI;
     property CLASSIFICACAOFISCAL          : TFieldString    read FCLASSIFICACAOFISCAL           write SetCLASSIFICACAOFISCAL;
     property CATEGORIAPRODUTO             : TFieldInteger   read FCATEGORIAPRODUTO              write SetCATEGORIAPRODUTO;
-    property STATUS                       : TFieldBoolean   read FSTATUS                        write SetSTATUS;
+    property STATUS                       : TFieldInteger   read FSTATUS                        write SetSTATUS;
+    property ID_ARQUIVO                   : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
   end;
 
 implementation
@@ -171,6 +174,11 @@ begin
   FID := Value;
 end;
 
+procedure TPRODUTO.SetID_ARQUIVO(const Value: TFieldInteger);
+begin
+  FID_ARQUIVO := Value;
+end;
+
 procedure TPRODUTO.SetLARGURAEMBALAGEM(const Value: TFieldCurrency);
 begin
   FLARGURAEMBALAGEM := Value;
@@ -201,7 +209,7 @@ begin
   FQUANTIDADESCAIXASLASTROPALET := Value;
 end;
 
-procedure TPRODUTO.SetSTATUS(const Value: TFieldBoolean);
+procedure TPRODUTO.SetSTATUS(const Value: TFieldInteger);
 begin
   FSTATUS := Value;
 end;
