@@ -64,20 +64,20 @@ CREATE TABLE produto
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-CREATE TABLE pedido
+CREATE TABLE if not exists pedido
 (
   id serial NOT NULL,
-  pedido character varying(10) NOT NULL,
+  pedido character varying(20) NOT NULL,
   viagem character varying(10) NOT NULL,
-  sequencia smallint NOT NULL default 0,
-  transp_cnpj character varying(10) NOT NULL,
-  dest_cnpj character varying(10) NOT NULL,
-  dest_nome character varying(10) NOT NULL,
-  dest_endereco character varying(10) NOT NULL,
-  dest_complemento character varying(10) NOT NULL,
-  dest_cep character varying(10) NOT NULL,
-  dest_municipio character varying(10) NOT NULL,
-  status smallint default 0,
+  sequencia smallint NOT NULL DEFAULT 0,
+  transp_cnpj character varying(19) NOT NULL,
+  dest_cnpj character varying(19) NOT NULL,
+  dest_nome character varying(60) NOT NULL,
+  dest_endereco character varying(36) NOT NULL,
+  dest_complemento character varying(30) NOT NULL,
+  dest_cep character varying(9) NOT NULL,
+  dest_municipio character varying(30) NOT NULL,
+  status smallint DEFAULT 0,
   id_arquivo integer NOT NULL,
   CONSTRAINT pk_lote PRIMARY KEY (id),
   CONSTRAINT fk_ped_arquivosftp FOREIGN KEY (id_arquivo)
