@@ -48,6 +48,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Notas Fiscais de Entrada'
         OnClick = NotasFiscaisdeEntrada1Click
       end
+      object Pedidos1: TMenuItem
+        Caption = 'Pedidos'
+        OnClick = Pedidos1Click
+      end
     end
     object Configuraes1: TMenuItem
       Caption = 'Configura'#231#245'es'

@@ -19,6 +19,7 @@ type
     Produtos1: TMenuItem;
     Lanamentos1: TMenuItem;
     NotasFiscaisdeEntrada1: TMenuItem;
+    Pedidos1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -27,6 +28,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure Produtos1Click(Sender: TObject);
     procedure NotasFiscaisdeEntrada1Click(Sender: TObject);
+    procedure Pedidos1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -47,7 +49,8 @@ uses
   uConfiguracoesSistema,
   uCadastroUsuario,
   uCadastroProdutos,
-  uNotaFiscal;
+  uNotaFiscal,
+  uPedidos;
 
 {$R *.dfm}
 
@@ -113,6 +116,17 @@ begin
     frmNotaFiscal.ShowModal;
   finally
     FreeAndNil(frmNotaFiscal);
+  end;
+end;
+
+procedure TfrmPrincipal.Pedidos1Click(Sender: TObject);
+begin
+  try
+    if frmPedidos = nil then
+      frmPedidos := TfrmPedidos.Create(Self);
+    frmPedidos.ShowModal;
+  finally
+    FreeAndNil(frmPedidos);
   end;
 end;
 

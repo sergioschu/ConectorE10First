@@ -24,7 +24,8 @@ uses
   uBeanNotaFiscal in 'Beans\uBeanNotaFiscal.pas',
   uBeanPedido in 'Beans\uBeanPedido.pas',
   uBeanPedidoItens in 'Beans\uBeanPedidoItens.pas',
-  uBeanNotaFiscalItens in 'Beans\uBeanNotaFiscalItens.pas';
+  uBeanNotaFiscalItens in 'Beans\uBeanNotaFiscalItens.pas',
+  uPedidos in 'uPedidos.pas' {FrmPedidos};
 
 {$R *.res}
 
