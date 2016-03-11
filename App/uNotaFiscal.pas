@@ -174,6 +174,7 @@ begin
             NF.ESPECIE.Value               := 'NF';
             NF.STATUS.Value                := 0;
             NF.VALORTOTAL.Value            := NOTAS[I].VALOR;
+            NF.ID_ARQUIVO.Value            := 0;
             NF.Insert;
             for J := Low(NOTAS[I].ITENS) to High(NOTAS[I].ITENS) do begin
               NFI.ID_NOTAFISCAL.Value      := NF.ID.Value;

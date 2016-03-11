@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.SvcMgr, Vcl.Dialogs,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, uFWConnection,
   IdExplicitTLSClientServerBase, IdFTP;
 
 type
@@ -23,8 +23,10 @@ type
     function GetServiceController: TServiceController; override;
     function EnviaPedidos : Boolean;
     function EnviaProdutos : Boolean;
+    function EnviaNotasFiscais : Boolean;
     function BuscaMDD : Boolean;
     function BuscaCONF : Boolean;
+    function BuscaNumeroArquivo(Con : TFWConnection; Tipo : Integer) : Integer;
     { Public declarations }
   end;
 
@@ -35,12 +37,13 @@ implementation
 uses
   uFuncoes,
   uConstantes,
-  uFWConnection,
   uBeanPedido,
   uBeanPedidoItens,
   uBeanProduto,
   uConexaoFTP,
-  uBeanArquivosFTP;
+  uBeanArquivosFTP,
+  uBeanNOTAFISCAL,
+  uBeanNotaFiscalItens;
 {$R *.dfm}
 
 procedure ServiceController(CtrlCode: DWord); stdcall;
@@ -120,6 +123,104 @@ begin
     FreeAndNil(PI);
     FreeAndNil(PR);
     FreeAndNil(CON);
+  end;
+end;
+
+function TServiceConectorE10.BuscaNumeroArquivo(Con : TFWConnection; Tipo : Integer) : Integer;
+var
+  AF : TARQUIVOSFTP;
+begin
+  AF   := TARQUIVOSFTP.Create(Con);
+  try
+    AF.TIPO.Value       := Tipo;
+    AF.DATAENVIO.Value  := Now;
+    AF.Insert;
+
+    Result := AF.ID.Value;
+  finally
+    FreeAndNil(AF);
+  end;
+end;
+
+function TServiceConectorE10.EnviaNotasFiscais: Boolean;
+var
+  Con     : TFWConnection;
+  NF      : TNOTAFISCAL;
+  NI      : TNOTAFISCALITENS;
+  PR      : TPRODUTO;
+  I,
+  J,
+  AFTP    : Integer;
+  Lista   : TStringList;
+  FTP     : TConexaoFTP;
+begin
+  Con   := TFWConnection.Create;
+  NF    := TNOTAFISCAL.Create(Con);
+  NI    := TNOTAFISCALITENS.Create(Con);
+  PR    := TPRODUTO.Create(Con);
+  Lista := TStringList.Create;
+  try
+    Con.StartTransaction;
+    try
+      NF.SelectList('status = 0');
+      if NF.Count > 0 then begin
+        SaveLog('Tem NF para exportar');
+        AFTP    := BuscaNumeroArquivo(Con, 1);
+        SaveLog('Aqruivo');
+        for I := 0 to Pred(NF.Count) do begin
+          SaveLog('exportando NF ' + TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.asSQL);
+          NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[I]).ID.asString);
+          SaveLog('Passou do selectlist');
+          if NI.Count > 0 then begin
+            for J := 0 to Pred(NI.Count) do begin
+              PR.SelectList('id = ' + TNOTAFISCALITENS(NI.Itens[J]).ID_PRODUTO.asString);
+              if PR.Count > 0 then begin
+                Lista.Add(TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.asString + ';' +
+                  TNOTAFISCAL(NF.Itens[I]).SERIE.asString + ';' +
+                  TNOTAFISCAL(NF.Itens[I]).CNPJCPF.asString + ';' +
+                  TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.asString + ';' +
+                  TNOTAFISCAL(NF.Itens[I]).CFOP.asString + ';' +
+                  IntToStr(J + 1) + ';' +
+                  TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
+                  TNOTAFISCALITENS(NI.Itens[J]).QUANTIDADE.asString + ';' +
+                  TNOTAFISCALITENS(NI.Itens[J]).VALORUNITARIO.asString + ';' +
+                  TNOTAFISCALITENS(NI.Itens[J]).VALORTOTAL.asString + ';' +
+                  TNOTAFISCAL(NF.Itens[I]).VALORTOTAL.asString + ';' +
+                  TNOTAFISCAL(NF.Itens[I]).ESPECIE.asString + ';'
+                );
+              end;
+            end;
+            NF.ID.Value           := TNOTAFISCAL(NF.Itens[I]).ID.Value;
+            NF.STATUS.Value       := 1;
+            NF.ID_ARQUIVO.Value   := AFTP;
+            NF.Update;
+          end;
+        end;
+        if Lista.Count > 0 then begin
+          SaveLog('Tem algo na lista!');
+          Lista.SaveToFile(DirArquivosFTP + 'ARMZ' + NF.ID_ARQUIVO.asString + '.txt');
+          FTP := TConexaoFTP.Create;
+          try
+            FTP.EnviarNotasFiscais;
+          finally
+            FreeAndNil(FTP);
+          end;
+        end;
+      end;
+      Con.Commit;
+    except
+      on E : Exception do begin
+        Con.Rollback;
+        SaveLog('Erro ao Enviar NF: ' +E.Message);
+        Exit;
+      end;
+    end;
+  finally
+    FreeAndNil(NF);
+    FreeAndNil(NI);
+    FreeAndNil(PR);
+    FreeAndNil(Con);
+    FreeAndNil(Lista);
   end;
 end;
 
@@ -208,19 +309,19 @@ var
   Con     : TFWConnection;
   FTP     : TConexaoFTP;
   PR      : TPRODUTO;
-  AR      : TARQUIVOSFTP;
-  I       : Integer;
+  I,
+  AFTP    : Integer;
   Lista   : TStringList;
 begin
   Con := TFWConnection.Create;
   PR  := TPRODUTO.Create(Con);
-  AR  := TARQUIVOSFTP.Create(Con);
   try
     Con.StartTransaction;
     try
       PR.SelectList('status = 0');
       if PR.Count > 0 then begin
         SaveLog('Tem produtos para exportar');
+        AFTP         := BuscaNumeroArquivo(Con, 0);
         Lista        := TStringList.Create;
         try
           for I := 0 to Pred(PR.Count) do begin
@@ -244,17 +345,14 @@ begin
               TPRODUTO(PR.Itens[I]).CATEGORIAPRODUTO.asString + ';'
             );
 
-            PR.ID.Value       := TPRODUTO(PR.Itens[I]).ID.Value;
-            PR.STATUS.Value   := 1;
+            PR.ID.Value           := TPRODUTO(PR.Itens[I]).ID.Value;
+            PR.STATUS.Value       := 1;
+            PR.ID_ARQUIVO.Value   := AFTP;
             PR.Update;
           end;
           if Lista.Count > 0 then begin
             SaveLog('Tem algo na lista tio');
-            AR.TIPO.Value       := 0;
-            AR.DATAENVIO.Value  := Now;
-            AR.Insert;
-
-            Lista.SaveToFile(DirArquivosFTP + 'PROD' + AR.ID.asString + '.txt');
+            Lista.SaveToFile(DirArquivosFTP + 'PROD' + PR.ID_ARQUIVO.asString + '.txt');
             FTP := TConexaoFTP.Create;
             try
               FTP.EnviarProdutos;
@@ -276,7 +374,6 @@ begin
     end;
   finally
     FreeAndNil(PR);
-    FreeAndNil(AR);
     FreeAndNil(Con);
   end;
 end;
@@ -311,6 +408,8 @@ begin
   while not Self.Terminated do begin
     SaveLog('Enviar Produtos');
     EnviaProdutos;
+    SaveLog('Enviar NFs');
+    EnviaNotasFiscais;
     SaveLog('Enviar MDD');
     BuscaMDD;
     ServiceThread.ProcessRequests(False);

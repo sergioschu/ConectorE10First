@@ -2,12 +2,12 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2016/02/25 21:08:12.000.289,=C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2016/02/25 21:08:48.000.802,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Projetos\ConectorE10First\Service\uPrincipal.dfm</Transaction>
     <Transaction>2016/02/25 21:08:48.000.802,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Projetos\ConectorE10First\Service\uPrincipal.pas</Transaction>
+    <Transaction>2016/02/25 21:08:48.000.802,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Projetos\ConectorE10First\Service\uPrincipal.dfm</Transaction>
     <Transaction>2016/02/25 21:09:19.000.624,C:\Users\Kochen\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Projetos\ConectorE10First\Service\ConectorE10FirstService.dproj</Transaction>
     <Transaction>2016/02/25 21:36:56.000.885,=C:\Projetos\ConectorE10First\App\uFWConnection.pas</Transaction>
-    <Transaction>2016/02/25 21:37:15.000.745,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario_Permissao.pas</Transaction>
     <Transaction>2016/02/25 21:37:15.000.639,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario.pas</Transaction>
+    <Transaction>2016/02/25 21:37:15.000.745,=C:\Projetos\ConectorE10First\App\Beans\uBeanUsuario_Permissao.pas</Transaction>
     <Transaction>2016/02/25 21:37:40.000.636,=C:\Projetos\ConectorE10First\App\Units\uConstantes.pas</Transaction>
     <Transaction>2016/02/25 21:37:40.000.776,=C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas</Transaction>
     <Transaction>2016/02/25 21:38:06.000.905,=C:\Projetos\ConectorE10First\App\Diversos\uDomains.pas</Transaction>
@@ -26,5 +26,6 @@
     <Transaction>2016/02/26 21:12:20.000.856,=C:\Projetos\ConectorE10First\App\Beans\uBeanProduto.pas</Transaction>
     <Transaction>2016/02/27 19:53:29.000.656,=C:\Projetos\ConectorE10First\Service\uConexaoFTP.pas</Transaction>
     <Transaction>2016/02/27 20:48:05.000.370,=C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas</Transaction>
+    <Transaction>2016/03/10 20:19:09.000.634,=C:\Projetos\ConectorE10First\App\Beans\uBeanArquivosFTP.pas</Transaction>
   </Transactions>
 </BorlandProject>
