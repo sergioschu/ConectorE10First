@@ -132,8 +132,8 @@
         <DCCReference Include="Beans\uBeanPedido.pas"/>
         <DCCReference Include="Beans\uBeanPedidoItens.pas"/>
         <DCCReference Include="Beans\uBeanNotaFiscalItens.pas"/>
-        <DCCReference Include="uPedidos.pas">
-            <Form>FrmPedidos</Form>
+        <DCCReference Include="uManutencaoPedidos.pas">
+            <Form>FrmManutencaoPedidos</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">

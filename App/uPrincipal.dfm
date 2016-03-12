@@ -1,8 +1,9 @@
 object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
-  ClientHeight = 447
-  ClientWidth = 900
+  BorderStyle = bsSingle
+  ClientHeight = 457
+  ClientWidth = 910
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -20,8 +21,8 @@ object frmPrincipal: TfrmPrincipal
   object IMFundo: TImage
     Left = 0
     Top = 0
-    Width = 900
-    Height = 447
+    Width = 910
+    Height = 457
     Align = alClient
     Stretch = True
     ExplicitLeft = -135
@@ -49,8 +50,11 @@ object frmPrincipal: TfrmPrincipal
         OnClick = NotasFiscaisdeEntrada1Click
       end
       object Pedidos1: TMenuItem
-        Caption = 'Pedidos'
+        Caption = 'Manuten'#231#227'o de Pedidos'
         OnClick = Pedidos1Click
+      end
+      object FaturamentodePedidos1: TMenuItem
+        Caption = 'Faturamento de Pedidos'
       end
     end
     object Configuraes1: TMenuItem

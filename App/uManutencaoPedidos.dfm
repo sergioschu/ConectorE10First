@@ -1,4 +1,4 @@
-object FrmPedidos: TFrmPedidos
+object FrmManutencaoPedidos: TFrmManutencaoPedidos
   Left = 0
   Top = 0
   BorderIcons = []
@@ -25,10 +25,6 @@ object FrmPedidos: TFrmPedidos
     Height = 438
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = -64
-    ExplicitTop = -103
-    ExplicitWidth = 755
-    ExplicitHeight = 541
     object gdPedidos: TDBGrid
       AlignWithMargins = True
       Left = 4
@@ -86,6 +82,12 @@ object FrmPedidos: TFrmPedidos
           Title.Caption = 'Munic'#237'pio Destinat'#225'rio'
           Width = 250
           Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'STATUS'
+          Title.Caption = 'Status'
+          Visible = True
         end>
     end
     object pnPequisa: TPanel
@@ -104,10 +106,9 @@ object FrmPedidos: TFrmPedidos
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
-      ExplicitWidth = 753
       object btPesquisar: TSpeedButton
         AlignWithMargins = True
-        Left = 586
+        Left = 390
         Top = 3
         Width = 100
         Height = 34
@@ -176,7 +177,7 @@ object FrmPedidos: TFrmPedidos
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 577
+        Width = 381
         Height = 34
         Align = alClient
         AutoSize = False
@@ -190,7 +191,24 @@ object FrmPedidos: TFrmPedidos
         ShowHint = True
         TabOrder = 0
         OnKeyDown = edPesquisaKeyDown
-        ExplicitWidth = 641
+      end
+      object cbFiltroStatus: TComboBox
+        AlignWithMargins = True
+        Left = 496
+        Top = 3
+        Width = 190
+        Height = 27
+        Align = alRight
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 1
+        Text = 'Todos'
+        OnChange = cbFiltroStatusChange
+        Items.Strings = (
+          'Todos'
+          'Sem Transportadora'
+          'Com Transportadora'
+          'Enviados')
       end
     end
     object Panel2: TPanel
@@ -211,7 +229,6 @@ object FrmPedidos: TFrmPedidos
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
-      ExplicitWidth = 747
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
@@ -243,8 +260,6 @@ object FrmPedidos: TFrmPedidos
           Value = 100.000000000000000000
         end>
       TabOrder = 3
-      ExplicitTop = 477
-      ExplicitWidth = 747
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 4
@@ -254,7 +269,6 @@ object FrmPedidos: TFrmPedidos
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 366
         object btAtualizarPedidos: TSpeedButton
           AlignWithMargins = True
           Left = 231
@@ -501,8 +515,6 @@ object FrmPedidos: TFrmPedidos
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 376
-        ExplicitWidth = 367
         object btFechar: TSpeedButton
           AlignWithMargins = True
           Left = 232
@@ -609,6 +621,10 @@ object FrmPedidos: TFrmPedidos
       FieldName = 'DEST_MUNICIPIO'
       Size = 30
     end
+    object csPedidosSTATUS: TStringField
+      FieldName = 'STATUS'
+      Size = 25
+    end
   end
   object OpenDialog1: TOpenDialog
     Left = 361
@@ -618,7 +634,7 @@ object FrmPedidos: TFrmPedidos
     Left = 440
     Top = 328
     Bitmap = {
-      494C010102000C007C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000C008C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

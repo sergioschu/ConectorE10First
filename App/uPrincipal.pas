@@ -20,6 +20,7 @@ type
     Lanamentos1: TMenuItem;
     NotasFiscaisdeEntrada1: TMenuItem;
     Pedidos1: TMenuItem;
+    FaturamentodePedidos1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -50,7 +51,7 @@ uses
   uCadastroUsuario,
   uCadastroProdutos,
   uNotaFiscal,
-  uPedidos;
+  uManutencaoPedidos;
 
 {$R *.dfm}
 
@@ -97,7 +98,7 @@ begin
 
   CriarComandoSequenciaMenu(MainMenu1);
 
-  Caption := 'Sistema CrossAbacos - Usuário: ' + IntToStr(USUARIO.CODIGO) + ' - ' + USUARIO.NOME;
+  Caption := 'Sistema Conector E10 FirstLog - Usuário: ' + IntToStr(USUARIO.CODIGO) + ' - ' + USUARIO.NOME;
 end;
 
 procedure TfrmPrincipal.miSairClick(Sender: TObject);
@@ -122,11 +123,11 @@ end;
 procedure TfrmPrincipal.Pedidos1Click(Sender: TObject);
 begin
   try
-    if frmPedidos = nil then
-      frmPedidos := TfrmPedidos.Create(Self);
-    frmPedidos.ShowModal;
+    if frmManutencaoPedidos = nil then
+      frmManutencaoPedidos := TfrmManutencaoPedidos.Create(Self);
+    frmManutencaoPedidos.ShowModal;
   finally
-    FreeAndNil(frmPedidos);
+    FreeAndNil(frmManutencaoPedidos);
   end;
 end;
 

@@ -53,6 +53,20 @@ type
      VALOR : Double;
   end;
 
+  TARRAYPEDIDOITENS = record
+    ID_PEDIDO : Integer;
+    NUMEROPEDIDO : string;
+    DEST_CNPJ : String;
+    DEST_NOME : String;
+    DEST_ENDERECO : String;
+    DEST_COMPLEMENTO : String;
+    DEST_CEP : String;
+    DEST_MUNICIPIO : String;
+    SKU : String;
+    QUANTIDADE : Currency;
+    VALOR_UNITARIO : Currency;
+  end;
+
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
   DirArquivosFTP : string = 'C:\ConectorE10First\arquivosFTP\';

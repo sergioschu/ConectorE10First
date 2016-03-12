@@ -1,4 +1,4 @@
-unit uPedidos;
+unit uManutencaoPedidos;
 
 interface
 
@@ -9,7 +9,7 @@ uses
   Vcl.DBGrids, FireDAC.Comp.Client, System.TypInfo, System.Win.ComObj;
 
 type
-  TFrmPedidos = class(TForm)
+  TFrmManutencaoPedidos = class(TForm)
     pnVisualizacao: TPanel;
     gdPedidos: TDBGrid;
     pnPequisa: TPanel;
@@ -33,6 +33,8 @@ type
     csPedidosDEST_CEP: TStringField;
     csPedidosDEST_MUNICIPIO: TStringField;
     btAtualizarTransportadora: TSpeedButton;
+    cbFiltroStatus: TComboBox;
+    csPedidosSTATUS: TStringField;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -42,6 +44,7 @@ type
       Shift: TShiftState);
     procedure btAtualizarPedidosClick(Sender: TObject);
     procedure btAtualizarTransportadoraClick(Sender: TObject);
+    procedure cbFiltroStatusChange(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -53,35 +56,40 @@ type
   end;
 
 var
-  FrmPedidos: TFrmPedidos;
+  FrmManutencaoPedidos: TFrmManutencaoPedidos;
 
 implementation
 
 uses
   uFuncoes,
   uDomains,
+  uConstantes,
   uFWConnection,
-  uMensagem, uBeanPedido;
+  uMensagem,
+  uBeanPedido,
+  uBeanPedidoItens;
 
 {$R *.dfm}
 
-procedure TFrmPedidos.AtualizarPedidos;
+procedure TFrmManutencaoPedidos.AtualizarPedidos;
 const
   xlCellTypeLastCell = $0000000B;
 Var
   FWC     : TFWConnection;
   PED     : TPEDIDO;
-  List    : TPropList;
-  Arquivo : String;
+  PEDITENS: TPEDIDOITENS;
+  Arquivo,
+  Aux     : String;
   Excel   : OleVariant;
-  arrData,
-  Valor   : Variant;
-  vrow,
-  vcol,
-  Count,
-  I,
-  J       : Integer;
+  arrData : Variant;
+  vrow, vcol,
+  I, J    : Integer;
+  ArqValido,
+  AchouColuna : Boolean;
+  Colunas: array of String;
+  PedidoItens : array of TARRAYPEDIDOITENS;
 begin
+
   if OpenDialog1.Execute then begin
     if Pos(ExtractFileExt(OpenDialog1.FileName), '|.xls|.xlsx|') > 0 then begin
       Arquivo := OpenDialog1.FileName;
@@ -93,13 +101,12 @@ begin
 
       // Cria Excel- OLE Object
       Excel                      := CreateOleObject('Excel.Application');
-      FWC                        := TFWConnection.Create;
-      PED                        := TPEDIDO.Create(FWC);
-      pbAtualizaPedidos.Progress := 0;
 
-      DisplayMsg(MSG_WAIT, 'Buscando dados do arquivo Excel!');
+      FWC       := TFWConnection.Create;
+      PED       := TPEDIDO.Create(FWC);
+      PEDITENS  := TPEDIDOITENS.Create(FWC);
+
       try
-        FWC.StartTransaction;
         try
           // Esconde Excel
           Excel.Visible  := False;
@@ -112,57 +119,123 @@ begin
           pbAtualizaPedidos.MaxValue           := vrow;
           arrData                              := Excel.Range['A1', Excel.WorkSheets[1].Cells[vrow, vcol].Address].Value;
 
-          PED.PEDIDO.excelTitulo            := 'Pedido';
-          PED.VIAGEM.excelTitulo            := ''; //Não tem no Excel
-          PED.SEQUENCIA.excelTitulo         := ''; //Não tem no Excel
-          PED.TRANSP_CNPJ.excelTitulo       := ''; //Não tem no Excel
-          PED.DEST_CNPJ.excelTitulo         := 'CPF/CNPJ (sem máscara)';
-          PED.DEST_NOME.excelTitulo         := 'Cliente - Nome';
-          PED.DEST_ENDERECO.excelTitulo     := 'Cliente - Logradouro';
-          PED.DEST_COMPLEMENTO.excelTitulo  := 'Cliente - Complemento';
-          PED.DEST_CEP.excelTitulo          := 'Cliente - CEP';
-          PED.DEST_MUNICIPIO.excelTitulo    := 'Cliente - Município';
-          PED.STATUS.excelTitulo            := ''; //Não tem no Excel
-          PED.ID_ARQUIVO.excelTitulo        := ''; //Não tem no Excel
+          SetLength(Colunas, 10);
+          Colunas[0] := 'Pedido';
+          Colunas[1] := 'CPF/CNPJ (sem máscara)';
+          Colunas[2] := 'Cliente - Nome';
+          Colunas[3] := 'Cliente - Logradouro';
+          Colunas[4] := 'Cliente - Complemento';
+          Colunas[5] := 'Cliente - CEP';
+          Colunas[6] := 'Cliente - Município';
+          Colunas[7] := 'Item - Código';
+          Colunas[8] := 'Qnt. Pedida';
+          Colunas[9] := 'Item - Preço uni. bruto';
 
-          PED.buscaIndicesExcel(Arquivo, Excel);
-
-          Count                                           := GetPropList(PED.ClassInfo, tkProperties, @List, False);
-          for I := 0 to Pred(Count) do begin
-            if (TFieldTypeDomain(GetObjectProp(PED, List[I]^.Name)).excelTitulo <> '') and (TFieldTypeDomain(GetObjectProp(PED, List[I]^.Name)).excelIndice <= 0) then begin
-              DisplayMsg(MSG_WAR, 'Estrutura do Arquivo Inválida, Verifique!', '', 'Colunas: ' + sLineBreak + 'Pedido, ' + sLineBreak +
-                                                                                    'CPF/CNPJ (sem máscara), ' + sLineBreak +
-                                                                                    'Cliente - Nome, ' + sLineBreak +
-                                                                                    'Cliente - Logradouro, ' + sLineBreak +
-                                                                                    'Cliente - Complemento, ' + sLineBreak +
-                                                                                    'Cliente - CEP, ' + sLineBreak +
-                                                                                    'Cliente - Município');
-              Exit;
+          ArqValido := True;
+          for I := Low(Colunas) to High(Colunas) do begin
+            AchouColuna := False;
+            for J := 1 to vcol do begin
+              if AnsiUpperCase(Colunas[I]) = AnsiUpperCase(arrData[1, J]) then begin
+                AchouColuna := True;
+                Break;
+              end;
+            end;
+            if not AchouColuna then begin
+              ArqValido := False;
+              Break;
             end;
           end;
 
+          if not ArqValido then begin
+            Aux := 'Colunas.:';
+            for I := Low(Colunas) to High(Colunas) do
+              Aux := Aux + sLineBreak + Colunas[I];
+
+            DisplayMsg(MSG_WAR, 'Arquivo Inválido, Verifique as Colunas!', '', Aux);
+            Exit;
+          end;
+
+          pbAtualizaPedidos.Progress  := 0;
+          pbAtualizaPedidos.MaxValue  := vrow;
+
+          DisplayMsg(MSG_WAIT, 'Capturando Pedidos do arquivo!');
+
+          SetLength(PedidoItens, 0);
           for I := 2 to vrow do begin
-            for J := 0 to Pred(Count) do begin
-              if (TFieldTypeDomain(GetObjectProp(PED, List[J]^.Name)).excelIndice > 0) then begin
-                Valor                                   := Trim(arrData[I, TFieldTypeDomain(GetObjectProp(PED, List[J]^.Name)).excelIndice]);
-                if Valor <> '' then
-                  TFieldTypeDomain(GetObjectProp(PED, List[J]^.Name)).asVariant := Valor;
-              end;
+            SetLength(PedidoItens, Length(PedidoItens) + 1);
+            for J := 1 to vcol do begin
+              if arrData[1, J] = 'Pedido' then
+                PedidoItens[High(PedidoItens)].NUMEROPEDIDO     := arrData[I, J]
+              else
+                if arrData[1, J] = 'CPF/CNPJ (sem máscara)' then
+                  PedidoItens[High(PedidoItens)].DEST_CNPJ        := arrData[I, J]
+                else
+                  if arrData[1, J] = 'Cliente - Nome' then
+                    PedidoItens[High(PedidoItens)].DEST_NOME        := arrData[I, J]
+                  else
+                    if arrData[1, J] = 'Cliente - Logradouro' then
+                      PedidoItens[High(PedidoItens)].DEST_ENDERECO    := arrData[I, J]
+                    else
+                      if arrData[1, J] = 'Cliente - Complemento' then
+                        PedidoItens[High(PedidoItens)].DEST_COMPLEMENTO := arrData[I, J]
+                      else
+                        if arrData[1, J] = 'Cliente - CEP' then
+                          PedidoItens[High(PedidoItens)].DEST_CEP         := arrData[I, J]
+                        else
+                          if arrData[1, J] = 'Cliente - Município' then
+                            PedidoItens[High(PedidoItens)].DEST_MUNICIPIO   := arrData[I, J]
+                          else
+                            if arrData[1, J] = 'Item - Código' then
+                              PedidoItens[High(PedidoItens)].SKU              := arrData[I, J]
+                            else
+                              if arrData[1, J] = 'Qnt. Pedida' then
+                                PedidoItens[High(PedidoItens)].QUANTIDADE       := arrData[I, J]
+                              else
+                                if arrData[1, J] = 'Item - Preço uni. bruto' then
+                                  PedidoItens[High(PedidoItens)].VALOR_UNITARIO   := arrData[I, J];
             end;
+            pbAtualizaPedidos.Progress := I;
+          end;
 
-            PED.VIAGEM.Value              := '';
-            PED.SEQUENCIA.Value           := 0;
-            PED.TRANSP_CNPJ.Value         := '';
-            PED.STATUS.Value              := 0;
-            PED.ID_ARQUIVO.Value          := 0;
+          DisplayMsg(MSG_WAIT, 'Gravando Pedidos no Banco de Dados!');
 
-            PED.SelectList('PEDIDO = ' + PED.PEDIDO.asSQL);
-            if PED.Count > 0 then begin
-              PED.ID.Value    := TPEDIDO(PED.Itens[0]).ID.Value;
-              PED.Update;
-            end else
-              PED.Insert;
-            pbAtualizaPedidos.Progress           := I;
+          pbAtualizaPedidos.Progress  := 0;
+          pbAtualizaPedidos.MaxValue  := High(PedidoItens);
+
+          //Começa a Gravação dos Dados no BD
+          for I := Low(PedidoItens) to High(PedidoItens) do begin
+            if PedidoItens[I].NUMEROPEDIDO <> EmptyStr then begin
+              PED.SelectList('PEDIDO = ' + QuotedStr(PedidoItens[I].NUMEROPEDIDO));
+              if PED.Count = 0 then begin
+                PED.ID.isNull               := True;
+                PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
+                PED.VIAGEM.Value            := '';
+                PED.SEQUENCIA.Value         := 0;
+                PED.TRANSP_CNPJ.Value       := '';
+                PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
+                PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
+                PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
+                PED.DEST_COMPLEMENTO.Value  := PedidoItens[I].DEST_COMPLEMENTO;
+                PED.DEST_CEP.Value          := PedidoItens[I].DEST_CEP;
+                PED.DEST_MUNICIPIO.Value    := PedidoItens[I].DEST_MUNICIPIO;
+                PED.STATUS.Value            := 0;
+                PED.ID_ARQUIVO.Value        := 0;
+                PED.Insert;
+                PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
+              end else begin
+                PedidoItens[I].ID_PEDIDO    := TPEDIDO(PED.Itens[0]).ID.Value;
+              end;
+
+              PEDITENS.ID.isNull            := True;
+              PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
+              PEDITENS.ID_PRODUTO.Value     := 2;
+              PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
+              PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
+              PEDITENS.RECEBIDO.Value       := False;
+              PEDITENS.Insert;
+
+              pbAtualizaPedidos.Progress  := I;
+            end;
           end;
 
           FWC.Commit;
@@ -184,13 +257,14 @@ begin
           Excel := Unassigned;
         end;
         FreeAndNil(PED);
+        FreeAndNil(PEDITENS);
         FreeAndNil(FWC);
       end;
     end;
   end;
 end;
 
-procedure TFrmPedidos.AtualizarTransportadora;
+procedure TFrmManutencaoPedidos.AtualizarTransportadora;
 const
   xlCellTypeLastCell = $0000000B;
 Var
@@ -273,6 +347,7 @@ begin
             PED.SelectList('PEDIDO = ' + PED.PEDIDO.asSQL);
             if PED.Count > 0 then begin
               PED.ID.Value          := TPEDIDO(PED.Itens[0]).ID.Value;
+              PED.STATUS.Value      := 1;// 1 - Transportadora Vinculada
               PED.Update;
             end;
             pbAtualizaPedidos.Progress           := I;
@@ -303,36 +378,38 @@ begin
   end;
 end;
 
-procedure TFrmPedidos.btAtualizarPedidosClick(Sender: TObject);
+procedure TFrmManutencaoPedidos.btAtualizarPedidosClick(Sender: TObject);
 begin
   if btAtualizarPedidos.Tag = 0 then begin
     btAtualizarPedidos.Tag := 1;
     try
       AtualizarPedidos;
+      CarregaDados;
     finally
       btAtualizarPedidos.Tag := 0;
     end;
   end;
 end;
 
-procedure TFrmPedidos.btAtualizarTransportadoraClick(Sender: TObject);
+procedure TFrmManutencaoPedidos.btAtualizarTransportadoraClick(Sender: TObject);
 begin
   if btAtualizarTransportadora.Tag = 0 then begin
     btAtualizarTransportadora.Tag := 1;
     try
       AtualizarTransportadora;
+      CarregaDados;
     finally
       btAtualizarTransportadora.Tag := 0;
     end;
   end;
 end;
 
-procedure TFrmPedidos.btFecharClick(Sender: TObject);
+procedure TFrmManutencaoPedidos.btFecharClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TFrmPedidos.btPesquisarClick(Sender: TObject);
+procedure TFrmManutencaoPedidos.btPesquisarClick(Sender: TObject);
 begin
   if btPesquisar.Tag = 0 then begin
     btPesquisar.Tag    := 1;
@@ -344,7 +421,7 @@ begin
   end;
 end;
 
-procedure TFrmPedidos.CarregaDados;
+procedure TFrmManutencaoPedidos.CarregaDados;
 Var
   FWC : TFWConnection;
   SQL : TFDQuery;
@@ -366,9 +443,21 @@ begin
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_ENDERECO,');
       SQL.SQL.Add('	P.DEST_CEP,');
-      SQL.SQL.Add('	P.DEST_MUNICIPIO');
+      SQL.SQL.Add('	P.DEST_MUNICIPIO,');
+      SQL.SQL.Add('	CASE P.STATUS WHEN 0 THEN ''Sem Transportadora''');
+      SQL.SQL.Add('	              WHEN 1 THEN ''Com Transportadora''');
+      SQL.SQL.Add('	              ELSE ''Enviado''');
+      SQL.SQL.Add('	END AS STATUS');
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('WHERE 1 = 1');
+
+      case cbFiltroStatus.ItemIndex of
+        0 : SQL.SQL.Add('AND P.STATUS IN (0,1,2)');
+        1 : SQL.SQL.Add('AND P.STATUS = 0');
+        2 : SQL.SQL.Add('AND P.STATUS = 1');
+        3 : SQL.SQL.Add('AND P.STATUS = 2');
+      end;
+
       SQL.Connection                      := FWC.FDConnection;
       SQL.Prepare;
       SQL.Open();
@@ -383,6 +472,7 @@ begin
           csPedidosDEST_ENDERECO.Value  := SQL.Fields[3].Value;
           csPedidosDEST_CEP.Value       := SQL.Fields[4].Value;
           csPedidosDEST_MUNICIPIO.Value := SQL.Fields[5].Value;
+          csPedidosSTATUS.Value         := SQL.Fields[6].Value;
           csPedidos.Post;
 
           SQL.Next;
@@ -401,7 +491,12 @@ begin
   end;
 end;
 
-procedure TFrmPedidos.csPedidosFilterRecord(DataSet: TDataSet;
+procedure TFrmManutencaoPedidos.cbFiltroStatusChange(Sender: TObject);
+begin
+  CarregaDados;
+end;
+
+procedure TFrmManutencaoPedidos.csPedidosFilterRecord(DataSet: TDataSet;
   var Accept: Boolean);
 var
   I : Integer;
@@ -414,7 +509,7 @@ begin
   end;
 end;
 
-procedure TFrmPedidos.edPesquisaKeyDown(Sender: TObject; var Key: Word;
+procedure TFrmManutencaoPedidos.edPesquisaKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   case Key of
@@ -430,18 +525,18 @@ begin
   end;
 end;
 
-procedure TFrmPedidos.Filtrar;
+procedure TFrmManutencaoPedidos.Filtrar;
 begin
   csPedidos.Filtered := False;
   csPedidos.Filtered := edPesquisa.Text <> '';
 end;
 
-procedure TFrmPedidos.FormCreate(Sender: TObject);
+procedure TFrmManutencaoPedidos.FormCreate(Sender: TObject);
 begin
   AjustaForm(Self);
 end;
 
-procedure TFrmPedidos.FormShow(Sender: TObject);
+procedure TFrmManutencaoPedidos.FormShow(Sender: TObject);
 begin
   csPedidos.CreateDataSet;
   CarregaDados;

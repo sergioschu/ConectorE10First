@@ -25,7 +25,7 @@ uses
   uBeanPedido in 'Beans\uBeanPedido.pas',
   uBeanPedidoItens in 'Beans\uBeanPedidoItens.pas',
   uBeanNotaFiscalItens in 'Beans\uBeanNotaFiscalItens.pas',
-  uPedidos in 'uPedidos.pas' {FrmPedidos};
+  uManutencaoPedidos in 'uManutencaoPedidos.pas' {FrmManutencaoPedidos};
 
 {$R *.res}
 
