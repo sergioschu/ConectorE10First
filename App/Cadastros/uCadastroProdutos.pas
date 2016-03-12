@@ -158,8 +158,8 @@ begin
             end;
 
             P.CODIGOBARRAS.Value                 := P.CODIGOPRODUTO.Value;
-            P.QUANTIDADECAIXASALTURAPALET.Value  := 0;
-            P.QUANTIDADESCAIXASLASTROPALET.Value := 0;
+            P.QUANTIDADECAIXASALTURAPALET.Value  := 1;
+            P.QUANTIDADESCAIXASLASTROPALET.Value := 1;
             P.ALIQUOTAIPI.Value                  := 0;
             P.CLASSIFICACAOFISCAL.Value          := '0';
             P.CATEGORIAPRODUTO.Value             := 1;

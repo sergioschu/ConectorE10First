@@ -29,6 +29,8 @@ uses
   function CalculaPercentualDiferenca(ValorAnterior, ValorNovo : Currency) : Currency;
   function StrZero(Zeros : string; Quant : Integer): string;
   procedure SaveLog(Msg: String);
+  function FormataData(Data : TDateTime) : String;
+  function FormataNumeros(Valor : String) : Double;
 
 implementation
 
@@ -39,6 +41,16 @@ Uses
   uBeanUsuario,
   uBeanUsuario_Permissao,
   uDomains;
+
+function FormataNumeros(Valor : String) : Double;
+begin
+  Result := StrToFloat(StringReplace(StringReplace(Valor, '.','', [rfReplaceAll]), ',', '.', [rfReplaceAll]));
+end;
+
+function FormataData(Data : TDateTime) : String;
+begin
+  Result := FormatDateTime('yyyymmdd', Data);
+end;
 
 procedure CarregarConfigLocal;
 Var

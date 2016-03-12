@@ -31,14 +31,19 @@ procedure TConexaoFTP.BuscaCONF;
 var
   I : Integer;
 begin
-  if FFTP.Connected then begin
-    FFTP.ChangeDir('/conf/');
+  SaveLog('Busca Arquivos de Confirmação de NF de Compra!');
+  try
+    FFTP.ChangeDir('conf');
     FFTP.List;
     for I := 0 to Pred(FFTP.DirectoryListing.Count) do begin
       if FFTP.DirectoryListing.Items[I].ItemType = ditFile then begin
         FFTP.Get(FFTP.DirectoryListing.Items[I].FileName, DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName);
-//        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
+        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
       end;
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao buscar arquivos de Confirmação de NF de Compra! ' + E.Message);
     end;
   end;
 end;
@@ -47,14 +52,20 @@ procedure TConexaoFTP.BuscaMDD;
 var
   I : Integer;
 begin
-  if FFTP.Connected then begin
-    FFTP.ChangeDir('/mdd/');
+  SaveLog('Dentro do BuscaMDD');
+  try
+    FFTP.ChangeDir('mdd');
     FFTP.List;
     for I := 0 to Pred(FFTP.DirectoryListing.Count) do begin
       if FFTP.DirectoryListing.Items[I].ItemType = ditFile then begin
-        FFTP.Get(FFTP.DirectoryListing.Items[I].FileName, DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName);
-//        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
+        if not FileExists(DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName) then
+          FFTP.Get(FFTP.DirectoryListing.Items[I].FileName, DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName);
+        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
       end;
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao buscar MDD: ' + E.Message);
     end;
   end;
 end;
@@ -81,19 +92,26 @@ procedure TConexaoFTP.EnviarNotasFiscais;
 var
   search_rec: TSearchRec;
 begin
-  FFTP.ChangeDir('armz');
-  FFTP.ChangeDir('receb');
-  if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-    repeat
-      if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
-        SaveLog('Antes do upload!');
-        FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-        SaveLog('Passou do upload!');
-        DeleteFile(DirArquivosFTP + search_rec.Name);
-      end;
-    until FindNext(search_rec) <> 0;
+  SaveLog('Enviando Notas Fiscais');
+  try
+    FFTP.ChangeDir('armz');
+    FFTP.ChangeDir('receb');
+    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
+          SaveLog('Antes do upload!');
+          FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+          SaveLog('Passou do upload!');
+          DeleteFile(DirArquivosFTP + search_rec.Name);
+        end;
+      until FindNext(search_rec) <> 0;
 
-    FindClose(search_rec);
+      FindClose(search_rec);
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao Enviar Notas Fiscais! ' + E.Message);
+    end;
   end;
 end;
 
@@ -101,17 +119,25 @@ procedure TConexaoFTP.EnviarPedidos;
 var
   search_rec: TSearchRec;
 begin
-  if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-    repeat
-      if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
-        Login;
-        FFTP.ChangeDir('SC');
-        FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-        DeleteFile(DirArquivosFTP + search_rec.Name);
-      end;
-    until FindNext(search_rec) <> 0;
+  SaveLog('Enviando Pedidos');
+  try
+    FFTP.ChangeDir('SC');
+    FFTP.ChangeDir('receb');
 
-    FindClose(search_rec);
+    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
+          FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+          DeleteFile(DirArquivosFTP + search_rec.Name);
+        end;
+      until FindNext(search_rec) <> 0;
+
+      FindClose(search_rec);
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao Enviar Pedidos! ' + E.Message);
+    end;
   end;
 end;
 
@@ -119,19 +145,26 @@ procedure TConexaoFTP.EnviarProdutos;
 var
   search_rec: TSearchRec;
 begin
-  FFTP.ChangeDir('prod');
-  FFTP.ChangeDir('receb');
-  if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-    repeat
-      if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
-        FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-        SaveLog('Passou do upload!');
-        DeleteFile(DirArquivosFTP + search_rec.Name);
-        SaveLog('Deletar arquivo!');
-      end;
-    until FindNext(search_rec) <> 0;
+  SaveLog('Enviando arquivo de Produtos!');
+  try
+    FFTP.ChangeDir('prod');
+    FFTP.ChangeDir('receb');
+    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
+          FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+          SaveLog('Passou do upload!');
+          DeleteFile(DirArquivosFTP + search_rec.Name);
+          SaveLog('Deletar arquivo!');
+        end;
+      until FindNext(search_rec) <> 0;
 
-    FindClose(search_rec);
+      FindClose(search_rec);
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao enviar produtos! ' + E.Message);
+    end;
   end;
 end;
 
