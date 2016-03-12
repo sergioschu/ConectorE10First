@@ -89,9 +89,10 @@ CREATE TABLE pedidoitens
 (
   id serial NOT NULL,
   id_pedido smallint NOT NULL,
-  id_produto smallint NOT NULL,
+  id_produto bigint NOT NULL,
   quantidade numeric(17,3),
   valor_unitario numeric(17,6),
+  recebido boolean,
   CONSTRAINT pk_pedido_itens PRIMARY KEY (id),
   CONSTRAINT fk_pi_pedido FOREIGN KEY (id_pedido)
       REFERENCES pedido (id) MATCH SIMPLE
