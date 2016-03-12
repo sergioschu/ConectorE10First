@@ -170,10 +170,15 @@ end;
 
 procedure TConexaoFTP.Login;
 begin
-  FFTP.Host        := 'ftp.firstlog.com.br';
-  FFTP.Username    := CONFIG_LOCAL.FTPUsuario;
-  FFTP.Password    := CONFIG_LOCAL.FTPSenha;
-  FFTP.Connect;
+  try
+    FFTP.Host        := 'ftp.firstlog.com.br';
+    FFTP.Username    := CONFIG_LOCAL.FTPUsuario;
+    FFTP.Password    := CONFIG_LOCAL.FTPSenha;
+    FFTP.Connect;
+  except
+    on E : Exception do
+      SaveLog('Erro ao Conectar no FTP: ' + E.Message);
+  end;
 end;
 
 procedure TConexaoFTP.Logout;
