@@ -81,6 +81,7 @@ begin
   try
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
       CON.StartTransaction;
+      SaveLog('Achou pelo menos 1!');
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('CONF', search_rec.Name) > 0) then begin
@@ -93,9 +94,10 @@ begin
                 CONF.StrictDelimiter := True;
                 CONF.DelimitedText   := Lista[I];
                 if CONF.Count = 10 then begin
+                  SaveLog('arquivo valido!');
                   PR.SelectList('codigoproduto = ' + QuotedStr(CONF[5]));
                   if PR.Count > 0 then begin
-                    NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and cnpjcpf = ' + CONF[2]);
+                    NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and cnpjcpf = ' + QuotedStr(CONF[2]));
                     if NF.Count > 0 then begin
                       NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
                       if NI.Count > 0 then begin
@@ -104,13 +106,18 @@ begin
                         NI.QUANTIDADEAVA.Value     := FormataNumeros(CONF[9]);
                         NI.Update;
 
-                        NI.ID.Value            := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
+                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
                         NI.Update;
+
+                        NF.ID.Value                := TNOTAFISCAL(NF.Itens[0]).ID.Value;
+                        NF.STATUS.Value            := 2;
+                        NF.Update;
                       end;
                     end;
                   end;
-                end;
+                end else SaveLog('registro invalido ' + IntToStr(CONF.Count) +'   ' + CONF.Text);
               end;
+              DeleteFile(DirArquivosFTP + search_rec.Name);
             finally
               FreeAndNil(Lista);
               FreeAndNil(CONF);
@@ -164,6 +171,7 @@ begin
   PI     := TPEDIDOITENS.Create(CON);
   try
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+      SaveLog('Tem arquivo MDD para enviar');
       CON.StartTransaction;
       try
         repeat
@@ -179,19 +187,23 @@ begin
                 if MDD.Count = 7 then begin
                   PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
                   if PR.Count > 0 then begin
-                    PI.SelectList('id_pedido = ' + MDD[0] + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                    if PI.Count > 0 then begin
-                      PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
-                      PI.RECEBIDO.Value     := True;
-                      PI.Update;
+                    P.SelectList('pedido = ' + QuotedStr(MDD[0]));
+                    if P.Count > 0 then begin
+                      PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                      if PI.Count > 0 then begin
+                        PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
+                        PI.RECEBIDO.Value     := True;
+                        PI.Update;
 
-                      P.ID.Value            := TPEDIDOITENS(PI.Itens[0]).ID_PEDIDO.Value;
-                      P.STATUS.Value        := 2;
-                      P.Update;
-                    end;
-                  end;
-                end;
+                        P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
+                        P.STATUS.Value        := 3;
+                        P.Update;
+                      end else SaveLog('Nao achou o item do pedido!');
+                    end else SaveLog('Nao achou o pedido!');
+                  end else SaveLog('Nao achou o produto!');
+                end else SaveLog('Arquivo invalido! ' + IntToStr(MDD.Count) + ' ' + MDD.Text);
               end;
+              DeleteFile(DirArquivosFTP + search_rec.Name);
             finally
               FreeAndNil(Lista);
               FreeAndNil(MDD);
@@ -338,7 +350,7 @@ begin
           PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
           if PI.Count > 0 then begin
             for J := 0 to Pred(PI.Count) do begin
-              PR.SelectList('id_produto = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
+              PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
               if PR.Count > 0 then begin
                 Lista.Add(TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
                   TPEDIDO(P.Itens[I]).PEDIDO.asString + ';' +

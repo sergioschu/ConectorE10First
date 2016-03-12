@@ -121,7 +121,7 @@ var
 begin
   SaveLog('Enviando Pedidos');
   try
-    FFTP.ChangeDir('SC');
+    FFTP.ChangeDir('sc');
     FFTP.ChangeDir('receb');
 
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin

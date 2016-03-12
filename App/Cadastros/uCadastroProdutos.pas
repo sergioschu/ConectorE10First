@@ -173,6 +173,7 @@ begin
             end else
               P.Insert;
             pbAtualizaProduto.Progress           := I;
+            Application.ProcessMessages;
           end;
 
           FWC.Commit;
