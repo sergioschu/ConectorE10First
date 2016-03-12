@@ -433,6 +433,7 @@ begin
   try
     try
 
+      csPedidos.DisableControls;
       csPedidos.EmptyDataSet;
 
       SQL.Close;
@@ -488,6 +489,7 @@ begin
   finally
     FreeAndNil(SQL);
     FreeAndNil(FWC);
+    csPedidos.EnableControls;
   end;
 end;
 

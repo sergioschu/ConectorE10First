@@ -33,6 +33,9 @@ type
     pbAtualizaProduto: TGauge;
     ImageList1: TImageList;
     csProdutosSTATUS: TIntegerField;
+    csProdutosSELECIONAR: TBooleanField;
+    btReenviar: TSpeedButton;
+    cbFiltroStatus: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
@@ -44,10 +47,14 @@ type
     procedure gdProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure btPesquisarClick(Sender: TObject);
+    procedure gdProdutosCellClick(Column: TColumn);
+    procedure btReenviarClick(Sender: TObject);
+    procedure cbFiltroStatusChange(Sender: TObject);
   private
     procedure CarregaDados;
     procedure AtualizarProdutos;
     procedure Filtrar;
+    procedure ReenviarParaFTP;
     { Private declarations }
   public
     { Public declarations }
@@ -230,6 +237,18 @@ begin
   end;
 end;
 
+procedure TfrmCadastroProdutos.btReenviarClick(Sender: TObject);
+begin
+  if btReenviar.Tag = 0 then begin
+    btReenviar.Tag    := 1;
+    try
+      ReenviarParaFTP;
+    finally
+      btReenviar.Tag  := 0;
+    end;
+  end;
+end;
+
 procedure TfrmCadastroProdutos.CarregaDados;
 Var
   FWC : TFWConnection;
@@ -241,12 +260,25 @@ begin
   SQL := TFDQuery.Create(nil);
   try
     try
+      csProdutos.DisableControls;
 
       csProdutos.EmptyDataSet;
 
       SQL.Close;
       SQL.SQL.Clear;
-      SQL.SQL.Add('select id, codigoproduto, descricao, status from produto');
+      SQL.SQL.Add('SELECT');
+      SQL.SQL.Add('	P.ID,');
+      SQL.SQL.Add('	P.CODIGOPRODUTO,');
+      SQL.SQL.Add('	P.DESCRICAO,');
+      SQL.SQL.Add('	P.STATUS');
+      SQL.SQL.Add('FROM PRODUTO P');
+      SQL.SQL.Add('WHERE 1 = 1');
+
+      case cbFiltroStatus.ItemIndex of
+        1 : SQL.SQL.Add('AND P.STATUS = 1');
+        2 : SQL.SQL.Add('AND P.STATUS = 0');
+      end;
+
       SQL.Connection                      := FWC.FDConnection;
       SQL.Prepare;
       SQL.Open();
@@ -274,19 +306,28 @@ begin
   finally
     FreeAndNil(SQL);
     FreeAndNil(FWC);
+    csProdutos.EnableControls;
   end;
+end;
+
+procedure TfrmCadastroProdutos.cbFiltroStatusChange(Sender: TObject);
+begin
+  CarregaDados;
 end;
 
 procedure TfrmCadastroProdutos.csProdutosFilterRecord(DataSet: TDataSet;
   var Accept: Boolean);
-var
+Var
   I : Integer;
 begin
   Accept := False;
-  for I := 0 to Pred(csProdutos.FieldCount) do begin
-    Accept  := Pos(AnsiUpperCase(edPesquisa.Text), AnsiUpperCase(csProdutos.Fields[I].Value)) > 0;
-    if Accept then
-      Break;
+  for I := 0 to DataSet.Fields.Count - 1 do begin
+    if not DataSet.Fields[I].IsNull then begin
+      if Pos(AnsiLowerCase(edPesquisa.Text),AnsiLowerCase(DataSet.Fields[I].AsVariant)) > 0 then begin
+        Accept := True;
+        Break;
+      end;
+    end;
   end;
 end;
 
@@ -335,8 +376,21 @@ begin
     edPesquisa.SetFocus;
 end;
 
+procedure TfrmCadastroProdutos.gdProdutosCellClick(Column: TColumn);
+begin
+  if not csProdutos.IsEmpty then begin
+    csProdutos.Edit;
+    csProdutosSELECIONAR.Value := not csProdutosSELECIONAR.Value;
+    csProdutos.Post;
+  end;
+end;
+
 procedure TfrmCadastroProdutos.gdProdutosDrawColumnCell(Sender: TObject;
   const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+const
+  IsChecked : array[Boolean] of Integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED);
+var
+  DrawRect: TRect;
 begin
   if csProdutos.IsEmpty then Exit;
 
@@ -352,6 +406,64 @@ begin
     gdProdutos.Canvas.FillRect(Rect);
     ImageList1.Draw(gdProdutos.Canvas, (Rect.Left + (Rect.Width div 2) - 1), Rect.Top + 2, csProdutosSTATUS.Value);
   end;
+
+  if Column.FieldName = csProdutosSELECIONAR.FieldName then begin
+    DrawRect   := Rect;
+    InflateRect(DrawRect,-1,-1);
+    gdProdutos.Canvas.FillRect(Rect);
+    DrawFrameControl(gdProdutos.Canvas.Handle, DrawRect, DFC_BUTTON, ISChecked[Column.Field.AsBoolean]);
+  end;
+end;
+
+procedure TfrmCadastroProdutos.ReenviarParaFTP;
+Var
+  FWC : TFWConnection;
+  P   : TPRODUTO;
+  HouveAlteracao : Boolean;
+begin
+
+  if not csProdutos.IsEmpty then begin
+
+    FWC := TFWConnection.Create;
+    P   := TPRODUTO.Create(FWC);
+    try
+      try
+        HouveAlteracao := False;
+        csProdutos.DisableControls;
+        csProdutos.First;
+        while not csProdutos.Eof do begin
+          if csProdutosSELECIONAR.Value then begin
+            if csProdutosSTATUS.Value = 1 then begin
+              P.ID.Value      := csProdutosID.Value;
+              P.STATUS.Value  := 0;
+              P.Update;
+              csProdutos.Edit;
+              csProdutosSTATUS.Value  := 0;
+              csProdutos.Post;
+              HouveAlteracao := True;
+            end;
+          end;
+          csProdutos.Next;
+        end;
+
+        if HouveAlteracao then
+          FWC.Commit;
+
+        DisplayMsg(MSG_OK, 'Reenvio de Produtos definido com Sucesso!');
+
+      except
+        on E : Exception do begin
+          FWC.Rollback;
+          DisplayMsg(MSG_ERR, 'Erro ao Reenviar os Produtos!', '', E.Message);
+        end;
+      end;
+    finally
+      FreeAndNil(P);
+      FreeAndNil(FWC);
+      csProdutos.EnableControls;
+    end;
+  end;
+
 end;
 
 end.
