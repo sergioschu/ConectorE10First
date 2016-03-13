@@ -45,6 +45,7 @@ type
     procedure btAtualizarPedidosClick(Sender: TObject);
     procedure btAtualizarTransportadoraClick(Sender: TObject);
     procedure cbFiltroStatusChange(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -536,6 +537,14 @@ end;
 procedure TFrmManutencaoPedidos.FormCreate(Sender: TObject);
 begin
   AjustaForm(Self);
+end;
+
+procedure TFrmManutencaoPedidos.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+    VK_ESCAPE : Close;
+  end;
 end;
 
 procedure TFrmManutencaoPedidos.FormShow(Sender: TObject);

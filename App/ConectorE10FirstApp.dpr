@@ -25,13 +25,15 @@ uses
   uBeanPedido in 'Beans\uBeanPedido.pas',
   uBeanPedidoItens in 'Beans\uBeanPedidoItens.pas',
   uBeanNotaFiscalItens in 'Beans\uBeanNotaFiscalItens.pas',
-  uManutencaoPedidos in 'uManutencaoPedidos.pas' {FrmManutencaoPedidos};
+  uManutencaoPedidos in 'uManutencaoPedidos.pas' {FrmManutencaoPedidos},
+  uFaturamentodePedidos in 'uFaturamentodePedidos.pas' {FrmFaturamentodePedidos};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  ReportMemoryLeaksOnShutdown   := True;
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);

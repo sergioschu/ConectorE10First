@@ -63,7 +63,7 @@ begin
     LOGIN.Usuario               := ArqINI.ReadString('LOGIN', 'USUARIO', '');
     LOGIN.LembrarUsuario        := ArqINI.ReadBool('LOGIN', 'LEMBRARUSUARIO', True);
 
-    CONFIG_LOCAL.DirRelatorios  := ArqINI.ReadString('CONFIGURACOES', 'DIR_RELATORIOS', 'C:\CrossAbacos\Relatorios\');
+    CONFIG_LOCAL.DirRelatorios  := ArqINI.ReadString('CONFIGURACOES', 'DIR_RELATORIOS', 'C:\ConectorE10First\Relatorios\');
     CONFIG_LOCAL.FTPUsuario     := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
     CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
   finally

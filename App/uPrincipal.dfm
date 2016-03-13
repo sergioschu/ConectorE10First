@@ -11,6 +11,7 @@ object frmPrincipal: TfrmPrincipal
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   Menu = MainMenu1
   OldCreateOrder = False
   WindowState = wsMaximized
@@ -55,6 +56,7 @@ object frmPrincipal: TfrmPrincipal
       end
       object FaturamentodePedidos1: TMenuItem
         Caption = 'Faturamento de Pedidos'
+        OnClick = FaturamentodePedidos1Click
       end
     end
     object Configuraes1: TMenuItem

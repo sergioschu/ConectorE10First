@@ -30,6 +30,7 @@ type
     procedure Produtos1Click(Sender: TObject);
     procedure NotasFiscaisdeEntrada1Click(Sender: TObject);
     procedure Pedidos1Click(Sender: TObject);
+    procedure FaturamentodePedidos1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -51,7 +52,8 @@ uses
   uCadastroUsuario,
   uCadastroProdutos,
   uNotaFiscal,
-  uManutencaoPedidos;
+  uManutencaoPedidos,
+  uFaturamentodePedidos;
 
 {$R *.dfm}
 
@@ -72,6 +74,17 @@ begin
   if USUARIO.CODIGO > 0 then begin
     DefinePermissaoMenu(MainMenu1);
     miSair.Visible          := True;
+  end;
+end;
+
+procedure TfrmPrincipal.FaturamentodePedidos1Click(Sender: TObject);
+begin
+  try
+    if FrmFaturamentodePedidos = nil then
+      FrmFaturamentodePedidos := TFrmFaturamentodePedidos.Create(Self);
+    FrmFaturamentodePedidos.ShowModal;
+  finally
+    FreeAndNil(FrmFaturamentodePedidos);
   end;
 end;
 
