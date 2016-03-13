@@ -21,6 +21,7 @@ type
     NotasFiscaisdeEntrada1: TMenuItem;
     Pedidos1: TMenuItem;
     FaturamentodePedidos1: TMenuItem;
+    ransportadoras1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -31,6 +32,7 @@ type
     procedure NotasFiscaisdeEntrada1Click(Sender: TObject);
     procedure Pedidos1Click(Sender: TObject);
     procedure FaturamentodePedidos1Click(Sender: TObject);
+    procedure ransportadoras1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -53,7 +55,8 @@ uses
   uCadastroProdutos,
   uNotaFiscal,
   uManutencaoPedidos,
-  uFaturamentodePedidos;
+  uFaturamentodePedidos,
+  uCadastroTransportadora;
 
 {$R *.dfm}
 
@@ -152,6 +155,17 @@ begin
     frmCadastroProdutos.ShowModal;
   finally
     FreeAndNil(frmCadastroProdutos);
+  end;
+end;
+
+procedure TfrmPrincipal.ransportadoras1Click(Sender: TObject);
+begin
+  if not Assigned(frmCadastroTransportadora) then
+    frmCadastroTransportadora  := TfrmCadastroTransportadora.Create(nil);
+  try
+    frmCadastroTransportadora.ShowModal;
+  finally
+    FreeAndNil(frmCadastroTransportadora);
   end;
 end;
 

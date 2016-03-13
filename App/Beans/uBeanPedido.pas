@@ -9,7 +9,6 @@ type
     FDEST_CNPJ: TFieldString;
     FVIAGEM: TFieldString;
     FPEDIDO: TFieldString;
-    FTRANSP_CNPJ: TFieldString;
     FID: TFieldInteger;
     FDEST_CEP: TFieldString;
     FDEST_MUNICIPIO: TFieldString;
@@ -18,6 +17,7 @@ type
     FSEQUENCIA: TFieldInteger;
     FSTATUS: TFieldInteger;
     FID_ARQUIVO: TFieldInteger;
+    FID_TRANSPORTADORA: TFieldInteger;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -26,11 +26,11 @@ type
     procedure SetDEST_NOME(const Value: TFieldString);
     procedure SetID(const Value: TFieldInteger);
     procedure SetPEDIDO(const Value: TFieldString);
-    procedure SetTRANSP_CNPJ(const Value: TFieldString);
     procedure SetVIAGEM(const Value: TFieldString);
     procedure SetSEQUENCIA(const Value: TFieldInteger);
     procedure SetSTATUS(const Value: TFieldInteger);
     procedure SetID_ARQUIVO(const Value: TFieldInteger);
+    procedure SetID_TRANSPORTADORA(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
@@ -38,7 +38,6 @@ type
     property PEDIDO : TFieldString read FPEDIDO write SetPEDIDO;
     property VIAGEM : TFieldString read FVIAGEM write SetVIAGEM;
     property SEQUENCIA : TFieldInteger read FSEQUENCIA write SetSEQUENCIA;
-    property TRANSP_CNPJ : TFieldString read FTRANSP_CNPJ write SetTRANSP_CNPJ;
     property DEST_CNPJ : TFieldString read FDEST_CNPJ write SetDEST_CNPJ;
     property DEST_NOME : TFieldString read FDEST_NOME write SetDEST_NOME;
     property DEST_ENDERECO : TFieldString read FDEST_ENDERECO write SetDEST_ENDERECO;
@@ -47,6 +46,7 @@ type
     property DEST_MUNICIPIO : TFieldString read FDEST_MUNICIPIO write SetDEST_MUNICIPIO;
     property STATUS : TFieldInteger read FSTATUS write SetSTATUS;
     property ID_ARQUIVO : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
+    property ID_TRANSPORTADORA : TFieldInteger read FID_TRANSPORTADORA write SetID_TRANSPORTADORA;
   End;
 implementation
 
@@ -58,18 +58,17 @@ begin
   ID.isPK      := True;
 
   PEDIDO.isNotNull           := True;
-  TRANSP_CNPJ.isNotNull      := True;
   DEST_CNPJ.isNotNull        := True;
   DEST_NOME.isNotNull        := True;
   DEST_ENDERECO.isNotNull    := True;
   DEST_COMPLEMENTO.isNotNull := True;
   DEST_CEP.isNotNull         := True;
   DEST_MUNICIPIO.isNotNull   := True;
+  ID_TRANSPORTADORA.isNotNull:= True;
 
 
   PEDIDO.Size                := 20;
   VIAGEM.Size                := 10;
-  TRANSP_CNPJ.Size           := 19;
   DEST_CNPJ.Size             := 19;
   DEST_NOME.Size             := 60;
   DEST_ENDERECO.Size         := 36;
@@ -118,6 +117,11 @@ begin
   FID_ARQUIVO := Value;
 end;
 
+procedure TPEDIDO.SetID_TRANSPORTADORA(const Value: TFieldInteger);
+begin
+  FID_TRANSPORTADORA := Value;
+end;
+
 procedure TPEDIDO.SetPEDIDO(const Value: TFieldString);
 begin
   FPEDIDO := Value;
@@ -131,11 +135,6 @@ end;
 procedure TPEDIDO.SetSTATUS(const Value: TFieldInteger);
 begin
   FSTATUS := Value;
-end;
-
-procedure TPEDIDO.SetTRANSP_CNPJ(const Value: TFieldString);
-begin
-  FTRANSP_CNPJ := Value;
 end;
 
 procedure TPEDIDO.SetVIAGEM(const Value: TFieldString);

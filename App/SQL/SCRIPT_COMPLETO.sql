@@ -35,6 +35,8 @@ COMMENT ON COLUMN arquivosftp.tipo IS '0-Produtos
 1-NotaFiscal
 2-Pedido';
 
+INSERT INTO arquivosftp (tipo) VALUES (0);
+
 CREATE TABLE produto
 (
   id serial NOT NULL,
@@ -64,6 +66,16 @@ CREATE TABLE produto
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
+CREATE TABLE transportadora
+(
+  id serial NOT NULL,
+  cnpj character varying(19),
+  nome character varying(100),
+  CONSTRAINT pk_transportadora PRIMARY KEY (id)
+);
+
+INSERT INTO transportadora (cnpj, nome) VALUES ('99999999000191', 'Transportadora Padrão');
+
 CREATE TABLE if not exists pedido
 (
   id serial NOT NULL,
@@ -79,7 +91,11 @@ CREATE TABLE if not exists pedido
   dest_municipio character varying(30) NOT NULL,
   status smallint DEFAULT 0,
   id_arquivo integer NOT NULL,
+  id_transportadora integer NOT NULL,
   CONSTRAINT pk_lote PRIMARY KEY (id),
+CONSTRAINT fk_p_transportadora FOREIGN KEY (id_transportadora)
+      REFERENCES transportadora (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_ped_arquivosftp FOREIGN KEY (id_arquivo)
       REFERENCES arquivosftp (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
@@ -101,6 +117,7 @@ CREATE TABLE pedidoitens
       REFERENCES produto (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
 CREATE TABLE notafiscal
 (
   id serial NOT NULL,
