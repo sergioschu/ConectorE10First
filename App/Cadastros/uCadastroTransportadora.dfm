@@ -23,9 +23,6 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
     Height = 499
     Align = alClient
     TabOrder = 0
-    ExplicitTop = -81
-    ExplicitWidth = 755
-    ExplicitHeight = 541
     object dgTransportadoras: TDBGrid
       AlignWithMargins = True
       Left = 4
@@ -76,7 +73,6 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
-      ExplicitWidth = 753
       object btPesquisar: TSpeedButton
         AlignWithMargins = True
         Left = 695
@@ -162,7 +158,6 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
         ShowHint = True
         TabOrder = 0
         OnKeyDown = edPesquisaKeyDown
-        ExplicitWidth = 509
       end
     end
     object Panel2: TPanel
@@ -183,7 +178,6 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
-      ExplicitWidth = 747
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
@@ -216,26 +210,21 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
           Value = 100.000000000000000000
         end>
       TabOrder = 3
-      ExplicitTop = 477
-      ExplicitWidth = 747
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 389
-        Height = 52
+        Width = 390
+        Height = 54
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 4
-        ExplicitTop = 4
-        ExplicitWidth = 366
         object btAtualizar: TSpeedButton
           AlignWithMargins = True
-          Left = 286
+          Left = 287
           Top = 3
           Width = 100
-          Height = 46
+          Height = 48
           Align = alRight
           Caption = '&Atualizar'
           Glyph.Data = {
@@ -344,10 +333,10 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
         end
         object pbAtualizaProduto: TGauge
           AlignWithMargins = True
-          Left = 228
+          Left = 229
           Top = 3
           Width = 52
-          Height = 46
+          Height = 48
           Align = alRight
           BorderStyle = bsNone
           ForeColor = clLime
@@ -355,26 +344,24 @@ object frmCadastroTransportadora: TfrmCadastroTransportadora
           Progress = 0
           ExplicitLeft = 167
           ExplicitTop = -4
+          ExplicitHeight = 46
         end
       end
       object Panel3: TPanel
         AlignWithMargins = True
-        Left = 398
+        Left = 399
         Top = 3
-        Width = 389
-        Height = 52
+        Width = 390
+        Height = 54
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 376
-        ExplicitTop = 4
-        ExplicitWidth = 367
         object btFechar: TSpeedButton
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 100
-          Height = 46
+          Height = 48
           Align = alLeft
           Caption = '&Fechar'
           Glyph.Data = {

@@ -265,6 +265,7 @@ begin
 
   AjustaForm(Self);
   AutoSizeDBGrid(dgTransportadoras);
+  CarregaDados;
 end;
 
 end.
