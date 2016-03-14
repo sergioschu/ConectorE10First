@@ -36,6 +36,7 @@ type
     csNotaFiscalSTATUS: TIntegerField;
     cbStatus: TComboBox;
     btDetalhes: TSpeedButton;
+    csNotaFiscalID: TIntegerField;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -48,10 +49,12 @@ type
     procedure btPesquisarClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbStatusChange(Sender: TObject);
+    procedure btDetalhesClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure AtualizarNotasFiscais;
     procedure Filtrar;
+    procedure ImprimirDetalhes;
     { Private declarations }
   public
     { Public declarations }
@@ -69,7 +72,8 @@ uses
   uBeanNotaFiscal,
   uBeanNotaFiscalItens,
   uBeanProduto,
-  uConstantes;
+  uConstantes,
+  uDMUtil;
 {$R *.dfm}
 
 { TfrmNotaFiscal }
@@ -236,6 +240,18 @@ begin
   end;
 end;
 
+procedure TfrmNotaFiscal.btDetalhesClick(Sender: TObject);
+begin
+  if btDetalhes.Tag = 0 then begin
+    btDetalhes.Tag    := 1;
+    try
+      ImprimirDetalhes;
+    finally
+      btDetalhes.Tag   := 0;
+    end;
+  end;
+end;
+
 procedure TfrmNotaFiscal.btFecharClick(Sender: TObject);
 begin
   Close;
@@ -268,6 +284,7 @@ begin
 
     for I := 0 to Pred(NF.Count) do begin
       csNotaFiscal.Append;
+      csNotaFiscalID.Value            := TNOTAFISCAL(NF.Itens[I]).ID.Value;
       csNotaFiscalDOCUMENTO.Value     := TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.Value;
       csNotaFiscalDATAEMISSAO.Value   := TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value;
       csNotaFiscalSERIE.Value         := TNOTAFISCAL(NF.Itens[I]).SERIE.Value;
@@ -379,6 +396,42 @@ begin
 
   if edPesquisa.CanFocus then
     edPesquisa.SetFocus;
+end;
+
+procedure TfrmNotaFiscal.ImprimirDetalhes;
+var
+  SQL : TFDQuery;
+  FWC : TFWConnection;
+begin
+  FWC    := TFWConnection.Create;
+  SQL    := TFDQuery.Create(nil);
+  DisplayMsg(MSG_WAIT, 'Buscando dados no Banco de Dados!');
+  try
+    try
+      SQL.Connection := FWC.FDConnection;
+
+      SQL.Close;
+      SQL.SQL.Clear;
+      SQL.SQL.Add('select * from notafiscal nf');
+      SQL.SQL.Add('inner join notafiscalitens ni on nf.id = ni.id_notafiscal');
+      SQL.SQL.Add('where id = :id');
+      SQL.ParamByName('id').Value    := csNotaFiscalID.Value;
+      SQL.Open();
+
+      DMUtil.frxDBDataset1.DataSet   := SQL;
+      DMUtil.ImprimirRelatorio('frDetalhesNotaFiscal.fr3');
+      DisplayMsgFinaliza;
+    except
+      on E : Exception do begin
+        DisplayMsg(MSG_WAR, 'Erro ao buscar dados!', '', E.Message);
+        Exit;
+      end;
+    end;
+
+  finally
+    FreeAndNil(SQL);
+    FreeAndNil(FWC);
+  end;
 end;
 
 end.
