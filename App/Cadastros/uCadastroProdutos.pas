@@ -133,6 +133,7 @@ begin
           P.LARGURAEMBALAGEM.excelTitulo       := 'L';
           P.ALTURAEMBALAGEM.excelTitulo        := 'E';
           P.UNIDADEDEMEDIDA.excelTitulo        := 'UN';
+          P.CODIGOBARRAS.excelTitulo           := 'Código de barras';
 
           P.buscaIndicesExcel(Arquivo, Excel);
 
@@ -164,7 +165,7 @@ begin
               end;
             end;
 
-            P.CODIGOBARRAS.Value                 := P.CODIGOPRODUTO.Value;
+//            P.CODIGOBARRAS.Value                 := P.CODIGOPRODUTO.Value;
             P.QUANTIDADECAIXASALTURAPALET.Value  := 1;
             P.QUANTIDADESCAIXASLASTROPALET.Value := 1;
             P.ALIQUOTAIPI.Value                  := 0;
