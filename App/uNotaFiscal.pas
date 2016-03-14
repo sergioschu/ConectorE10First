@@ -6,7 +6,10 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB,
   Datasnap.DBClient, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids, Vcl.DBGrids,
-  System.Win.ComObj, System.TypInfo, Vcl.Samples.Gauges, Vcl.ImgList;
+  System.Win.ComObj, System.TypInfo, Vcl.Samples.Gauges, Vcl.ImgList,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TfrmNotaFiscal = class(TForm)
@@ -157,6 +160,7 @@ begin
             end;
 
             pbAtualizaProduto.Progress                                               := I;
+            Application.ProcessMessages;
           end;
           pbAtualizaProduto.MaxValue                                                 := Length(NOTAS);
           for I := Low(NOTAS) to High(NOTAS) do begin
@@ -192,6 +196,7 @@ begin
               end;
             end;
             pbAtualizaProduto.Progress     := I;
+            Application.ProcessMessages;
           end;
           FWC.Commit;
           DisplayMsgFinaliza;
