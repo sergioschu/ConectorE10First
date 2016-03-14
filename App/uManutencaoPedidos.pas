@@ -267,7 +267,10 @@ begin
                   PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
                   PED.VIAGEM.Value            := '';
                   PED.SEQUENCIA.Value         := 0;
+<<<<<<< HEAD
                   PED.ID_TRANSPORTADORA.Value := 0;
+=======
+>>>>>>> origin/master
                   PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
                   PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
                   PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
@@ -376,7 +379,10 @@ begin
           PED.PEDIDO.excelTitulo            := 'Pedido - Nº';
           PED.VIAGEM.excelTitulo            := ''; //Não tem no Excel
           PED.SEQUENCIA.excelTitulo         := ''; //Não tem no Excel
+<<<<<<< HEAD
           //PED.TRANSP_CNPJ.excelTitulo       := 'Transportadora';
+=======
+>>>>>>> origin/master
           PED.DEST_CNPJ.excelTitulo         := ''; //Não tem no Excel
           PED.DEST_NOME.excelTitulo         := ''; //Não tem no Excel
           PED.DEST_ENDERECO.excelTitulo     := ''; //Não tem no Excel

@@ -26,16 +26,20 @@ type
     Panel3: TPanel;
     btFechar: TSpeedButton;
     OpenDialog1: TOpenDialog;
-    ImageList1: TImageList;
     csNotaFiscal: TClientDataSet;
     dsNotaFiscal: TDataSource;
     csNotaFiscalDOCUMENTO: TIntegerField;
     csNotaFiscalDATAEMISSAO: TDateField;
     csNotaFiscalSERIE: TIntegerField;
     csNotaFiscalCNPJ: TStringField;
-    csNotaFiscalSTATUS: TIntegerField;
     cbStatus: TComboBox;
     btDetalhes: TSpeedButton;
+    csNotaFiscalID: TIntegerField;
+    csNotaFiscalSTATUS: TStringField;
+    csNotaFiscalSTATUSCOD: TIntegerField;
+    csNotaFiscalSELECIONAR: TBooleanField;
+    btReenviar: TSpeedButton;
+    btConferida: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -48,10 +52,16 @@ type
     procedure btPesquisarClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbStatusChange(Sender: TObject);
+    procedure btDetalhesClick(Sender: TObject);
+    procedure btReenviarClick(Sender: TObject);
+    procedure dgNotaFiscalCellClick(Column: TColumn);
+    procedure btConferidaClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure AtualizarNotasFiscais;
     procedure Filtrar;
+    procedure ImprimirDetalhes;
+    procedure ReenviaConfirma(Status : Integer);
     { Private declarations }
   public
     { Public declarations }
@@ -69,7 +79,8 @@ uses
   uBeanNotaFiscal,
   uBeanNotaFiscalItens,
   uBeanProduto,
-  uConstantes;
+  uConstantes,
+  uDMUtil;
 {$R *.dfm}
 
 { TfrmNotaFiscal }
@@ -92,6 +103,7 @@ Var
   I,
   J       : Integer;
   NOTAS   : array of TNOTA;
+  Lista   : TStringList;
 begin
   if OpenDialog1.Execute then begin
     if Pos(ExtractFileExt(OpenDialog1.FileName), '|.xls|.xlsx|') > 0 then begin
@@ -108,6 +120,7 @@ begin
       NF                         := TNOTAFISCAL.Create(FWC);
       NFI                        := TNOTAFISCALITENS.Create(FWC);
       P                          := TPRODUTO.Create(FWC);
+      Lista                      := TStringList.Create;
       pbAtualizaProduto.Progress := 0;
 
       DisplayMsg(MSG_WAIT, 'Buscando dados do arquivo Excel!');
@@ -182,24 +195,31 @@ begin
             NF.Insert;
             for J := Low(NOTAS[I].ITENS) to High(NOTAS[I].ITENS) do begin
               NFI.ID_NOTAFISCAL.Value      := NF.ID.Value;
-              NFI.SEQUENCIA.Value          := I + 1;
+              NFI.SEQUENCIA.Value          := NOTAS[I].ITENS[J].SEQUENCIA;
               NFI.QUANTIDADE.Value         := NOTAS[I].ITENS[J].QUANTIDADE;
               NFI.QUANTIDADEREC.Value      := 0;
               NFI.QUANTIDADEAVA.Value      := 0;
               NFI.VALORUNITARIO.Value      := NOTAS[I].ITENS[J].UNITARIO;
               NFI.VALORTOTAL.Value         := NOTAS[I].ITENS[J].TOTAL;
 
-              P.SelectList('codigoproduto = ' + QuotedStr(NOTAS[I].ITENS[J].SKU));
+              P.SelectList('upper(codigoproduto) = ' + QuotedStr(AnsiUpperCase(NOTAS[I].ITENS[J].SKU)));
               if P.Count > 0 then begin
                 NFI.ID_PRODUTO.Value       := TPRODUTO(P.Itens[0]).ID.Value;
                 NFI.Insert;
+              end else begin
+                Lista.Add(NOTAS[I].ITENS[J].SKU);
               end;
             end;
             pbAtualizaProduto.Progress     := I;
             Application.ProcessMessages;
           end;
-          FWC.Commit;
-          DisplayMsgFinaliza;
+          if Lista.Count > 0 then begin
+            FWC.Rollback;
+            DisplayMsg(MSG_WAR, 'Existem produtos nas Notas Fiscais que não estão cadastrados no ConectorE10!', '', Lista.Text);
+          end else begin
+            FWC.Commit;
+            DisplayMsgFinaliza;
+          end;
           CarregaDados;
         except
           on E : Exception do begin
@@ -219,6 +239,7 @@ begin
         FreeAndNil(NFI);
         FreeAndNil(P);
         FreeAndNil(FWC);
+        FreeAndNil(Lista);
       end;
     end;
   end;
@@ -232,6 +253,30 @@ begin
       AtualizarNotasFiscais;
     finally
       btAtualizar.Tag := 0;
+    end;
+  end;
+end;
+
+procedure TfrmNotaFiscal.btConferidaClick(Sender: TObject);
+begin
+  if btConferida.Tag = 0 then begin
+    btConferida.Tag   := 1;
+    try
+      ReenviaConfirma(3);
+    finally
+      btConferida.Tag := 0;
+    end;
+  end;
+end;
+
+procedure TfrmNotaFiscal.btDetalhesClick(Sender: TObject);
+begin
+  if btDetalhes.Tag = 0 then begin
+    btDetalhes.Tag    := 1;
+    try
+      ImprimirDetalhes;
+    finally
+      btDetalhes.Tag   := 0;
     end;
   end;
 end;
@@ -253,6 +298,18 @@ begin
   end;
 end;
 
+procedure TfrmNotaFiscal.btReenviarClick(Sender: TObject);
+begin
+  if btReenviar.Tag = 0 then begin
+    btReenviar.Tag   := 1;
+    try
+      ReenviaConfirma(0);
+    finally
+      btReenviar.Tag := 0;
+    end;
+  end;
+end;
+
 procedure TfrmNotaFiscal.CarregaDados;
 var
   CON : TFWConnection;
@@ -268,11 +325,17 @@ begin
 
     for I := 0 to Pred(NF.Count) do begin
       csNotaFiscal.Append;
+      csNotaFiscalID.Value            := TNOTAFISCAL(NF.Itens[I]).ID.Value;
       csNotaFiscalDOCUMENTO.Value     := TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.Value;
       csNotaFiscalDATAEMISSAO.Value   := TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value;
       csNotaFiscalSERIE.Value         := TNOTAFISCAL(NF.Itens[I]).SERIE.Value;
       csNotaFiscalCNPJ.Value          := TNOTAFISCAL(NF.Itens[I]).CNPJCPF.Value;
-      csNotaFiscalSTATUS.Value        := TNOTAFISCAL(NF.Itens[I]).STATUS.Value;
+      csNotaFiscalSTATUSCOD.Value     := TNOTAFISCAL(NF.Itens[I]).STATUS.Value;
+      case TNOTAFISCAL(NF.Itens[I]).STATUS.Value of
+        0 : csNotaFiscalSTATUS.Value  := 'Não Enviada para o FTP';
+        1 : csNotaFiscalSTATUS.Value  := 'Enviada para o FTP';
+        2 : csNotaFiscalSTATUS.Value  := 'MDD Recebido';
+      end;
       csNotaFiscal.Post;
     end;
 
@@ -301,9 +364,10 @@ var
 begin
   Accept   := True;
   case cbStatus.ItemIndex of
-    1 : Accept := csNotaFiscalSTATUS.AsInteger = 0;
-    2 : Accept := csNotaFiscalSTATUS.AsInteger = 1;
-    3 : Accept := csNotaFiscalSTATUS.AsInteger = 2;
+    1 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 0;
+    2 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 1;
+    3 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 2;
+    4 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 3;
     else
       Accept := True;
   end;
@@ -316,8 +380,21 @@ begin
   end;
 end;
 
+procedure TfrmNotaFiscal.dgNotaFiscalCellClick(Column: TColumn);
+begin
+  if not csNotaFiscal.IsEmpty then begin
+    csNotaFiscal.Edit;
+    csNotaFiscalSELECIONAR.Value := not csNotaFiscalSELECIONAR.Value;
+    csNotaFiscal.Post;
+  end;
+end;
+
 procedure TfrmNotaFiscal.dgNotaFiscalDrawColumnCell(Sender: TObject;
   const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+const
+  IsChecked : array[Boolean] of Integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED);
+var
+  DrawRect: TRect;
 begin
   if csNotaFiscal.IsEmpty then Exit;
 
@@ -329,9 +406,11 @@ begin
 
   dgNotaFiscal.DefaultDrawDataCell( Rect, dgNotaFiscal.Columns[DataCol].Field, State);
 
-  if Column.FieldName = csNotaFiscalSTATUS.FieldName then begin
+  if Column.FieldName = csNotaFiscalSELECIONAR.FieldName then begin
+    DrawRect   := Rect;
+    InflateRect(DrawRect,-1,-1);
     dgNotaFiscal.Canvas.FillRect(Rect);
-    ImageList1.Draw(dgNotaFiscal.Canvas, (Rect.Left + (Rect.Width div 2) - 1), Rect.Top + 2, csNotaFiscalSTATUS.Value);
+    DrawFrameControl(dgNotaFiscal.Canvas.Handle, DrawRect, DFC_BUTTON, ISChecked[Column.Field.AsBoolean]);
   end;
 end;
 
@@ -379,6 +458,84 @@ begin
 
   if edPesquisa.CanFocus then
     edPesquisa.SetFocus;
+end;
+
+procedure TfrmNotaFiscal.ImprimirDetalhes;
+var
+  SQL : TFDQuery;
+  FWC : TFWConnection;
+begin
+  FWC    := TFWConnection.Create;
+  SQL    := TFDQuery.Create(nil);
+  DisplayMsg(MSG_WAIT, 'Buscando dados no Banco de Dados!');
+  try
+    try
+      SQL.Connection := FWC.FDConnection;
+
+      SQL.Close;
+      SQL.SQL.Clear;
+      SQL.SQL.Add('select nf.documento, nf.serie, nf.cnpjcpf, nf.dataemissao, p.codigoproduto, p.descricaoreduzida, ni.*');
+      SQL.SQL.Add('from notafiscal nf');
+      SQL.SQL.Add('inner join notafiscalitens ni on nf.id = ni.id_notafiscal');
+      SQL.SQL.Add('inner join produto p on ni.id_produto = p.id');
+      SQL.SQL.Add('where nf.id = :id');
+      SQL.ParamByName('id').Value    := csNotaFiscalID.Value;
+      SQL.Open();
+
+      DMUtil.frxDBDataset1.DataSet   := SQL;
+      DMUtil.ImprimirRelatorio('frDetalhesNotafiscal.fr3');
+      DisplayMsgFinaliza;
+    except
+      on E : Exception do begin
+        DisplayMsg(MSG_WAR, 'Erro ao buscar dados!', '', E.Message);
+        Exit;
+      end;
+    end;
+
+  finally
+    FreeAndNil(SQL);
+    FreeAndNil(FWC);
+  end;
+end;
+
+procedure TfrmNotaFiscal.ReenviaConfirma(Status : Integer);
+var
+  FWC   : TFWConnection;
+  NF    : TNOTAFISCAL;
+begin
+  FWC   := TFWConnection.Create;
+  NF    := TNOTAFISCAL.Create(FWC);
+  csNotaFiscal.DisableControls;
+  DisplayMsg(MSG_WAIT, 'Atualizando NFs!');
+  try
+     FWC.StartTransaction;
+    try
+      csNotaFiscal.First;
+      while not csNotaFiscal.Eof do begin
+        if (csNotaFiscalSELECIONAR.Value) and (csNotaFiscalSTATUSCOD.Value <> 3) then begin
+          if not ((Status = 3) and (csNotaFiscalSTATUSCOD.Value <> 2)) then begin
+            NF.ID.Value       := csNotaFiscalID.Value;
+            NF.STATUS.Value   := Status;
+            NF.Update;
+          end;
+        end;
+        csNotaFiscal.Next;
+      end;
+      FWC.Commit;
+      DisplayMsgFinaliza;
+      CarregaDados;
+    except
+      on E : Exception do begin
+        FWC.Rollback;
+        DisplayMsg(MSG_WAR, 'Erro ao atualizar NFs!', '', E.Message);
+        Exit;
+      end;
+    end;
+  finally
+    csNotaFiscal.EnableControls;
+    FreeAndNil(NF);
+    FreeAndNil(FWC);
+  end;
 end;
 
 end.
