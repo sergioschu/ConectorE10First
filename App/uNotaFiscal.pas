@@ -37,6 +37,9 @@ type
     csNotaFiscalID: TIntegerField;
     csNotaFiscalSTATUS: TStringField;
     csNotaFiscalSTATUSCOD: TIntegerField;
+    csNotaFiscalSELECIONAR: TBooleanField;
+    btReenviar: TSpeedButton;
+    btConferida: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -50,11 +53,15 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbStatusChange(Sender: TObject);
     procedure btDetalhesClick(Sender: TObject);
+    procedure btReenviarClick(Sender: TObject);
+    procedure dgNotaFiscalCellClick(Column: TColumn);
+    procedure btConferidaClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure AtualizarNotasFiscais;
     procedure Filtrar;
     procedure ImprimirDetalhes;
+    procedure ReenviaConfirma(Status : Integer);
     { Private declarations }
   public
     { Public declarations }
@@ -250,6 +257,18 @@ begin
   end;
 end;
 
+procedure TfrmNotaFiscal.btConferidaClick(Sender: TObject);
+begin
+  if btConferida.Tag = 0 then begin
+    btConferida.Tag   := 1;
+    try
+      ReenviaConfirma(3);
+    finally
+      btConferida.Tag := 0;
+    end;
+  end;
+end;
+
 procedure TfrmNotaFiscal.btDetalhesClick(Sender: TObject);
 begin
   if btDetalhes.Tag = 0 then begin
@@ -275,6 +294,18 @@ begin
       Filtrar;
     finally
       btPesquisar.Tag := 0;
+    end;
+  end;
+end;
+
+procedure TfrmNotaFiscal.btReenviarClick(Sender: TObject);
+begin
+  if btReenviar.Tag = 0 then begin
+    btReenviar.Tag   := 1;
+    try
+      ReenviaConfirma(0);
+    finally
+      btReenviar.Tag := 0;
     end;
   end;
 end;
@@ -336,6 +367,7 @@ begin
     1 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 0;
     2 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 1;
     3 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 2;
+    4 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 3;
     else
       Accept := True;
   end;
@@ -348,8 +380,21 @@ begin
   end;
 end;
 
+procedure TfrmNotaFiscal.dgNotaFiscalCellClick(Column: TColumn);
+begin
+  if not csNotaFiscal.IsEmpty then begin
+    csNotaFiscal.Edit;
+    csNotaFiscalSELECIONAR.Value := not csNotaFiscalSELECIONAR.Value;
+    csNotaFiscal.Post;
+  end;
+end;
+
 procedure TfrmNotaFiscal.dgNotaFiscalDrawColumnCell(Sender: TObject;
   const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+const
+  IsChecked : array[Boolean] of Integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED);
+var
+  DrawRect: TRect;
 begin
   if csNotaFiscal.IsEmpty then Exit;
 
@@ -360,6 +405,13 @@ begin
   end;
 
   dgNotaFiscal.DefaultDrawDataCell( Rect, dgNotaFiscal.Columns[DataCol].Field, State);
+
+  if Column.FieldName = csNotaFiscalSELECIONAR.FieldName then begin
+    DrawRect   := Rect;
+    InflateRect(DrawRect,-1,-1);
+    dgNotaFiscal.Canvas.FillRect(Rect);
+    DrawFrameControl(dgNotaFiscal.Canvas.Handle, DrawRect, DFC_BUTTON, ISChecked[Column.Field.AsBoolean]);
+  end;
 end;
 
 procedure TfrmNotaFiscal.edPesquisaKeyDown(Sender: TObject; var Key: Word;
@@ -442,6 +494,46 @@ begin
 
   finally
     FreeAndNil(SQL);
+    FreeAndNil(FWC);
+  end;
+end;
+
+procedure TfrmNotaFiscal.ReenviaConfirma(Status : Integer);
+var
+  FWC   : TFWConnection;
+  NF    : TNOTAFISCAL;
+begin
+  FWC   := TFWConnection.Create;
+  NF    := TNOTAFISCAL.Create(FWC);
+  csNotaFiscal.DisableControls;
+  DisplayMsg(MSG_WAIT, 'Atualizando NFs!');
+  try
+     FWC.StartTransaction;
+    try
+      csNotaFiscal.First;
+      while not csNotaFiscal.Eof do begin
+        if (csNotaFiscalSELECIONAR.Value) and (csNotaFiscalSTATUSCOD.Value <> 3) then begin
+          if not ((Status = 3) and (csNotaFiscalSTATUSCOD.Value <> 2)) then begin
+            NF.ID.Value       := csNotaFiscalID.Value;
+            NF.STATUS.Value   := Status;
+            NF.Update;
+          end;
+        end;
+        csNotaFiscal.Next;
+      end;
+      FWC.Commit;
+      DisplayMsgFinaliza;
+      CarregaDados;
+    except
+      on E : Exception do begin
+        FWC.Rollback;
+        DisplayMsg(MSG_WAR, 'Erro ao atualizar NFs!', '', E.Message);
+        Exit;
+      end;
+    end;
+  finally
+    csNotaFiscal.EnableControls;
+    FreeAndNil(NF);
     FreeAndNil(FWC);
   end;
 end;
