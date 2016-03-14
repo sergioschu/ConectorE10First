@@ -63,6 +63,7 @@ type
     DEST_CEP : String;
     DEST_MUNICIPIO : String;
     SKU : String;
+    ID_PRODUTO : Integer;
     QUANTIDADE : Currency;
     VALOR_UNITARIO : Currency;
   end;

@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ImgList, Data.DB, Datasnap.DBClient,
   Vcl.Samples.Gauges, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids,
-  Vcl.DBGrids, FireDAC.Comp.Client, System.TypInfo, System.Win.ComObj;
+  Vcl.DBGrids, FireDAC.Comp.Client, System.TypInfo, System.Win.ComObj,
+  uFWConnection;
 
 type
   TFrmManutencaoPedidos = class(TForm)
@@ -65,20 +66,27 @@ uses
   uFuncoes,
   uDomains,
   uConstantes,
-  uFWConnection,
   uMensagem,
   uBeanPedido,
-  uBeanPedidoItens;
+  uBeanPedidoItens,
+  uBeanProduto;
 
 {$R *.dfm}
 
 procedure TFrmManutencaoPedidos.AtualizarPedidos;
 const
   xlCellTypeLastCell = $0000000B;
+type
+  TListaProdutos = record
+    SKU : String;
+    IDProduto: Integer;
+  End;
+
 Var
   FWC     : TFWConnection;
   PED     : TPEDIDO;
   PEDITENS: TPEDIDOITENS;
+  P       : TPRODUTO;
   Arquivo,
   Aux     : String;
   Excel   : OleVariant;
@@ -89,6 +97,7 @@ Var
   AchouColuna : Boolean;
   Colunas: array of String;
   PedidoItens : array of TARRAYPEDIDOITENS;
+  ListadeProdutos : array of TListaProdutos;
 begin
 
   if OpenDialog1.Execute then begin
@@ -100,12 +109,15 @@ begin
         Exit;
       end;
 
+      DisplayMsg(MSG_WAIT, 'Validando arquivo!');
+
       // Cria Excel- OLE Object
       Excel                      := CreateOleObject('Excel.Application');
 
       FWC       := TFWConnection.Create;
       PED       := TPEDIDO.Create(FWC);
       PEDITENS  := TPEDIDOITENS.Create(FWC);
+      P         := TPRODUTO.Create(FWC);
 
       try
         try
@@ -128,7 +140,7 @@ begin
           Colunas[4] := 'Cliente - Complemento';
           Colunas[5] := 'Cliente - CEP';
           Colunas[6] := 'Cliente - Município';
-          Colunas[7] := 'Item - Código';
+          Colunas[7] := 'Cod';
           Colunas[8] := 'Qnt. Pedida';
           Colunas[9] := 'Item - Preço uni. bruto';
 
@@ -186,7 +198,7 @@ begin
                           if arrData[1, J] = 'Cliente - Município' then
                             PedidoItens[High(PedidoItens)].DEST_MUNICIPIO   := arrData[I, J]
                           else
-                            if arrData[1, J] = 'Item - Código' then
+                            if arrData[1, J] = 'Cod' then
                               PedidoItens[High(PedidoItens)].SKU              := arrData[I, J]
                             else
                               if arrData[1, J] = 'Qnt. Pedida' then
@@ -198,50 +210,97 @@ begin
             pbAtualizaPedidos.Progress := I;
           end;
 
-          DisplayMsg(MSG_WAIT, 'Gravando Pedidos no Banco de Dados!');
+          DisplayMsg(MSG_WAIT, 'Identificando Itens dos Pedidos!');
 
           pbAtualizaPedidos.Progress  := 0;
           pbAtualizaPedidos.MaxValue  := High(PedidoItens);
 
-          //Começa a Gravação dos Dados no BD
+          Aux := EmptyStr;
+          SetLength(ListadeProdutos, 0);
           for I := Low(PedidoItens) to High(PedidoItens) do begin
-            if PedidoItens[I].NUMEROPEDIDO <> EmptyStr then begin
-              PED.SelectList('PEDIDO = ' + QuotedStr(PedidoItens[I].NUMEROPEDIDO));
-              if PED.Count = 0 then begin
-                PED.ID.isNull               := True;
-                PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
-                PED.VIAGEM.Value            := '';
-                PED.SEQUENCIA.Value         := 0;
-                PED.TRANSP_CNPJ.Value       := '';
-                PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
-                PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
-                PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
-                PED.DEST_COMPLEMENTO.Value  := PedidoItens[I].DEST_COMPLEMENTO;
-                PED.DEST_CEP.Value          := PedidoItens[I].DEST_CEP;
-                PED.DEST_MUNICIPIO.Value    := PedidoItens[I].DEST_MUNICIPIO;
-                PED.STATUS.Value            := 0;
-                PED.ID_ARQUIVO.Value        := 0;
-                PED.Insert;
-                PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
-              end else begin
-                PedidoItens[I].ID_PEDIDO    := TPEDIDO(PED.Itens[0]).ID.Value;
+
+            //Verifica se o Produto está na Lista
+            PedidoItens[I].ID_PRODUTO := 0;
+            for J := Low(ListadeProdutos) to High(ListadeProdutos) do begin
+              if AnsiUpperCase(PedidoItens[I].SKU) = AnsiUpperCase(ListadeProdutos[J].SKU) then begin
+                PedidoItens[I].ID_PRODUTO := ListadeProdutos[J].IDProduto;
+                Break;
               end;
-
-              PEDITENS.ID.isNull            := True;
-              PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
-              PEDITENS.ID_PRODUTO.Value     := 2;
-              PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
-              PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
-              PEDITENS.RECEBIDO.Value       := False;
-              PEDITENS.Insert;
-
-              pbAtualizaPedidos.Progress  := I;
             end;
+
+            //Consulta o produto no BD
+            if PedidoItens[I].ID_PRODUTO = 0 then begin
+              P.SelectList('UPPER(CODIGOPRODUTO) = ' + QuotedStr(UpperCase(PedidoItens[I].SKU)));
+              if P.Count = 1 then begin
+
+                PedidoItens[I].ID_PRODUTO := TPRODUTO(P.Itens[0]).ID.Value;
+
+                SetLength(ListadeProdutos, Length(ListadeProdutos) + 1);
+                ListadeProdutos[High(ListadeProdutos)].SKU        := PedidoItens[I].SKU;
+                ListadeProdutos[High(ListadeProdutos)].IDProduto  := PedidoItens[I].ID_PRODUTO;
+              end;
+            end;
+
+            if PedidoItens[I].ID_PRODUTO = 0 then begin
+              if Aux = EmptyStr then
+                Aux := PedidoItens[I].SKU
+              else
+                Aux := Aux + sLineBreak + PedidoItens[I].SKU;
+            end;
+            pbAtualizaPedidos.Progress := I;
           end;
 
-          FWC.Commit;
+          if Aux = EmptyStr then begin
 
-          DisplayMsg(MSG_OK, 'Pedidos Atualizados com Sucesso!');
+            DisplayMsg(MSG_WAIT, 'Gravando Pedidos no Banco de Dados!');
+
+            pbAtualizaPedidos.Progress  := 0;
+            pbAtualizaPedidos.MaxValue  := High(PedidoItens);
+
+            //Começa a Gravação dos Dados no BD
+            for I := Low(PedidoItens) to High(PedidoItens) do begin
+              if PedidoItens[I].NUMEROPEDIDO <> EmptyStr then begin
+                PED.SelectList('PEDIDO = ' + QuotedStr(PedidoItens[I].NUMEROPEDIDO));
+                if PED.Count = 0 then begin
+                  PED.ID.isNull               := True;
+                  PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
+                  PED.VIAGEM.Value            := '';
+                  PED.SEQUENCIA.Value         := 0;
+                  PED.TRANSP_CNPJ.Value       := '';
+                  PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
+                  PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
+                  PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
+                  PED.DEST_COMPLEMENTO.Value  := PedidoItens[I].DEST_COMPLEMENTO;
+                  PED.DEST_CEP.Value          := PedidoItens[I].DEST_CEP;
+                  PED.DEST_MUNICIPIO.Value    := PedidoItens[I].DEST_MUNICIPIO;
+                  PED.STATUS.Value            := 0;
+                  PED.ID_ARQUIVO.Value        := 0;
+                  PED.Insert;
+                  PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
+                end else begin
+                  PedidoItens[I].ID_PEDIDO    := TPEDIDO(PED.Itens[0]).ID.Value;
+                end;
+
+                PEDITENS.ID.isNull            := True;
+                PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
+                PEDITENS.ID_PRODUTO.Value     := PedidoItens[I].ID_PRODUTO;
+                PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
+                PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
+                PEDITENS.RECEBIDO.Value       := False;
+                PEDITENS.Insert;
+
+                pbAtualizaPedidos.Progress  := I;
+              end;
+            end;
+
+            FWC.Commit;
+
+            DisplayMsg(MSG_OK, 'Pedidos Atualizados com Sucesso!');
+
+          end else begin
+            DisplayMsg(MSG_WAR, 'Há Produtos com SKU sem Cadastro, Verifique!', '', Aux);
+            Exit;
+          end;
 
         except
           on E : Exception do begin
@@ -257,6 +316,7 @@ begin
           Excel.Quit;
           Excel := Unassigned;
         end;
+        FreeAndNil(P);
         FreeAndNil(PED);
         FreeAndNil(PEDITENS);
         FreeAndNil(FWC);
