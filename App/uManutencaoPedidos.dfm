@@ -89,6 +89,13 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
           FieldName = 'STATUS'
           Title.Caption = 'Status'
           Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'TRANSPORTADORA'
+          Title.Caption = 'Transportadora'
+          Width = 250
+          Visible = True
         end>
     end
     object pnPequisa: TPanel
@@ -626,6 +633,10 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
       FieldName = 'STATUS'
       Size = 25
     end
+    object csPedidosTRANSPORTADORA: TStringField
+      FieldName = 'TRANSPORTADORA'
+      Size = 100
+    end
   end
   object OpenDialog1: TOpenDialog
     Left = 361
@@ -635,7 +646,7 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
     Left = 440
     Top = 328
     Bitmap = {
-      494C010102000C009C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000C00A00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -36,6 +36,7 @@ type
     btAtualizarTransportadora: TSpeedButton;
     cbFiltroStatus: TComboBox;
     csPedidosSTATUS: TStringField;
+    csPedidosTRANSPORTADORA: TStringField;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -266,7 +267,7 @@ begin
                   PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
                   PED.VIAGEM.Value            := '';
                   PED.SEQUENCIA.Value         := 0;
-                  PED.TRANSP_CNPJ.Value       := '';
+                  PED.ID_TRANSPORTADORA.Value := 0;
                   PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
                   PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
                   PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
@@ -375,7 +376,7 @@ begin
           PED.PEDIDO.excelTitulo            := 'Pedido - Nº';
           PED.VIAGEM.excelTitulo            := ''; //Não tem no Excel
           PED.SEQUENCIA.excelTitulo         := ''; //Não tem no Excel
-          PED.TRANSP_CNPJ.excelTitulo       := 'Transportadora';
+          //PED.TRANSP_CNPJ.excelTitulo       := 'Transportadora';
           PED.DEST_CNPJ.excelTitulo         := ''; //Não tem no Excel
           PED.DEST_NOME.excelTitulo         := ''; //Não tem no Excel
           PED.DEST_ENDERECO.excelTitulo     := ''; //Não tem no Excel
@@ -390,7 +391,8 @@ begin
           Count                                           := GetPropList(PED.ClassInfo, tkProperties, @List, False);
           for I := 0 to Pred(Count) do begin
             if (TFieldTypeDomain(GetObjectProp(PED, List[I]^.Name)).excelTitulo <> '') and (TFieldTypeDomain(GetObjectProp(PED, List[I]^.Name)).excelIndice <= 0) then begin
-              DisplayMsg(MSG_WAR, 'Estrutura do Arquivo Inválida, Verifique!', '', 'Colunas: ' + sLineBreak + 'Pedido - Nº, ' + sLineBreak +
+              DisplayMsg(MSG_WAR, 'Estrutura do Arquivo Inválida, Verifique!', '', 'Colunas: ' + sLineBreak +
+                                                                                    'Pedido - Nº, ' + sLineBreak +
                                                                                     'Transportadora');
               Exit;
             end;
@@ -509,8 +511,12 @@ begin
       SQL.SQL.Add('	CASE P.STATUS WHEN 0 THEN ''Sem Transportadora''');
       SQL.SQL.Add('	              WHEN 1 THEN ''Com Transportadora''');
       SQL.SQL.Add('	              ELSE ''Enviado''');
-      SQL.SQL.Add('	END AS STATUS');
+      SQL.SQL.Add('	END AS STATUS,');
+      SQL.SQL.Add('	CASE ID_TRANSPORTADORA WHEN 0 THEN ''''');
+      SQL.SQL.Add('	              ELSE T.NOME');
+      SQL.SQL.Add('	END AS NOMETRANSPORTADORA');
       SQL.SQL.Add('FROM PEDIDO P');
+      SQL.SQL.Add('INNER JOIN TRANSPORTADORA T ON (T.ID = P.ID_TRANSPORTADORA)');
       SQL.SQL.Add('WHERE 1 = 1');
 
       case cbFiltroStatus.ItemIndex of
@@ -535,8 +541,8 @@ begin
           csPedidosDEST_CEP.Value       := SQL.Fields[4].Value;
           csPedidosDEST_MUNICIPIO.Value := SQL.Fields[5].Value;
           csPedidosSTATUS.Value         := SQL.Fields[6].Value;
+          csPedidosTRANSPORTADORA.Value := SQL.Fields[7].Value;
           csPedidos.Post;
-
           SQL.Next;
         end;
       end;
