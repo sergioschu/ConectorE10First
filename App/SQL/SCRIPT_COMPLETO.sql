@@ -35,7 +35,7 @@ COMMENT ON COLUMN arquivosftp.tipo IS '0-Produtos
 1-NotaFiscal
 2-Pedido';
 
-INSERT INTO arquivosftp (tipo) VALUES (0);
+INSERT INTO arquivosftp (id, tipo, dataenvio) VALUES (0, 0, current_timestamp);
 
 CREATE TABLE produto
 (
@@ -74,7 +74,7 @@ CREATE TABLE transportadora
   CONSTRAINT pk_transportadora PRIMARY KEY (id)
 );
 
-INSERT INTO transportadora (cnpj, nome) VALUES ('99999999000191', 'Transportadora Padrão');
+INSERT INTO transportadora (id, cnpj, nome) VALUES (0, '99999999000191', 'Transportadora Padrão');
 
 CREATE TABLE if not exists pedido
 (
@@ -82,7 +82,6 @@ CREATE TABLE if not exists pedido
   pedido character varying(20) NOT NULL,
   viagem character varying(10) NOT NULL,
   sequencia smallint NOT NULL DEFAULT 0,
-  transp_cnpj character varying(19) NOT NULL,
   dest_cnpj character varying(19) NOT NULL,
   dest_nome character varying(60) NOT NULL,
   dest_endereco character varying(36) NOT NULL,
@@ -100,6 +99,16 @@ CONSTRAINT fk_p_transportadora FOREIGN KEY (id_transportadora)
       REFERENCES arquivosftp (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+ALTER TABLE PEDIDO
+  OWNER TO postgres;
+COMMENT ON COLUMN PEDIDO.STATUS IS 
+'0 - Pedidos sem Transportadora
+1 - Pedidos Com Transportadora
+2 - Pedido Enviado
+3 - MDD Recebido
+4 - Pedido Impresso
+5 - Pedido Faturado';
 
 CREATE TABLE pedidoitens
 (

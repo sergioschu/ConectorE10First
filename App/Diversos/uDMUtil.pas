@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Classes, FireDAC.UI.Intf, FireDAC.VCLUI.Wait, forms, Vcl.Controls,
   FireDAC.Stan.Intf, FireDAC.Comp.UI, Vcl.ImgList, uFWPersistence, Vcl.StdCtrls,
-  frxClass, frxDesgn, frxDBSet, frxExportPDF, frxExportXLS;
+  frxClass, frxDesgn, frxDBSet, frxExportPDF, frxExportXLS, frxBarcode;
 
 type
   TDMUtil = class(TDataModule)
@@ -15,6 +15,7 @@ type
     frxPDFExport1: TfrxPDFExport;
     frxXLSExport1: TfrxXLSExport;
     ImageList1: TImageList;
+    frxBarCodeObject1: TfrxBarCodeObject;
     procedure DataModuleCreate(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
   private
