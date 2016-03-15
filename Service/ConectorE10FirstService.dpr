@@ -16,7 +16,8 @@ uses
   uBeanProduto in '..\App\Beans\uBeanProduto.pas',
   uConexaoFTP in 'uConexaoFTP.pas',
   uFuncoes in '..\App\Units\uFuncoes.pas',
-  uBeanArquivosFTP in '..\App\Beans\uBeanArquivosFTP.pas';
+  uBeanArquivosFTP in '..\App\Beans\uBeanArquivosFTP.pas',
+  uBeanTransportadoras in '..\App\Beans\uBeanTransportadoras.pas';
 
 {$R *.RES}
 
