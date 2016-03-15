@@ -7,6 +7,8 @@ CREATE TABLE if not exists usuario
   CONSTRAINT pk_usuario PRIMARY KEY (id)
 );
 
+INSERT INTO usuario (id, nome, email) VALUES (0, 'Geral', 'Geral@geral.com');
+
 CREATE TABLE usuario_permissao
 (
   id serial NOT NULL,
@@ -40,7 +42,7 @@ INSERT INTO arquivosftp (id, tipo, dataenvio) VALUES (0, 0, current_timestamp);
 CREATE TABLE produto
 (
   id serial NOT NULL,
-  codigoproduto character varying(25) NOT NULL,
+  codigoproduto character varying(100) NOT NULL,
   descricao character varying(76) NOT NULL,
   descricaoreduzida character varying(18) NOT NULL,
   descricaosku character varying(76) NOT NULL,
@@ -91,12 +93,16 @@ CREATE TABLE if not exists pedido
   status smallint DEFAULT 0,
   id_arquivo integer NOT NULL,
   id_transportadora integer NOT NULL,
+  id_usuario integer NOT NULL,
   CONSTRAINT pk_lote PRIMARY KEY (id),
 CONSTRAINT fk_p_transportadora FOREIGN KEY (id_transportadora)
       REFERENCES transportadora (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT fk_ped_arquivosftp FOREIGN KEY (id_arquivo)
       REFERENCES arquivosftp (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_p_usuario FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
@@ -139,10 +145,15 @@ CREATE TABLE notafiscal
   especie character varying(2),
   status smallint default 0,
   id_arquivo integer NOT NULL,
+  id_usuario integer NOT NULL,
   CONSTRAINT pk_notafiscal PRIMARY KEY (id),
   CONSTRAINT fk_pi_arquivosftp FOREIGN KEY (id_arquivo)
       REFERENCES arquivosftp (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_nf_usuario FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
+
 );
 CREATE TABLE notafiscalitens
 (
