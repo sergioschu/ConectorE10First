@@ -215,6 +215,7 @@ begin
     btAtualizar.Tag := 1;
     try
       AtualizarProdutos;
+      CarregaDados;
     finally
       btAtualizar.Tag := 0;
     end;

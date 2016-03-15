@@ -207,9 +207,10 @@ begin
         while not csPedidos.Eof do begin
           if csPedidosSELECIONAR.Value then begin
             if csPedidosSTATUS.Value < 5 then begin
-              PED.ID.Value          := csPedidosID.Value;
-              PED.STATUS.Value      := 5;
-              PED.ID_USUARIO.Value  := USUARIO.CODIGO;
+              PED.ID.Value            := csPedidosID.Value;
+              PED.STATUS.Value        := 5;
+              PED.ID_USUARIO.Value    := USUARIO.CODIGO;
+              PED.DATA_FATURADO.Value := Now;
               PED.Update;
               AtualizouPedido := True;
             end;
@@ -384,13 +385,13 @@ begin
         if AtualizouPedido then
           FWC.Commit;
 
-        DisplayMsg(MSG_OK, 'Pedidos Faturados com Sucesso!');
+        DisplayMsg(MSG_OK, 'Pedidos Impresso com Sucesso!');
 
         CarregaDados;
       except
         on E : Exception do begin
           FWC.Rollback;
-          DisplayMsg(MSG_ERR, 'Erro ao faturar Pedidos!', '', E.Message);
+          DisplayMsg(MSG_ERR, 'Erro ao Imprimir Pedidos!', '', E.Message);
           Exit;
         end;
       end;

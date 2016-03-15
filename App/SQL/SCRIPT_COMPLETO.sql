@@ -94,6 +94,8 @@ CREATE TABLE if not exists pedido
   id_arquivo integer NOT NULL,
   id_transportadora integer NOT NULL,
   id_usuario integer NOT NULL,
+  data_envio timestamp with time zone,
+  data_faturado timestamp with time zone,
   CONSTRAINT pk_lote PRIMARY KEY (id),
 CONSTRAINT fk_p_transportadora FOREIGN KEY (id_transportadora)
       REFERENCES transportadora (id) MATCH SIMPLE

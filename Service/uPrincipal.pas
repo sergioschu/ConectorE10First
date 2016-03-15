@@ -519,20 +519,15 @@ begin
   while not Self.Terminated do begin
     SaveLog('Enviar Produtos');
     EnviaProdutos;
-    ServiceThread.ProcessRequests(False);
     SaveLog('Enviar NFs');
     EnviaNotasFiscais;
-    ServiceThread.ProcessRequests(False);
     SaveLog('Buscar CONF');
     BuscaCONF;
-    ServiceThread.ProcessRequests(False);
     SaveLog('Enviar Pedidos');
     EnviaPedidos;
-    ServiceThread.ProcessRequests(False);
     SaveLog('Buscar MDD');
     BuscaMDD;
     ServiceThread.ProcessRequests(False);
-    SaveLog('ProcessRequests');
     SaveLog('Sleep');
     Sleep(CONFIG_LOCAL.Sleep);
   end;
