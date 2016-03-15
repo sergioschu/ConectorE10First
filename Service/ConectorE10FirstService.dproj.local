@@ -27,6 +27,6 @@
     <Transaction>2016/02/27 19:53:29.000.656,=C:\Projetos\ConectorE10First\Service\uConexaoFTP.pas</Transaction>
     <Transaction>2016/02/27 20:48:05.000.370,=C:\Projetos\ConectorE10First\App\Units\uFuncoes.pas</Transaction>
     <Transaction>2016/03/10 20:19:09.000.634,=C:\Projetos\ConectorE10First\App\Beans\uBeanArquivosFTP.pas</Transaction>
-    <Transaction>2016/03/14 21:37:53.275,=D:\Projetos\ConectorE10First\App\Beans\uBeanTransportadoras.pas</Transaction>
+    <Transaction>2016/03/14 21:37:53.000.275,=D:\Projetos\ConectorE10First\App\Beans\uBeanTransportadoras.pas</Transaction>
   </Transactions>
 </BorlandProject>

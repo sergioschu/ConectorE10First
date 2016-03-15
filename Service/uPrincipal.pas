@@ -350,7 +350,7 @@ begin
       if P.Count > 0 then begin
         AFTP       := BuscaNumeroArquivo(Con, 2);
         for I := 0 to Pred(P.Count) do begin
-          T.SelectList('id_transportadora = ' + TPEDIDO(P.Itens[I]).ID_TRANSPORTADORA.asString);
+          T.SelectList('id = ' + TPEDIDO(P.Itens[I]).ID_TRANSPORTADORA.asString);
           if T.Count > 0 then begin
             PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
             if PI.Count > 0 then begin
