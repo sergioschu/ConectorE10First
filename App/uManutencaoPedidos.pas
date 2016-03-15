@@ -70,7 +70,8 @@ uses
   uMensagem,
   uBeanPedido,
   uBeanPedidoItens,
-  uBeanProduto;
+  uBeanProduto,
+  uBeanTransportadoras;
 
 {$R *.dfm}
 
@@ -329,19 +330,37 @@ end;
 procedure TFrmManutencaoPedidos.AtualizarTransportadora;
 const
   xlCellTypeLastCell = $0000000B;
+type
+  TLISTATRANSP = record
+    ID    : Integer;
+    CNPJ  : String;
+    NOME  : String;
+  End;
+
+type
+  TPEDIDOTRANSP = record
+    NumeroPedido      : String;
+    Transportadora    : String;
+    ID_Transportadora : Integer;
+  End;
 Var
   FWC     : TFWConnection;
   PED     : TPEDIDO;
-  List    : TPropList;
-  Arquivo : String;
+  T       : TTRANSPORTADORA;
+  Arquivo,
+  Aux     : String;
   Excel   : OleVariant;
   arrData,
   Valor   : Variant;
   vrow,
   vcol,
-  Count,
   I,
   J       : Integer;
+  PedidoTransp  : array of TPEDIDOTRANSP;
+  ListaTransp   : array of TLISTATRANSP;
+  ArqValido     : Boolean;
+  AchouColuna   : Boolean;
+  Colunas       : array of String;
 begin
   if OpenDialog1.Execute then begin
     if Pos(ExtractFileExt(OpenDialog1.FileName), '|.xls|.xlsx|') > 0 then begin
@@ -353,9 +372,12 @@ begin
       end;
 
       // Cria Excel- OLE Object
-      Excel                      := CreateOleObject('Excel.Application');
-      FWC                        := TFWConnection.Create;
-      PED                        := TPEDIDO.Create(FWC);
+      Excel := CreateOleObject('Excel.Application');
+
+      FWC   := TFWConnection.Create;
+      PED   := TPEDIDO.Create(FWC);
+      T     := TTRANSPORTADORA.Create(FWC);
+
       pbAtualizaPedidos.Progress := 0;
 
       DisplayMsg(MSG_WAIT, 'Buscando dados do arquivo Excel!');
@@ -373,57 +395,128 @@ begin
           pbAtualizaPedidos.MaxValue           := vrow;
           arrData                              := Excel.Range['A1', Excel.WorkSheets[1].Cells[vrow, vcol].Address].Value;
 
-          PED.PEDIDO.excelTitulo            := 'Pedido - Nº';
-          PED.VIAGEM.excelTitulo            := ''; //Não tem no Excel
-          PED.SEQUENCIA.excelTitulo         := ''; //Não tem no Excel
-          //PED.TRANSP_CNPJ.excelTitulo       := 'Transportadora';
-          PED.DEST_CNPJ.excelTitulo         := ''; //Não tem no Excel
-          PED.DEST_NOME.excelTitulo         := ''; //Não tem no Excel
-          PED.DEST_ENDERECO.excelTitulo     := ''; //Não tem no Excel
-          PED.DEST_COMPLEMENTO.excelTitulo  := ''; //Não tem no Excel
-          PED.DEST_CEP.excelTitulo          := ''; //Não tem no Excel
-          PED.DEST_MUNICIPIO.excelTitulo    := ''; //Não tem no Excel
-          PED.STATUS.excelTitulo            := ''; //Não tem no Excel
-          PED.ID_ARQUIVO.excelTitulo        := ''; //Não tem no Excel
+          SetLength(Colunas, 2);
+          Colunas[0] := 'Pedido - Nº';
+          Colunas[1] := 'Transportadora';
 
-          PED.buscaIndicesExcel(Arquivo, Excel);
-
-          Count                                           := GetPropList(PED.ClassInfo, tkProperties, @List, False);
-          for I := 0 to Pred(Count) do begin
-            if (TFieldTypeDomain(GetObjectProp(PED, List[I]^.Name)).excelTitulo <> '') and (TFieldTypeDomain(GetObjectProp(PED, List[I]^.Name)).excelIndice <= 0) then begin
-              DisplayMsg(MSG_WAR, 'Estrutura do Arquivo Inválida, Verifique!', '', 'Colunas: ' + sLineBreak +
-                                                                                    'Pedido - Nº, ' + sLineBreak +
-                                                                                    'Transportadora');
-              Exit;
+          ArqValido := True;
+          for I := Low(Colunas) to High(Colunas) do begin
+            AchouColuna := False;
+            for J := 1 to vcol do begin
+              if AnsiUpperCase(Colunas[I]) = AnsiUpperCase(arrData[1, J]) then begin
+                AchouColuna := True;
+                Break;
+              end;
+            end;
+            if not AchouColuna then begin
+              ArqValido := False;
+              Break;
             end;
           end;
 
+          if not ArqValido then begin
+            Aux := 'Colunas.:';
+            for I := Low(Colunas) to High(Colunas) do
+              Aux := Aux + sLineBreak + Colunas[I];
+
+            DisplayMsg(MSG_WAR, 'Arquivo Inválido, Verifique as Colunas!', '', Aux);
+            Exit;
+          end;
+
+          pbAtualizaPedidos.Progress  := 0;
+          pbAtualizaPedidos.MaxValue  := vrow;
+
+          DisplayMsg(MSG_WAIT, 'Capturando Transportadoras do arquivo!');
+
+          SetLength(PedidoTransp, 0);
           for I := 2 to vrow do begin
-            for J := 0 to Pred(Count) do begin
-              if (TFieldTypeDomain(GetObjectProp(PED, List[J]^.Name)).excelIndice > 0) then begin
-                Valor                                   := Trim(arrData[I, TFieldTypeDomain(GetObjectProp(PED, List[J]^.Name)).excelIndice]);
-                if Valor <> '' then
-                  TFieldTypeDomain(GetObjectProp(PED, List[J]^.Name)).asVariant := Valor;
+            SetLength(PedidoTransp, Length(PedidoTransp) + 1);
+            for J := 1 to vcol do begin
+              if arrData[1, J] = Colunas[0] then
+                PedidoTransp[High(PedidoTransp)].NUMEROPEDIDO     := arrData[I, J]
+              else
+                if arrData[1, J] = Colunas[1] then
+                  PedidoTransp[High(PedidoTransp)].Transportadora := arrData[I, J];
+            end;
+            pbAtualizaPedidos.Progress := I;
+          end;
+
+          DisplayMsg(MSG_WAIT, 'Identificando Transportadora dos Pedidos!');
+
+          pbAtualizaPedidos.Progress  := 0;
+          pbAtualizaPedidos.MaxValue  := High(PedidoTransp);
+
+          Aux := EmptyStr;
+          SetLength(ListaTransp, 0);
+          for I := Low(PedidoTransp) to High(PedidoTransp) do begin
+
+            //Verifica se o Produto está na Lista
+            PedidoTransp[I].ID_Transportadora := 0;
+            for J := Low(ListaTransp) to High(ListaTransp) do begin
+              if AnsiUpperCase(PedidoTransp[I].Transportadora) = AnsiUpperCase(ListaTransp[J].NOME) then begin
+                PedidoTransp[I].ID_Transportadora := ListaTransp[J].ID;
+                Break;
               end;
             end;
 
-            PED.SelectList('PEDIDO = ' + PED.PEDIDO.asSQL);
-            if PED.Count > 0 then begin
-              PED.ID.Value          := TPEDIDO(PED.Itens[0]).ID.Value;
-              PED.STATUS.Value      := 1;// 1 - Transportadora Vinculada
-              PED.Update;
+            //Consulta o produto no BD
+            if PedidoTransp[I].ID_Transportadora = 0 then begin
+              T.SelectList('UPPER(NOME) = ' + QuotedStr(UpperCase(PedidoTransp[I].Transportadora)));
+              if T.Count = 1 then begin
+
+                PedidoTransp[I].ID_Transportadora := TTRANSPORTADORA(T.Itens[0]).ID.Value;
+
+                SetLength(ListaTransp, Length(ListaTransp) + 1);
+                ListaTransp[High(ListaTransp)].ID   := TTRANSPORTADORA(T.Itens[0]).ID.Value;
+                ListaTransp[High(ListaTransp)].CNPJ := TTRANSPORTADORA(T.Itens[0]).CNPJ.Value;
+                ListaTransp[High(ListaTransp)].NOME := TTRANSPORTADORA(T.Itens[0]).NOME.Value;
+              end;
             end;
-            pbAtualizaPedidos.Progress           := I;
+
+            if PedidoTransp[I].ID_Transportadora = 0 then begin
+              if Aux = EmptyStr then
+                Aux := PedidoTransp[I].Transportadora
+              else
+                Aux := Aux + sLineBreak + PedidoTransp[I].Transportadora;
+            end;
+            pbAtualizaPedidos.Progress := I;
           end;
 
-          FWC.Commit;
+          if Aux = EmptyStr then begin
 
-          DisplayMsg(MSG_OK, 'Pedidos Atualizados com Sucesso!');
+            DisplayMsg(MSG_WAIT, 'Gravando Transportadora dos Pedidos no Banco de Dados!');
+
+            pbAtualizaPedidos.Progress  := 0;
+            pbAtualizaPedidos.MaxValue  := High(PedidoTransp);
+
+            //Começa a Gravação dos Dados no BD
+            for I := Low(PedidoTransp) to High(PedidoTransp) do begin
+              if PedidoTransp[I].NUMEROPEDIDO <> EmptyStr then begin
+                PED.SelectList('PEDIDO = ' + QuotedStr(PedidoTransp[I].NUMEROPEDIDO));
+                if PED.Count = 1 then begin
+                  PED.ID.Value                := TPEDIDO(PED.Itens[0]).ID.Value;
+                  PED.ID_TRANSPORTADORA.Value := PedidoTransp[I].ID_Transportadora;
+                  PED.STATUS.Value            := 1;
+                  PED.Update;
+                end;
+
+                pbAtualizaPedidos.Progress  := I;
+              end;
+            end;
+
+            FWC.Commit;
+
+            DisplayMsg(MSG_OK, 'Transportadoras Atualizadas com Sucesso!');
+
+          end else begin
+            DisplayMsg(MSG_WAR, 'Há Transportadoras sem Cadastro, Verifique!', '', Aux);
+            Exit;
+          end;
 
         except
           on E : Exception do begin
             FWC.Rollback;
-            DisplayMsg(MSG_ERR, 'Erro ao atualizar Produtos!', '', E.Message);
+            DisplayMsg(MSG_ERR, 'Erro ao atualizar Transportadoras!', '', E.Message);
             Exit;
           end;
         end;
@@ -434,6 +527,7 @@ begin
           Excel.Quit;
           Excel := Unassigned;
         end;
+        FreeAndNil(T);
         FreeAndNil(PED);
         FreeAndNil(FWC);
       end;
