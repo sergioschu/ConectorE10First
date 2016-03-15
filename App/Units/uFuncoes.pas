@@ -64,6 +64,7 @@ begin
     LOGIN.LembrarUsuario        := ArqINI.ReadBool('LOGIN', 'LEMBRARUSUARIO', True);
 
     CONFIG_LOCAL.DirRelatorios  := ArqINI.ReadString('CONFIGURACOES', 'DIR_RELATORIOS', 'C:\ConectorE10First\Relatorios\');
+    CONFIG_LOCAL.DirLog         := ArqINI.ReadString('CONFIGURACOES', 'DIR_LOGS', 'C:\ConectorE10First\Logs\');
     CONFIG_LOCAL.FTPUsuario     := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
     CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
   finally
@@ -412,12 +413,13 @@ Var
   Log : TStringList;
   ArqLog  : String;
 begin
-  ArqLog  := 'C:\ConectorE10First\Log.txt';
+  ArqLog  := CONFIG_LOCAL.DirLog + FormatDateTime('yyyymmdd', Now) + '.txt';
   try
     Log := TStringList.Create;
     try
-      if FileExists(ArqLog) then
-        Log.LoadFromFile(ArqLog);
+      if not FileExists(ArqLog) then
+        Log.SaveToFile(ArqLog);
+      Log.LoadFromFile(ArqLog);
       Log.Add(DateTimeToStr(Now) + ' ' + Msg)
 
     except

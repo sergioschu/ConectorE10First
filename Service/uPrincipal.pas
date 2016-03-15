@@ -43,7 +43,8 @@ uses
   uConexaoFTP,
   uBeanArquivosFTP,
   uBeanNOTAFISCAL,
-  uBeanNotaFiscalItens;
+  uBeanNotaFiscalItens,
+  uBeanTransportadoras;
 {$R *.dfm}
 
 procedure ServiceController(CtrlCode: DWord); stdcall;
@@ -329,6 +330,7 @@ var
   P       : TPEDIDO;
   PI      : TPEDIDOITENS;
   PR      : TPRODUTO;
+  T       : TTRANSPORTADORA;
   Lista   : TStringList;
   I,
   J,
@@ -339,6 +341,7 @@ begin
   P      := TPEDIDO.Create(Con);
   PI     := TPEDIDOITENS.Create(Con);
   PR     := TPRODUTO.Create(Con);
+  T      := TTRANSPORTADORA.Create(Con);
   Lista  := TStringList.Create;
   try
     Con.StartTransaction;
@@ -347,27 +350,30 @@ begin
       if P.Count > 0 then begin
         AFTP       := BuscaNumeroArquivo(Con, 2);
         for I := 0 to Pred(P.Count) do begin
-          PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
-          if PI.Count > 0 then begin
-            for J := 0 to Pred(PI.Count) do begin
-              PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
-              if PR.Count > 0 then begin
-                Lista.Add(TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
-                  TPEDIDO(P.Itens[I]).PEDIDO.asString + ';' +
-                  TPEDIDO(P.Itens[I]).VIAGEM.asString + ';' +
-                  TPEDIDO(P.Itens[I]).SEQUENCIA.asString + ';' +
-                  TPEDIDO(P.Itens[I]).TRANSP_CNPJ.asString + ';' +
-                  TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
-                  TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString + ';' +
-                  TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString + ';' +
-                  TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString + ';' +
-                  TPEDIDO(P.Itens[I]).DEST_CNPJ.asString + ';' +
-                  TPEDIDO(P.Itens[I]).DEST_NOME.asString + ';' +
-                  TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString + ';' +
-                  TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString + ';' +
-                  TPEDIDO(P.Itens[I]).DEST_CEP.asString + ';' +
-                  TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';'
-                );
+          T.SelectList('id_transportadora = ' + TPEDIDO(P.Itens[I]).ID_TRANSPORTADORA.asString);
+          if T.Count > 0 then begin
+            PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
+            if PI.Count > 0 then begin
+              for J := 0 to Pred(PI.Count) do begin
+                PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
+                if PR.Count > 0 then begin
+                  Lista.Add(TTRANSPORTADORA(T.Itens[0]).CNPJ.asString + ';' +
+                    TPEDIDO(P.Itens[I]).PEDIDO.asString + ';' +
+                    TPEDIDO(P.Itens[I]).VIAGEM.asString + ';' +
+                    TPEDIDO(P.Itens[I]).SEQUENCIA.asString + ';' +
+                    TTRANSPORTADORA(T.Itens[0]).CNPJ.asString + ';' +
+                    TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
+                    TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString + ';' +
+                    TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString + ';' +
+                    TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString + ';' +
+                    TPEDIDO(P.Itens[I]).DEST_CNPJ.asString + ';' +
+                    TPEDIDO(P.Itens[I]).DEST_NOME.asString + ';' +
+                    TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString + ';' +
+                    TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString + ';' +
+                    TPEDIDO(P.Itens[I]).DEST_CEP.asString + ';' +
+                    TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';'
+                  );
+                end;
               end;
             end;
           end;
@@ -402,6 +408,7 @@ begin
     FreeAndNil(PR);
     FreeAndNil(PI);
     FreeAndNil(P);
+    freeAndNil(T);
     Freeandnil(Con);
     FreeAndNil(Lista);
   end;

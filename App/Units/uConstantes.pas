@@ -32,6 +32,7 @@ type
 
   TCONFIGURACOESLOCAIS = record
     DirRelatorios : string;
+    DirLog : String;
     FTPUsuario : string;
     FTPSenha : string;
   end;
