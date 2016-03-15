@@ -516,22 +516,25 @@ procedure TServiceConectorE10.ServiceExecute(Sender: TService);
 var
   ConFTP : TConexaoFTP;
 begin
-  SaveLog('Serviço em Execução!');
   while not Self.Terminated do begin
     SaveLog('Enviar Produtos');
     EnviaProdutos;
+    ServiceThread.ProcessRequests(False);
     SaveLog('Enviar NFs');
     EnviaNotasFiscais;
+    ServiceThread.ProcessRequests(False);
     SaveLog('Buscar CONF');
     BuscaCONF;
+    ServiceThread.ProcessRequests(False);
     SaveLog('Enviar Pedidos');
     EnviaPedidos;
+    ServiceThread.ProcessRequests(False);
     SaveLog('Buscar MDD');
     BuscaMDD;
-    SaveLog('ProcessRequests');
     ServiceThread.ProcessRequests(False);
+    SaveLog('ProcessRequests');
     SaveLog('Sleep');
-    Sleep(5000);
+    Sleep(CONFIG_LOCAL.Sleep);
   end;
 end;
 
@@ -554,16 +557,20 @@ var
 begin
   Started := True;
   SaveLog('Serviço iniciado!');
-
-  CarregarConexaoBD;
-
-  CarregarConfigLocal;
-
-  CON   := TFWConnection.Create;
   try
-    SaveLog('Conectou no Banco de dados!');
-  finally
-    FreeAndNil(CON);
+    CarregarConexaoBD;
+
+    CarregarConfigLocal;
+
+    CON   := TFWConnection.Create;
+    try
+      SaveLog('Conectou no Banco de dados!');
+    finally
+      FreeAndNil(CON);
+    end;
+  except
+    on E : Exception do
+      SaveLog('Erro ao iniciar Serviço: ' + E.Message);
   end;
 end;
 

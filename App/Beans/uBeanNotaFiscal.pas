@@ -16,6 +16,7 @@ type
     FVALORTOTAL: TFieldCurrency;
     FSTATUS: TFieldInteger;
     FID_ARQUIVO: TFieldInteger;
+    FID_USUARIO: TFieldInteger;
     procedure SetCFOP(const Value: TFieldInteger);
     procedure SetCNPJCPF(const Value: TFieldString);
     procedure SetDATAEMISSAO(const Value: TFieldDateTime);
@@ -26,6 +27,7 @@ type
     procedure SetVALORTOTAL(const Value: TFieldCurrency);
     procedure SetSTATUS(const Value: TFieldInteger);
     procedure SetID_ARQUIVO(const Value: TFieldInteger);
+    procedure SetID_USUARIO(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
@@ -39,6 +41,7 @@ type
     property ESPECIE     : TFieldString read FESPECIE write SetESPECIE;
     property STATUS      : TFieldInteger read FSTATUS write SetSTATUS;
     property ID_ARQUIVO  : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
+    property ID_USUARIO  : TFieldInteger read FID_USUARIO write SetID_USUARIO;
   End;
 
 implementation
@@ -57,7 +60,7 @@ begin
   DATAEMISSAO.isNotNull    := True;
   VALORTOTAL.isNotNull     := True;
   ESPECIE.isNotNull        := True;
-
+  ID_USUARIO.isNotNull     := True;
 
   CNPJCPF.Size             := 19;
   ESPECIE.Size             := 2;
@@ -98,6 +101,11 @@ end;
 procedure TNOTAFISCAL.SetID_ARQUIVO(const Value: TFieldInteger);
 begin
   FID_ARQUIVO := Value;
+end;
+
+procedure TNOTAFISCAL.SetID_USUARIO(const Value: TFieldInteger);
+begin
+  FID_USUARIO := Value;
 end;
 
 procedure TNOTAFISCAL.SetSERIE(const Value: TFieldInteger);

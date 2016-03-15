@@ -67,6 +67,7 @@ begin
     CONFIG_LOCAL.DirLog         := ArqINI.ReadString('CONFIGURACOES', 'DIR_LOGS', 'C:\ConectorE10First\Logs\');
     CONFIG_LOCAL.FTPUsuario     := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
     CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
+    CONFIG_LOCAL.Sleep          := ArqINI.ReadInteger('CONFIGURACOES', 'FTP_SLEEP', 0);
   finally
     FreeAndNil(ArqINI);
   end;

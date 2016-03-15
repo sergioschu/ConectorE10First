@@ -18,6 +18,7 @@ type
     FSTATUS: TFieldInteger;
     FID_ARQUIVO: TFieldInteger;
     FID_TRANSPORTADORA: TFieldInteger;
+    FID_USUARIO: TFieldInteger;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -31,6 +32,7 @@ type
     procedure SetSTATUS(const Value: TFieldInteger);
     procedure SetID_ARQUIVO(const Value: TFieldInteger);
     procedure SetID_TRANSPORTADORA(const Value: TFieldInteger);
+    procedure SetID_USUARIO(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
@@ -47,6 +49,7 @@ type
     property STATUS : TFieldInteger read FSTATUS write SetSTATUS;
     property ID_ARQUIVO : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
     property ID_TRANSPORTADORA : TFieldInteger read FID_TRANSPORTADORA write SetID_TRANSPORTADORA;
+    property ID_USUARIO : TFieldInteger read FID_USUARIO write SetID_USUARIO;
   End;
 implementation
 
@@ -65,6 +68,7 @@ begin
   DEST_CEP.isNotNull         := True;
   DEST_MUNICIPIO.isNotNull   := True;
   ID_TRANSPORTADORA.isNotNull:= True;
+  ID_USUARIO.isNotNull       := True;
 
 
   PEDIDO.Size                := 20;
@@ -120,6 +124,11 @@ end;
 procedure TPEDIDO.SetID_TRANSPORTADORA(const Value: TFieldInteger);
 begin
   FID_TRANSPORTADORA := Value;
+end;
+
+procedure TPEDIDO.SetID_USUARIO(const Value: TFieldInteger);
+begin
+  FID_USUARIO := Value;
 end;
 
 procedure TPEDIDO.SetPEDIDO(const Value: TFieldString);

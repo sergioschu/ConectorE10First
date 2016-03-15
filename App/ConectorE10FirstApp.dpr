@@ -4,6 +4,7 @@ uses
   Vcl.Forms,
   Vcl.Controls,
   System.SysUtils,
+  MidasLib,
   uPrincipal in 'uPrincipal.pas' {frmPrincipal},
   uLogin in 'uLogin.pas' {FrmLogin},
   uMensagem in 'Diversos\uMensagem.pas' {frmMensagem},

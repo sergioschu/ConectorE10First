@@ -104,29 +104,23 @@
         <DCCReference Include="Diversos\uFWPersistence.pas"/>
         <DCCReference Include="uRedefinirSenha.pas">
             <Form>FrmRedefinirSenha</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="uConfiguracoesSistema.pas">
             <Form>frmConfiguracoesSistema</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Cadastros\uCadastroUsuario.pas">
             <Form>FrmCadastroUsuario</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Diversos\uDMUtil.pas">
             <Form>DMUtil</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Beans\uBeanProduto.pas"/>
         <DCCReference Include="Cadastros\uCadastroProdutos.pas">
             <Form>frmCadastroProdutos</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="uNotaFiscal.pas">
             <Form>frmNotaFiscal</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Beans\uBeanNotaFiscal.pas"/>
         <DCCReference Include="Beans\uBeanPedido.pas"/>
@@ -134,15 +128,12 @@
         <DCCReference Include="Beans\uBeanNotaFiscalItens.pas"/>
         <DCCReference Include="uManutencaoPedidos.pas">
             <Form>FrmManutencaoPedidos</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="uFaturamentodePedidos.pas">
             <Form>FrmFaturamentodePedidos</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Cadastros\uCadastroTransportadora.pas">
             <Form>frmCadastroTransportadora</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Beans\uBeanTransportadoras.pas"/>
         <BuildConfiguration Include="Release">

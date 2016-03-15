@@ -63,6 +63,7 @@ implementation
 
 uses
   uFuncoes,
+  uConstantes,
   uMensagem,
   uFWConnection, uBeanPedido, uDMUtil;
 
@@ -206,8 +207,9 @@ begin
         while not csPedidos.Eof do begin
           if csPedidosSELECIONAR.Value then begin
             if csPedidosSTATUS.Value < 5 then begin
-              PED.ID.Value    := csPedidosID.Value;
-              PED.STATUS.Value:= 5;
+              PED.ID.Value          := csPedidosID.Value;
+              PED.STATUS.Value      := 5;
+              PED.ID_USUARIO.Value  := USUARIO.CODIGO;
               PED.Update;
               AtualizouPedido := True;
             end;
@@ -334,8 +336,9 @@ begin
               Pedidos := Pedidos + ',' + csPedidosID.AsString;
 
             if csPedidosSTATUS.Value < 4 then begin
-              PED.ID.Value    := csPedidosID.Value;
-              PED.STATUS.Value:= 4;
+              PED.ID.Value          := csPedidosID.Value;
+              PED.STATUS.Value      := 4;
+              PED.ID_USUARIO.Value  := USUARIO.CODIGO;
               PED.Update;
               AtualizouPedido := True;
             end;

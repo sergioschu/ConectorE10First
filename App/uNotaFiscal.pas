@@ -138,37 +138,50 @@ begin
           pbAtualizaProduto.MaxValue           := vrow;
           arrData                              := Excel.Range['A1', Excel.WorkSheets[1].Cells[vrow, vcol].Address].Value;
 
+          NF.DOCUMENTO.excelTitulo             := 'Nota - Nº';
+          NF.SERIE.excelTitulo                 := 'Nota - Série';
+          NF.CNPJCPF.excelTitulo               := 'Destinatário - CPF/CNPJ';
+          NF.DATAEMISSAO.excelTitulo           := 'Nota - Emissão';
+
+          NFI.ID_PRODUTO.excelTitulo           := 'SKU';
+          NFI.QUANTIDADE.excelTitulo           := 'Qnt';
+          NFI.VALORUNITARIO.excelTitulo        := 'Preco B';
+          NFI.VALORTOTAL.excelTitulo           := 'Item - Total bruto';
+
+          NF.buscaIndicesExcel(Arquivo, Excel);
+          NFI.buscaIndicesExcel(Arquivo, Excel);
+
           SetLength(NOTAS, 0);
           for I := 2 to vrow do begin
             Achou   := False;
             if not (IntToStr(arrData[I, 1]) = '') then begin
               for J := Low(NOTAS) to High(NOTAS) do begin
 
-                if (NOTAS[J].DOCUMENTO = arrData[I, 1]) and (NOTAS[High(NOTAS)].SERIE = StrToIntDef(arrData[I, 2], 0)) and (NOTAS[High(NOTAS)].CNPJ = arrData[I, 4]) then begin
+                if (NOTAS[J].DOCUMENTO = arrData[I, NF.DOCUMENTO.excelIndice]) and (NOTAS[High(NOTAS)].SERIE = StrToIntDef(arrData[I, NF.SERIE.excelIndice], 0)) and (NOTAS[High(NOTAS)].CNPJ = arrData[I, NF.CNPJCPF.excelIndice]) then begin
                   Achou                                                            := True;
                   SetLength(NOTAS[J].ITENS, Length(NOTAS[J].ITENS) + 1);
                   NOTAS[J].ITENS[High(NOTAS[J].ITENS)].SEQUENCIA                   := Length(NOTAS[J].ITENS);
-                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].SKU                         := arrData[I, 5];
-                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].QUANTIDADE                  := arrData[I, 6];
-                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].UNITARIO                    := arrData[I, 7];
-                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].TOTAL                       := arrData[I, 8];
+                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].SKU                         := arrData[I, NFI.ID_PRODUTO.excelIndice];
+                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].QUANTIDADE                  := arrData[I, NFI.QUANTIDADE.excelIndice];
+                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].UNITARIO                    := arrData[I, NFI.VALORUNITARIO.excelIndice];
+                  NOTAS[J].ITENS[High(NOTAS[J].ITENS)].TOTAL                       := arrData[I, NFI.VALORTOTAL.excelIndice];
                   NOTAS[J].VALOR                                                   := NOTAS[J].VALOR + arrData[I, 8];
                 end;
               end;
               if not Achou then begin
                 SetLength(NOTAS, Length(NOTAS) + 1);
-                NOTAS[High(NOTAS)].DOCUMENTO                                         := arrData[I, 1];
-                NOTAS[High(NOTAS)].SERIE                                             := StrToIntDef(arrData[I, 2], 0);
-                NOTAS[High(NOTAS)].DATA                                              := StrToDateTime(arrData[I, 3]);
-                NOTAS[High(NOTAS)].CNPJ                                              := arrData[I, 4];
+                NOTAS[High(NOTAS)].DOCUMENTO                                         := arrData[I, NF.DOCUMENTO.excelIndice];
+                NOTAS[High(NOTAS)].SERIE                                             := StrToIntDef(arrData[I, NF.SERIE.excelIndice], 0);
+                NOTAS[High(NOTAS)].DATA                                              := StrToDateTime(arrData[I, NF.DATAEMISSAO.excelIndice]);
+                NOTAS[High(NOTAS)].CNPJ                                              := arrData[I, NF.CNPJCPF.excelIndice];
 
                 SetLength(NOTAS[High(NOTAS)].ITENS, Length(NOTAS[High(NOTAS)].ITENS) + 1);
                 NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].SEQUENCIA   := Length(NOTAS[High(NOTAS)].ITENS);
-                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].SKU         := arrData[I, 5];
-                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].QUANTIDADE  := arrData[I, 6];
-                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].UNITARIO    := arrData[I, 7];
-                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].TOTAL       := arrData[I, 8];
-                NOTAS[High(NOTAS)].VALOR                                             := arrData[I, 8];
+                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].SKU         := arrData[I, NFI.ID_PRODUTO.excelIndice];
+                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].QUANTIDADE  := arrData[I, NFI.QUANTIDADE.excelIndice];
+                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].UNITARIO    := arrData[I, NFI.VALORUNITARIO.excelIndice];
+                NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].TOTAL       := arrData[I, NFI.VALORTOTAL.excelIndice];
+                NOTAS[High(NOTAS)].VALOR                                             := arrData[I, NFI.VALORTOTAL.excelIndice];
               end;
             end;
 
@@ -192,6 +205,7 @@ begin
             NF.STATUS.Value                := 0;
             NF.VALORTOTAL.Value            := NOTAS[I].VALOR;
             NF.ID_ARQUIVO.Value            := 0;
+            NF.ID_USUARIO.Value            := 0;
             NF.Insert;
             for J := Low(NOTAS[I].ITENS) to High(NOTAS[I].ITENS) do begin
               NFI.ID_NOTAFISCAL.Value      := NF.ID.Value;
@@ -514,8 +528,9 @@ begin
       while not csNotaFiscal.Eof do begin
         if (csNotaFiscalSELECIONAR.Value) and (csNotaFiscalSTATUSCOD.Value <> 3) then begin
           if not ((Status = 3) and (csNotaFiscalSTATUSCOD.Value <> 2)) then begin
-            NF.ID.Value       := csNotaFiscalID.Value;
-            NF.STATUS.Value   := Status;
+            NF.ID.Value             := csNotaFiscalID.Value;
+            NF.STATUS.Value         := Status;
+            NF.ID_USUARIO.Value     := USUARIO.CODIGO;
             NF.Update;
           end;
         end;

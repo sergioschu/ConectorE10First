@@ -104,7 +104,7 @@ begin
   CATEGORIAPRODUTO.isNotNull            := True;
   STATUS.isNotNull                      := True;
 
-  CODIGOPRODUTO.Size                    := 25;
+  CODIGOPRODUTO.Size                    := 100;
   DESCRICAO.Size                        := 76;
   DESCRICAOREDUZIDA.Size                := 18;
   DESCRICAOSKU.Size                     := 76;

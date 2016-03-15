@@ -277,6 +277,7 @@ begin
                   PED.DEST_MUNICIPIO.Value    := PedidoItens[I].DEST_MUNICIPIO;
                   PED.STATUS.Value            := 0;
                   PED.ID_ARQUIVO.Value        := 0;
+                  PED.ID_USUARIO.Value        := USUARIO.CODIGO;
                   PED.Insert;
                   PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
                 end else begin
@@ -497,6 +498,7 @@ begin
                   PED.ID.Value                := TPEDIDO(PED.Itens[0]).ID.Value;
                   PED.ID_TRANSPORTADORA.Value := PedidoTransp[I].ID_Transportadora;
                   PED.STATUS.Value            := 1;
+                  PED.ID_USUARIO.Value        := USUARIO.CODIGO;
                   PED.Update;
                 end;
 

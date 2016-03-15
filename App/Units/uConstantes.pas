@@ -35,6 +35,7 @@ type
     DirLog : String;
     FTPUsuario : string;
     FTPSenha : string;
+    Sleep : Integer;
   end;
 
   TITEM = record
