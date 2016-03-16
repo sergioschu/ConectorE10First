@@ -28,9 +28,9 @@ object frmNotaFiscal: TfrmNotaFiscal
     object dgNotaFiscal: TDBGrid
       AlignWithMargins = True
       Left = 4
-      Top = 137
+      Top = 164
       Width = 761
-      Height = 254
+      Height = 227
       Align = alClient
       DataSource = dsNotaFiscal
       DrawingStyle = gdsGradient
@@ -83,7 +83,7 @@ object frmNotaFiscal: TfrmNotaFiscal
     end
     object pnFiltro: TPanel
       Left = 1
-      Top = 92
+      Top = 119
       Width = 767
       Height = 42
       Align = alTop
@@ -97,7 +97,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
-      ExplicitTop = 98
+      ExplicitTop = 92
       object btFiltrar: TSpeedButton
         AlignWithMargins = True
         Left = 658
@@ -183,8 +183,6 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 230
-        ExplicitHeight = 46
       end
     end
     object Panel2: TPanel
@@ -790,7 +788,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       Left = 1
       Top = 49
       Width = 767
-      Height = 43
+      Height = 70
       Align = alTop
       BevelOuter = bvNone
       Color = clWhite
@@ -807,8 +805,8 @@ object frmNotaFiscal: TfrmNotaFiscal
         Left = 658
         Top = 3
         Width = 106
-        Height = 37
-        Align = alRight
+        Height = 64
+        Align = alLeft
         Caption = 'Consultar'
         Glyph.Data = {
           F6060000424DF606000000000000360000002800000018000000180000000100
@@ -868,26 +866,25 @@ object frmNotaFiscal: TfrmNotaFiscal
           C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         OnClick = btConsultarClick
+        ExplicitHeight = 37
       end
       object gbPeriodo: TGroupBox
         Left = 0
         Top = 0
         Width = 288
-        Height = 43
+        Height = 70
         Align = alLeft
         Caption = '  Per'#237'odo  '
         TabOrder = 0
-        ExplicitLeft = 411
-        ExplicitHeight = 52
+        ExplicitHeight = 43
         object Label1: TLabel
           Left = 126
           Top = 21
           Width = 36
-          Height = 20
+          Height = 47
           Align = alClient
           Caption = ' At'#233' '
           Layout = tlCenter
-          ExplicitTop = 15
           ExplicitWidth = 34
           ExplicitHeight = 19
         end
@@ -895,43 +892,42 @@ object frmNotaFiscal: TfrmNotaFiscal
           Left = 162
           Top = 21
           Width = 124
-          Height = 20
+          Height = 47
           Align = alRight
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 1
-          ExplicitHeight = 27
+          ExplicitHeight = 20
         end
         object edDataI: TDateTimePicker
           Left = 2
           Top = 21
           Width = 124
-          Height = 20
+          Height = 47
           Align = alLeft
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 0
-          ExplicitHeight = 27
+          ExplicitHeight = 20
         end
       end
-      object cbStatus: TComboBox
-        AlignWithMargins = True
-        Left = 291
-        Top = 3
-        Width = 169
-        Height = 27
+      object rgStatus: TRadioGroup
+        Left = 288
+        Top = 0
+        Width = 367
+        Height = 70
         Align = alLeft
-        Style = csDropDownList
+        Caption = '  Status  '
+        Columns = 3
         ItemIndex = 0
-        TabOrder = 1
-        Text = 'Todas'
-        OnChange = cbStatusChange
         Items.Strings = (
           'Todas'
-          'N'#227'o Enviadas ao FTP'
-          'Enviadas ao FTP'
-          'Recebidas do FTP'
+          'N'#227'o Enviadas'
+          'Enviadas'
+          'Recebidas'
           'Conferidas')
+        TabOrder = 1
+        ExplicitHeight = 59
       end
     end
   end

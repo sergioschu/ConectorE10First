@@ -45,8 +45,8 @@ type
     Label1: TLabel;
     edDataF: TDateTimePicker;
     edDataI: TDateTimePicker;
-    cbStatus: TComboBox;
     btConsultar: TSpeedButton;
+    rgStatus: TRadioGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -56,7 +56,6 @@ type
     procedure csNotaFiscalFilterRecord(DataSet: TDataSet; var Accept: Boolean);
     procedure btFiltrarClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure cbStatusChange(Sender: TObject);
     procedure btDetalhesClick(Sender: TObject);
     procedure btReenviarClick(Sender: TObject);
     procedure dgNotaFiscalCellClick(Column: TColumn);
@@ -362,7 +361,7 @@ begin
       SQL.ParamByName('datai').DataType   := ftDate;
       SQL.ParamByName('dataf').DataType   := ftDate;
 
-      if cbStatus.ItemIndex > 0 then begin
+      if rgStatus.ItemIndex > 0 then begin
         SQL.SQL.Add('and status = :status');
         SQL.ParamByName('status').DataType  := ftInteger;
       end;
@@ -370,12 +369,12 @@ begin
       SQL.Prepare;
       SQL.Params[0].Value    := edDataI.Date;
       SQL.Params[1].Value    := edDataF.Date;
-      if cbStatus.ItemIndex > 0 then begin
-        case cbStatus.ItemIndex of
-          0 : SQL.Params[2].Value;
-          1 : SQL.Params[2].Value;
-          2 : SQL.Params[2].Value;
-          3 : SQL.Params[2].Value;
+      if rgStatus.ItemIndex > 0 then begin
+        case rgStatus.ItemIndex of
+          1 : SQL.Params[2].Value := 0;
+          2 : SQL.Params[2].Value := 1;
+          3 : SQL.Params[2].Value := 2;
+          4 : SQL.Params[2].Value := 3;
         end;
       end;
       SQL.Open();
@@ -413,38 +412,15 @@ begin
   end;
 end;
 
-procedure TfrmNotaFiscal.cbStatusChange(Sender: TObject);
-begin
-  if cbStatus.Tag = 0 then begin
-    cbStatus.Tag    := 1;
-    try
-      Filtrar;
-    finally
-      cbStatus.Tag  := 0;
-    end;
-  end;
-end;
-
 procedure TfrmNotaFiscal.csNotaFiscalFilterRecord(DataSet: TDataSet;
   var Accept: Boolean);
 var
   I : Integer;
 begin
-  Accept   := True;
-  case cbStatus.ItemIndex of
-    1 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 0;
-    2 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 1;
-    3 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 2;
-    4 : Accept := csNotaFiscalSTATUSCOD.AsInteger = 3;
-    else
-      Accept := True;
-  end;
-  if (Accept) and (edPesquisa.Text <> '') then begin
-    Accept := False;
-    for I := 0 to Pred(csNotaFiscal.FieldCount) do begin
-      Accept     := Pos(edPesquisa.Text, csNotaFiscal.Fields[I].AsString) > 0;
-      if Accept then Exit;
-    end;
+  Accept := False;
+  for I := 0 to Pred(csNotaFiscal.FieldCount) do begin
+    Accept     := Pos(edPesquisa.Text, csNotaFiscal.Fields[I].AsString) > 0;
+    if Accept then Exit;
   end;
 end;
 
@@ -485,7 +461,7 @@ end;
 procedure TfrmNotaFiscal.Filtrar;
 begin
   csNotaFiscal.Filtered := False;
-  csNotaFiscal.Filtered := (edPesquisa.Text <> '') or (cbStatus.ItemIndex > 0);
+  csNotaFiscal.Filtered := (edPesquisa.Text <> '');
 end;
 
 procedure TfrmNotaFiscal.FormCreate(Sender: TObject);
