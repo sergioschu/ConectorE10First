@@ -9,7 +9,8 @@ uses
   System.Win.ComObj, System.TypInfo, Vcl.Samples.Gauges, Vcl.ImgList,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+  FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  Vcl.ComCtrls, System.DateUtils;
 
 type
   TfrmNotaFiscal = class(TForm)
@@ -40,6 +41,10 @@ type
     csNotaFiscalSELECIONAR: TBooleanField;
     btReenviar: TSpeedButton;
     btConferida: TSpeedButton;
+    gbPeriodo: TGroupBox;
+    edDataF: TDateTimePicker;
+    Label1: TLabel;
+    edDataI: TDateTimePicker;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -47,8 +52,6 @@ type
     procedure dgNotaFiscalDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure csNotaFiscalFilterRecord(DataSet: TDataSet; var Accept: Boolean);
-    procedure edPesquisaKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure btPesquisarClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbStatusChange(Sender: TObject);
@@ -327,34 +330,70 @@ end;
 procedure TfrmNotaFiscal.CarregaDados;
 var
   CON : TFWConnection;
-  NF  : TNOTAFISCAL;
+  SQL : TFDQuery;
   I   : Integer;
 begin
   CON    := TFWConnection.Create;
-  NF     := TNOTAFISCAL.Create(CON);
+  SQL    := TFDQuery.Create(nil);
+  csNotaFiscal.DisableControls;
+  SQL.DisableControls;
   try
-    csNotaFiscal.EmptyDataSet;
+    try
+      SQL.Connection                   := CON.FDConnection;
+      SQL.Close;
+      SQL.SQL.Clear;
+      SQL.SQL.Add('select id, documento, dataemissao, serie, cnpjcpf, status from notafiscal');
+      SQL.SQL.Add('where cast(dataemissao as date) between :datai and :dataf');
+      SQL.ParamByName('datai').DataType   := ftDate;
+      SQL.ParamByName('dataf').DataType   := ftDate;
 
-    NF.SelectList();
-
-    for I := 0 to Pred(NF.Count) do begin
-      csNotaFiscal.Append;
-      csNotaFiscalID.Value            := TNOTAFISCAL(NF.Itens[I]).ID.Value;
-      csNotaFiscalDOCUMENTO.Value     := TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.Value;
-      csNotaFiscalDATAEMISSAO.Value   := TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value;
-      csNotaFiscalSERIE.Value         := TNOTAFISCAL(NF.Itens[I]).SERIE.Value;
-      csNotaFiscalCNPJ.Value          := TNOTAFISCAL(NF.Itens[I]).CNPJCPF.Value;
-      csNotaFiscalSTATUSCOD.Value     := TNOTAFISCAL(NF.Itens[I]).STATUS.Value;
-      case TNOTAFISCAL(NF.Itens[I]).STATUS.Value of
-        0 : csNotaFiscalSTATUS.Value  := 'Não Enviada para o FTP';
-        1 : csNotaFiscalSTATUS.Value  := 'Enviada para o FTP';
-        2 : csNotaFiscalSTATUS.Value  := 'MDD Recebido';
+      if cbStatus.ItemIndex > 0 then begin
+        SQL.SQL.Add('and status = :status');
+        SQL.ParamByName('status').DataType  := ftInteger;
       end;
-      csNotaFiscal.Post;
-    end;
 
+      SQL.Prepare;
+      SQL.Params[0].Value    := edDataI.Date;
+      SQL.Params[1].Value    := edDataF.Date;
+      if cbStatus.ItemIndex > 0 then begin
+        case cbStatus.ItemIndex of
+          0 : SQL.Params[2].Value;
+          1 : SQL.Params[2].Value;
+          2 : SQL.Params[2].Value;
+          3 : SQL.Params[2].Value;
+        end;
+      end;
+      SQL.Open();
+
+      csNotaFiscal.EmptyDataSet;
+
+      SQL.First;
+      while not SQL.Eof do begin
+        csNotaFiscal.Append;
+        csNotaFiscalID.Value            := SQL.Fields[0].Value;
+        csNotaFiscalDOCUMENTO.Value     := SQL.Fields[1].Value;
+        csNotaFiscalDATAEMISSAO.Value   := SQL.Fields[2].Value;
+        csNotaFiscalSERIE.Value         := SQL.Fields[3].Value;
+        csNotaFiscalCNPJ.Value          := SQL.Fields[4].Value;
+        csNotaFiscalSTATUSCOD.Value     := SQL.Fields[5].Value;
+        case csNotaFiscalSTATUSCOD.Value of
+          0 : csNotaFiscalSTATUS.Value  := 'Não Enviada para o FTP';
+          1 : csNotaFiscalSTATUS.Value  := 'Enviada para o FTP';
+          2 : csNotaFiscalSTATUS.Value  := 'MDD Recebido';
+        end;
+        csNotaFiscal.Post;
+        SQL.Next;
+      end;
+    except
+      on E : Exception do begin
+        DisplayMsg(MSG_WAR, 'Erro ao realizar consulta!' , '', E.Message);
+        Exit;
+      end;
+    end;
   finally
-    FreeAndNil(NF);
+    csNotaFiscal.EnableControls;
+    SQL.EnableControls;
+    FreeAndNil(SQL);
     FreeAndNil(CON);
   end;
 end;
@@ -428,23 +467,6 @@ begin
   end;
 end;
 
-procedure TfrmNotaFiscal.edPesquisaKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  case Key of
-    VK_RETURN : Filtrar;
-    VK_UP : begin
-      if not ((csNotaFiscal.IsEmpty) or (csNotaFiscal.Bof)) then
-        csNotaFiscal.Prior;
-    end;
-    VK_DOWN : begin
-      if not ((csNotaFiscal.IsEmpty) or (csNotaFiscal.Eof)) then
-        csNotaFiscal.Next;
-    end;
-
-  end;
-end;
-
 procedure TfrmNotaFiscal.Filtrar;
 begin
   csNotaFiscal.Filtered := False;
@@ -459,14 +481,32 @@ end;
 procedure TfrmNotaFiscal.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key = VK_ESCAPE then
-    Close;
+  if edPesquisa.Focused then begin
+    case Key of
+      VK_RETURN : Filtrar;
+      VK_UP : begin
+        if not ((csNotaFiscal.IsEmpty) or (csNotaFiscal.Bof)) then
+          csNotaFiscal.Prior;
+      end;
+      VK_DOWN : begin
+        if not ((csNotaFiscal.IsEmpty) or (csNotaFiscal.Eof)) then
+          csNotaFiscal.Next;
+      end;
+    end;
+  end else begin
+    case Key of
+      VK_RETURN : CarregaDados;
+      VK_ESCAPE : Close;
+    end;
+  end;
 end;
 
 procedure TfrmNotaFiscal.FormShow(Sender: TObject);
 begin
   csNotaFiscal.CreateDataSet;
   csNotaFiscal.Open;
+  edDataI.Date   := Date;
+  edDataF.Date   := Date;
   CarregaDados;
   AutoSizeDBGrid(dgNotaFiscal);
 

@@ -11,6 +11,7 @@ object frmNotaFiscal: TfrmNotaFiscal
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
@@ -27,9 +28,9 @@ object frmNotaFiscal: TfrmNotaFiscal
     object dgNotaFiscal: TDBGrid
       AlignWithMargins = True
       Left = 4
-      Top = 92
+      Top = 104
       Width = 761
-      Height = 299
+      Height = 287
       Align = alClient
       DataSource = dsNotaFiscal
       DrawingStyle = gdsGradient
@@ -84,7 +85,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       Left = 1
       Top = 49
       Width = 767
-      Height = 40
+      Height = 52
       Align = alTop
       BevelOuter = bvNone
       Color = clWhite
@@ -98,10 +99,10 @@ object frmNotaFiscal: TfrmNotaFiscal
       TabOrder = 1
       object btPesquisar: TSpeedButton
         AlignWithMargins = True
-        Left = 527
+        Left = 702
         Top = 3
         Width = 62
-        Height = 34
+        Height = 46
         Align = alRight
         Glyph.Data = {
           F6060000424DF606000000000000360000002800000018000000180000000100
@@ -161,14 +162,15 @@ object frmNotaFiscal: TfrmNotaFiscal
           C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         OnClick = btPesquisarClick
-        ExplicitLeft = 550
+        ExplicitLeft = 719
+        ExplicitHeight = 47
       end
       object edPesquisa: TEdit
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 518
-        Height = 34
+        Width = 230
+        Height = 46
         Align = alClient
         AutoSize = False
         Font.Charset = DEFAULT_CHARSET
@@ -180,11 +182,12 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        OnKeyDown = edPesquisaKeyDown
+        ExplicitWidth = 518
+        ExplicitHeight = 34
       end
       object cbStatus: TComboBox
         AlignWithMargins = True
-        Left = 595
+        Left = 239
         Top = 3
         Width = 169
         Height = 27
@@ -200,6 +203,55 @@ object frmNotaFiscal: TfrmNotaFiscal
           'Enviadas ao FTP'
           'Recebidas do FTP'
           'Conferidas')
+        ExplicitLeft = 595
+      end
+      object gbPeriodo: TGroupBox
+        Left = 411
+        Top = 0
+        Width = 288
+        Height = 52
+        Align = alRight
+        Caption = '  Per'#237'odo  '
+        TabOrder = 2
+        ExplicitLeft = 479
+        ExplicitHeight = 53
+        object Label1: TLabel
+          Left = 126
+          Top = 21
+          Width = 36
+          Height = 29
+          Align = alClient
+          Caption = ' At'#233' '
+          Layout = tlCenter
+          ExplicitLeft = 121
+          ExplicitWidth = 34
+          ExplicitHeight = 19
+        end
+        object edDataF: TDateTimePicker
+          Left = 162
+          Top = 21
+          Width = 124
+          Height = 29
+          Align = alRight
+          Date = 42444.963246053240000000
+          Time = 42444.963246053240000000
+          TabOrder = 1
+          ExplicitLeft = 96
+          ExplicitHeight = 30
+        end
+        object edDataI: TDateTimePicker
+          Left = 2
+          Top = 21
+          Width = 124
+          Height = 29
+          Align = alLeft
+          Date = 42444.963246053240000000
+          Time = 42444.963246053240000000
+          TabOrder = 0
+          ExplicitLeft = -46
+          ExplicitTop = 20
+          ExplicitHeight = 30
+        end
       end
     end
     object Panel2: TPanel
