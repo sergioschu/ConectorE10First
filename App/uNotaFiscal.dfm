@@ -28,9 +28,9 @@ object frmNotaFiscal: TfrmNotaFiscal
     object dgNotaFiscal: TDBGrid
       AlignWithMargins = True
       Left = 4
-      Top = 104
+      Top = 137
       Width = 761
-      Height = 287
+      Height = 254
       Align = alClient
       DataSource = dsNotaFiscal
       DrawingStyle = gdsGradient
@@ -41,7 +41,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       Font.Style = []
       Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleHotTrack]
       ParentFont = False
-      TabOrder = 0
+      TabOrder = 3
       TitleFont.Charset = DEFAULT_CHARSET
       TitleFont.Color = clWindowText
       TitleFont.Height = -20
@@ -81,11 +81,11 @@ object frmNotaFiscal: TfrmNotaFiscal
           Visible = True
         end>
     end
-    object pnPequisa: TPanel
+    object pnFiltro: TPanel
       Left = 1
-      Top = 49
+      Top = 92
       Width = 767
-      Height = 52
+      Height = 42
       Align = alTop
       BevelOuter = bvNone
       Color = clWhite
@@ -96,14 +96,16 @@ object frmNotaFiscal: TfrmNotaFiscal
       Font.Style = []
       ParentBackground = False
       ParentFont = False
-      TabOrder = 1
-      object btPesquisar: TSpeedButton
+      TabOrder = 2
+      ExplicitTop = 98
+      object btFiltrar: TSpeedButton
         AlignWithMargins = True
-        Left = 702
+        Left = 658
         Top = 3
-        Width = 62
-        Height = 46
+        Width = 106
+        Height = 36
         Align = alRight
+        Caption = 'Filtrar'
         Glyph.Data = {
           F6060000424DF606000000000000360000002800000018000000180000000100
           180000000000C0060000C40E0000C40E00000000000000000000FFFFFFFFFFFF
@@ -161,16 +163,15 @@ object frmNotaFiscal: TfrmNotaFiscal
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC2C2
           C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-        OnClick = btPesquisarClick
-        ExplicitLeft = 719
-        ExplicitHeight = 47
+        OnClick = btFiltrarClick
+        ExplicitLeft = 659
       end
       object edPesquisa: TEdit
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 230
-        Height = 46
+        Width = 649
+        Height = 36
         Align = alClient
         AutoSize = False
         Font.Charset = DEFAULT_CHARSET
@@ -182,76 +183,8 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 518
-        ExplicitHeight = 34
-      end
-      object cbStatus: TComboBox
-        AlignWithMargins = True
-        Left = 239
-        Top = 3
-        Width = 169
-        Height = 27
-        Align = alRight
-        Style = csDropDownList
-        ItemIndex = 0
-        TabOrder = 1
-        Text = 'Todas'
-        OnChange = cbStatusChange
-        Items.Strings = (
-          'Todas'
-          'N'#227'o Enviadas ao FTP'
-          'Enviadas ao FTP'
-          'Recebidas do FTP'
-          'Conferidas')
-        ExplicitLeft = 595
-      end
-      object gbPeriodo: TGroupBox
-        Left = 411
-        Top = 0
-        Width = 288
-        Height = 52
-        Align = alRight
-        Caption = '  Per'#237'odo  '
-        TabOrder = 2
-        ExplicitLeft = 479
-        ExplicitHeight = 53
-        object Label1: TLabel
-          Left = 126
-          Top = 21
-          Width = 36
-          Height = 29
-          Align = alClient
-          Caption = ' At'#233' '
-          Layout = tlCenter
-          ExplicitLeft = 121
-          ExplicitWidth = 34
-          ExplicitHeight = 19
-        end
-        object edDataF: TDateTimePicker
-          Left = 162
-          Top = 21
-          Width = 124
-          Height = 29
-          Align = alRight
-          Date = 42444.963246053240000000
-          Time = 42444.963246053240000000
-          TabOrder = 1
-          ExplicitLeft = 96
-          ExplicitHeight = 30
-        end
-        object edDataI: TDateTimePicker
-          Left = 2
-          Top = 21
-          Width = 124
-          Height = 29
-          Align = alLeft
-          Date = 42444.963246053240000000
-          Time = 42444.963246053240000000
-          TabOrder = 0
-          ExplicitLeft = -46
-          ExplicitTop = 20
-          ExplicitHeight = 30
-        end
+        ExplicitWidth = 230
+        ExplicitHeight = 46
       end
     end
     object Panel2: TPanel
@@ -271,7 +204,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       Font.Style = []
       ParentBackground = False
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
@@ -303,7 +236,7 @@ object frmNotaFiscal: TfrmNotaFiscal
         item
           Value = 100.000000000000000000
         end>
-      TabOrder = 3
+      TabOrder = 4
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 3
@@ -851,6 +784,154 @@ object frmNotaFiscal: TfrmNotaFiscal
           ExplicitLeft = 215
           ExplicitTop = 11
         end
+      end
+    end
+    object pnConsulta: TPanel
+      Left = 1
+      Top = 49
+      Width = 767
+      Height = 43
+      Align = alTop
+      BevelOuter = bvNone
+      Color = clWhite
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 0
+      object btConsultar: TSpeedButton
+        AlignWithMargins = True
+        Left = 658
+        Top = 3
+        Width = 106
+        Height = 37
+        Align = alRight
+        Caption = 'Consultar'
+        Glyph.Data = {
+          F6060000424DF606000000000000360000002800000018000000180000000100
+          180000000000C0060000C40E0000C40E00000000000000000000FFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFEFEFEF3F3F3E0E0E0CACACAA4A4A47F7F7F5E5E5E2626264D4C4CEE
+          EEEEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFF3F3F3DBDBDBC6C6C6B5B5B59B9B9B8484847373736D6D6D4747
+          472B29290404048C8C8CFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFBFBFBECECECDFDFDFD4D4D4CDCDCDCACACAD1D1D1DEDEDE
+          ECECEC7E7E7E2B29290000008F8F907D7D7DFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF8D8D8D2B29290000008F8F906D6D6DFBFBFBFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFF8E8E8E2B29290000008F8F906D6D6DFBFBFBFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8E8E8E2B29290000008F8F906D6D
+          6DFBFBFBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8E8E8E2B2929000000
+          8F8F906D6D6DFBFBFBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA19E9E3A
+          38380000008F8F90777777FDFDFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFC3C1C1B9B3B14A4443979798777777FDFDFDFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFDFDFDB6B6B59A9A999999989898969999989B9B9B
+          ABABABF6F6F6E9E9E9ADA4A3342D2CDFDCDBAFACACFDFDFDFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE6E6E68C8B8BB4B4B2CAC9C7CECECCCE
+          CECCCCCCCBC9C9C8BBBBB88E8E8D9C9795362D2DD7D5D4B3B0B0FFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEA8B8B89BFBEBBC6C6
+          C5C2C2C0C2C2C1C2C2C0C1C1C0C3C2C0C4C4C2C0C0BF8D8C8C979393E1E1E0FF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8D8D8C
+          B6B6B4BDBDBABBBBB9BABAB7B8B7B5B7B7B4B7B7B4B9B9B6BBBBB9BCBCB9B8B8
+          B58F8E8EF6F6F6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFC0C0C09E9E9DB5B5B2B0B0ADADACA9ACACA8ACACA8ACACA9ACACA9ACACA9
+          AEADAAB0AFACB2B2AFACACA9A5A5A5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFF9A9A9AA9A9A5A8A8A5A7A7A4A7A7A4A7A7A4A7A7A4A8
+          A8A4A8A8A4A8A8A5A8A8A5A8A8A5A8A8A5A8A8A5929291FFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8F8F8EA2A29FA2A29FA2A39FA3A3
+          A0A3A3A0A3A3A0A3A3A0A3A3A0A3A4A0A3A4A0A4A4A1A4A4A1A4A4A18B8B8AF9
+          F9F9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8B8B8A9E9E9B
+          9E9E9B9E9E9B9E9E9B9E9F9B9E9F9C9E9F9C9F9F9C9F9F9C9F9F9C9FA09C9FA0
+          9C9FA09D8C8C8AEBEBEBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFF8F8F8E9B9B999D9E9C9E9F9DA0A09EA1A19EA2A29FA2A2A0A2A3A0A2A3A0
+          A1A2A0A1A29FA1A19FA0A09E878786F9F9F9FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFF999A999FA09DABACABABACABACADABACADABACADABAC
+          ADABACADABADADABADADABADADABADADABA6A6A48B8B8BFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7C7C790918FB7B7B6B9B9B8B9B9
+          B8B9B9B8B9BAB8B9BAB8B9BAB8B9BAB8B9BAB8B9BAB9B9BAB9999A98A8A8A8FF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8E8E8E
+          A4A5A3CBCBCACBCBCACBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCCCBCBCCCBB2B2
+          B0888988F7F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFEDEDED858584A9AAA8DEDEDDE1E1E1E1E1E1E1E1E1E1E1E1E1E1E1
+          E0E0E0B9B9B8858685D6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEDED898A89949494C2C3C2DFE0DFEC
+          ECEBE4E4E4CACACA9D9D9D858685DADADAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC2C2
+          C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+        OnClick = btConsultarClick
+      end
+      object gbPeriodo: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 288
+        Height = 43
+        Align = alLeft
+        Caption = '  Per'#237'odo  '
+        TabOrder = 0
+        ExplicitLeft = 411
+        ExplicitHeight = 52
+        object Label1: TLabel
+          Left = 126
+          Top = 21
+          Width = 36
+          Height = 20
+          Align = alClient
+          Caption = ' At'#233' '
+          Layout = tlCenter
+          ExplicitTop = 15
+          ExplicitWidth = 34
+          ExplicitHeight = 19
+        end
+        object edDataF: TDateTimePicker
+          Left = 162
+          Top = 21
+          Width = 124
+          Height = 20
+          Align = alRight
+          Date = 42444.963246053240000000
+          Time = 42444.963246053240000000
+          TabOrder = 1
+          ExplicitHeight = 27
+        end
+        object edDataI: TDateTimePicker
+          Left = 2
+          Top = 21
+          Width = 124
+          Height = 20
+          Align = alLeft
+          Date = 42444.963246053240000000
+          Time = 42444.963246053240000000
+          TabOrder = 0
+          ExplicitHeight = 27
+        end
+      end
+      object cbStatus: TComboBox
+        AlignWithMargins = True
+        Left = 291
+        Top = 3
+        Width = 169
+        Height = 27
+        Align = alLeft
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 1
+        Text = 'Todas'
+        OnChange = cbStatusChange
+        Items.Strings = (
+          'Todas'
+          'N'#227'o Enviadas ao FTP'
+          'Enviadas ao FTP'
+          'Recebidas do FTP'
+          'Conferidas')
       end
     end
   end

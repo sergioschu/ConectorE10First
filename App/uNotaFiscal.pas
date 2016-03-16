@@ -16,8 +16,8 @@ type
   TfrmNotaFiscal = class(TForm)
     pnVisualizacao: TPanel;
     dgNotaFiscal: TDBGrid;
-    pnPequisa: TPanel;
-    btPesquisar: TSpeedButton;
+    pnFiltro: TPanel;
+    btFiltrar: TSpeedButton;
     edPesquisa: TEdit;
     Panel2: TPanel;
     GridPanel1: TGridPanel;
@@ -33,7 +33,6 @@ type
     csNotaFiscalDATAEMISSAO: TDateField;
     csNotaFiscalSERIE: TIntegerField;
     csNotaFiscalCNPJ: TStringField;
-    cbStatus: TComboBox;
     btDetalhes: TSpeedButton;
     csNotaFiscalID: TIntegerField;
     csNotaFiscalSTATUS: TStringField;
@@ -41,10 +40,13 @@ type
     csNotaFiscalSELECIONAR: TBooleanField;
     btReenviar: TSpeedButton;
     btConferida: TSpeedButton;
+    pnConsulta: TPanel;
     gbPeriodo: TGroupBox;
-    edDataF: TDateTimePicker;
     Label1: TLabel;
+    edDataF: TDateTimePicker;
     edDataI: TDateTimePicker;
+    cbStatus: TComboBox;
+    btConsultar: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -52,13 +54,14 @@ type
     procedure dgNotaFiscalDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure csNotaFiscalFilterRecord(DataSet: TDataSet; var Accept: Boolean);
-    procedure btPesquisarClick(Sender: TObject);
+    procedure btFiltrarClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbStatusChange(Sender: TObject);
     procedure btDetalhesClick(Sender: TObject);
     procedure btReenviarClick(Sender: TObject);
     procedure dgNotaFiscalCellClick(Column: TColumn);
     procedure btConferidaClick(Sender: TObject);
+    procedure btConsultarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure AtualizarNotasFiscais;
@@ -286,6 +289,18 @@ begin
   end;
 end;
 
+procedure TfrmNotaFiscal.btConsultarClick(Sender: TObject);
+begin
+  if btConsultar.Tag = 0 then begin
+    btConsultar.Tag   := 1;
+    try
+      CarregaDados;
+    finally
+      btConsultar.Tag := 0;
+    end;
+  end;
+end;
+
 procedure TfrmNotaFiscal.btDetalhesClick(Sender: TObject);
 begin
   if btDetalhes.Tag = 0 then begin
@@ -303,14 +318,14 @@ begin
   Close;
 end;
 
-procedure TfrmNotaFiscal.btPesquisarClick(Sender: TObject);
+procedure TfrmNotaFiscal.btFiltrarClick(Sender: TObject);
 begin
-  if btPesquisar.Tag = 0 then begin
-    btPesquisar.Tag   := 1;
+  if btFiltrar.Tag = 0 then begin
+    btFiltrar.Tag   := 1;
     try
       Filtrar;
     finally
-      btPesquisar.Tag := 0;
+      btFiltrar.Tag := 0;
     end;
   end;
 end;
