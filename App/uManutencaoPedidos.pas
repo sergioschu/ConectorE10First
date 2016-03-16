@@ -37,6 +37,7 @@ type
     cbFiltroStatus: TComboBox;
     csPedidosSTATUS: TStringField;
     csPedidosTRANSPORTADORA: TStringField;
+    csPedidosDATA_IMPORTACAO: TDateField;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -123,6 +124,9 @@ begin
 
       try
         try
+
+          FWC.StartTransaction;
+
           // Esconde Excel
           Excel.Visible  := False;
           // Abre o Workbook
@@ -524,6 +528,7 @@ begin
           end;
         end;
       finally
+        Application.ProcessMessages;
         arrData := Unassigned;
         pbAtualizaPedidos.Progress               := 0;
         if not VarIsEmpty(Excel) then begin
@@ -601,6 +606,7 @@ begin
       SQL.SQL.Add('SELECT');
       SQL.SQL.Add('	P.ID,');
       SQL.SQL.Add('	P.PEDIDO,');
+      SQL.SQL.Add('	CAST(P.DATA_ENVIO AS DATE) AS DATA_ENVIO,');
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_ENDERECO,');
       SQL.SQL.Add('	P.DEST_CEP,');
@@ -631,14 +637,15 @@ begin
         SQL.First;
         while not SQL.Eof do begin
           csPedidos.Append;
-          csPedidosID.Value             := SQL.Fields[0].Value;
-          csPedidosPEDIDO.Value         := SQL.Fields[1].Value;
-          csPedidosDEST_NOME.Value      := SQL.Fields[2].Value;
-          csPedidosDEST_ENDERECO.Value  := SQL.Fields[3].Value;
-          csPedidosDEST_CEP.Value       := SQL.Fields[4].Value;
-          csPedidosDEST_MUNICIPIO.Value := SQL.Fields[5].Value;
-          csPedidosSTATUS.Value         := SQL.Fields[6].Value;
-          csPedidosTRANSPORTADORA.Value := SQL.Fields[7].Value;
+          csPedidosID.Value               := SQL.Fields[0].Value;
+          csPedidosPEDIDO.Value           := SQL.Fields[1].Value;
+          csPedidosDATA_IMPORTACAO.Value  := SQL.Fields[2].Value;
+          csPedidosDEST_NOME.Value        := SQL.Fields[3].Value;
+          csPedidosDEST_ENDERECO.Value    := SQL.Fields[4].Value;
+          csPedidosDEST_CEP.Value         := SQL.Fields[5].Value;
+          csPedidosDEST_MUNICIPIO.Value   := SQL.Fields[6].Value;
+          csPedidosSTATUS.Value           := SQL.Fields[7].Value;
+          csPedidosTRANSPORTADORA.Value   := SQL.Fields[8].Value;
           csPedidos.Post;
           SQL.Next;
         end;

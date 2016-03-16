@@ -65,6 +65,12 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         end
         item
           Expanded = False
+          FieldName = 'DATA_IMPORTACAO'
+          Title.Caption = 'Data Importa'#231#227'o'
+          Visible = True
+        end
+        item
+          Expanded = False
           FieldName = 'DEST_NOME'
           Title.Caption = 'Nome Destinat'#225'rio'
           Width = 250
@@ -82,6 +88,12 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           FieldName = 'STATUSTEXTO'
           Title.Caption = 'Status'
           Width = 200
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'DATA_FATURADO'
+          Title.Caption = 'Data Faturamento'
           Visible = True
         end>
     end
@@ -590,6 +602,9 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
     object csPedidosPEDIDO: TStringField
       FieldName = 'PEDIDO'
     end
+    object csPedidosDATA_IMPORTACAO: TDateField
+      FieldName = 'DATA_IMPORTACAO'
+    end
     object csPedidosDEST_NOME: TStringField
       FieldName = 'DEST_NOME'
       Size = 60
@@ -604,6 +619,9 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
     end
     object csPedidosSTATUS: TIntegerField
       FieldName = 'STATUS'
+    end
+    object csPedidosDATA_FATURADO: TDateTimeField
+      FieldName = 'DATA_FATURADO'
     end
   end
   object csImpressaoPedidos: TClientDataSet

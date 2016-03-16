@@ -35,6 +35,8 @@ type
     csImpressaoPedidos: TClientDataSet;
     csImpressaoPedidosPEDIDO: TStringField;
     csImpressaoPedidosSKU: TStringField;
+    csPedidosDATA_IMPORTACAO: TDateField;
+    csPedidosDATA_FATURADO: TDateTimeField;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -118,13 +120,15 @@ begin
       SQL.SQL.Add('SELECT');
       SQL.SQL.Add('	P.ID,');
       SQL.SQL.Add('	P.PEDIDO,');
+      SQL.SQL.Add('	CAST(P.DATA_ENVIO AS DATE) AS DATA_ENVIO,');
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_MUNICIPIO,');
       SQL.SQL.Add('	P.STATUS,');
       SQL.SQL.Add('	CASE P.STATUS WHEN 3 THEN ''MDD Recebido''');
       SQL.SQL.Add('	              WHEN 4 THEN ''Pedido Impresso''');
       SQL.SQL.Add('	              ELSE ''Pedido Faturado''');
-      SQL.SQL.Add('	END AS STATUS');
+      SQL.SQL.Add('	END AS STATUSTEXTO,');
+      SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('WHERE 1 = 1');
 
@@ -145,10 +149,13 @@ begin
           csPedidos.Append;
           csPedidosID.Value             := SQL.Fields[0].Value;
           csPedidosPEDIDO.Value         := SQL.Fields[1].Value;
-          csPedidosDEST_NOME.Value      := SQL.Fields[2].Value;
-          csPedidosDEST_MUNICIPIO.Value := SQL.Fields[3].Value;
-          csPedidosSTATUS.Value         := SQL.Fields[4].Value;
-          csPedidosSTATUSTEXTO.Value    := SQL.Fields[5].Value;
+          csPedidosDATA_IMPORTACAO.Value:= SQL.Fields[2].Value;
+          csPedidosDEST_NOME.Value      := SQL.Fields[3].Value;
+          csPedidosDEST_MUNICIPIO.Value := SQL.Fields[4].Value;
+          csPedidosSTATUS.Value         := SQL.Fields[5].Value;
+          csPedidosSTATUSTEXTO.Value    := SQL.Fields[6].Value;
+          if SQL.Fields[5].Value = 5 then //Faturado
+            csPedidosDATA_FATURADO.Value  := SQL.Fields[7].Value;
           csPedidos.Post;
 
           SQL.Next;
