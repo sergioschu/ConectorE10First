@@ -254,8 +254,8 @@ end;
 procedure TfrmCadastroTransportadora.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key = VK_ESCAPE then Close;
-
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmCadastroTransportadora.FormShow(Sender: TObject);
