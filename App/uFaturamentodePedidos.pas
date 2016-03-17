@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Datasnap.DBClient,
   Vcl.Samples.Gauges, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids,
-  Vcl.DBGrids, FireDAC.Comp.Client;
+  Vcl.DBGrids, FireDAC.Comp.Client, Vcl.ComCtrls;
 
 type
   TFrmFaturamentodePedidos = class(TForm)
@@ -15,7 +15,6 @@ type
     pnPequisa: TPanel;
     btPesquisar: TSpeedButton;
     edPesquisa: TEdit;
-    cbFiltroStatus: TComboBox;
     Panel2: TPanel;
     GridPanel1: TGridPanel;
     Panel1: TPanel;
@@ -37,6 +36,13 @@ type
     csImpressaoPedidosSKU: TStringField;
     csPedidosDATA_IMPORTACAO: TDateField;
     csPedidosDATA_FATURADO: TDateTimeField;
+    pnConsulta: TPanel;
+    btConsultar: TSpeedButton;
+    gbPeriodo: TGroupBox;
+    Label1: TLabel;
+    edDataF: TDateTimePicker;
+    edDataI: TDateTimePicker;
+    rgStatus: TRadioGroup;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -48,6 +54,7 @@ type
     procedure btFaturarClick(Sender: TObject);
     procedure btImprimirClick(Sender: TObject);
     procedure cbFiltroStatusChange(Sender: TObject);
+    procedure btConsultarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -70,6 +77,18 @@ uses
   uFWConnection, uBeanPedido, uDMUtil;
 
 {$R *.dfm}
+
+procedure TFrmFaturamentodePedidos.btConsultarClick(Sender: TObject);
+begin
+  if btConsultar.Tag = 0 then begin
+    btConsultar.Tag    := 1;
+    try
+      CarregaDados;
+    finally
+      btConsultar.Tag  := 0;
+    end;
+  end;
+end;
 
 procedure TFrmFaturamentodePedidos.btFaturarClick(Sender: TObject);
 begin
@@ -131,8 +150,14 @@ begin
       SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('WHERE 1 = 1');
+      SQL.SQL.Add('AND CAST(P.DATA_ENVIO AS DATE) BETWEEN :DATAI AND :DATAF');
 
-      case cbFiltroStatus.ItemIndex of
+      SQL.ParamByName('DATAI').DataType := ftDate;
+      SQL.ParamByName('DATAF').DataType := ftDate;
+      SQL.ParamByName('DATAI').Value    := edDataI.Date;
+      SQL.ParamByName('DATAF').Value    := edDataF.Date;
+
+      case rgStatus.ItemIndex of
         0 : SQL.SQL.Add('AND P.STATUS IN (3,4,5)');
         1 : SQL.SQL.Add('AND P.STATUS = 3');
         2 : SQL.SQL.Add('AND P.STATUS = 4');
@@ -262,6 +287,16 @@ procedure TFrmFaturamentodePedidos.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     VK_ESCAPE : Close;
+    VK_RETURN : begin
+      if edPesquisa.Focused then begin
+        Filtrar;
+      end else begin
+        if edPesquisa.CanFocus then begin
+          edPesquisa.SetFocus;
+          edPesquisa.SelectAll;
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -269,8 +304,13 @@ procedure TFrmFaturamentodePedidos.FormShow(Sender: TObject);
 begin
   csPedidos.CreateDataSet;
   csImpressaoPedidos.CreateDataSet;
-  CarregaDados;
+
   AutoSizeDBGrid(gdPedidos);
+
+  edDataI.Date  := Date;
+  edDataF.Date  := Date;
+
+  CarregaDados;
 
   if edPesquisa.CanFocus then
     edPesquisa.SetFocus;

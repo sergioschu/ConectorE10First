@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ImgList, Data.DB, Datasnap.DBClient,
   Vcl.Samples.Gauges, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids,
   Vcl.DBGrids, FireDAC.Comp.Client, System.TypInfo, System.Win.ComObj,
-  uFWConnection;
+  uFWConnection, Vcl.ComCtrls;
 
 type
   TFrmManutencaoPedidos = class(TForm)
@@ -34,21 +34,26 @@ type
     csPedidosDEST_CEP: TStringField;
     csPedidosDEST_MUNICIPIO: TStringField;
     btAtualizarTransportadora: TSpeedButton;
-    cbFiltroStatus: TComboBox;
     csPedidosSTATUS: TStringField;
     csPedidosTRANSPORTADORA: TStringField;
     csPedidosDATA_IMPORTACAO: TDateField;
+    pnConsulta: TPanel;
+    btConsultar: TSpeedButton;
+    gbPeriodo: TGroupBox;
+    Label1: TLabel;
+    edDataF: TDateTimePicker;
+    edDataI: TDateTimePicker;
+    rgStatus: TRadioGroup;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
     procedure btPesquisarClick(Sender: TObject);
-    procedure edPesquisaKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure btAtualizarPedidosClick(Sender: TObject);
     procedure btAtualizarTransportadoraClick(Sender: TObject);
     procedure cbFiltroStatusChange(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure btConsultarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -569,6 +574,18 @@ begin
   end;
 end;
 
+procedure TFrmManutencaoPedidos.btConsultarClick(Sender: TObject);
+begin
+  if btConsultar.Tag = 0 then begin
+    btConsultar.Tag    := 1;
+    try
+      CarregaDados;
+    finally
+      btConsultar.Tag  := 0;
+    end;
+  end;
+end;
+
 procedure TFrmManutencaoPedidos.btFecharClick(Sender: TObject);
 begin
   Close;
@@ -621,15 +638,21 @@ begin
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('INNER JOIN TRANSPORTADORA T ON (T.ID = P.ID_TRANSPORTADORA)');
       SQL.SQL.Add('WHERE 1 = 1');
+      SQL.SQL.Add('AND CAST(P.DATA_ENVIO AS DATE) BETWEEN :DATAI AND :DATAF');
 
-      case cbFiltroStatus.ItemIndex of
+      SQL.ParamByName('DATAI').DataType := ftDate;
+      SQL.ParamByName('DATAF').DataType := ftDate;
+      SQL.ParamByName('DATAI').Value    := edDataI.Date;
+      SQL.ParamByName('DATAF').Value    := edDataF.Date;
+
+      case rgStatus.ItemIndex of
         0 : SQL.SQL.Add('AND P.STATUS IN (0,1,2)');
         1 : SQL.SQL.Add('AND P.STATUS = 0');
         2 : SQL.SQL.Add('AND P.STATUS = 1');
         3 : SQL.SQL.Add('AND P.STATUS = 2');
       end;
 
-      SQL.Connection                      := FWC.FDConnection;
+      SQL.Connection                  := FWC.FDConnection;
       SQL.Prepare;
       SQL.Open();
 
@@ -682,22 +705,6 @@ begin
   end;
 end;
 
-procedure TFrmManutencaoPedidos.edPesquisaKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  case Key of
-    VK_UP : begin
-      if not ((csPedidos.IsEmpty) or (csPedidos.Bof)) then
-        csPedidos.Prior;
-    end;
-    VK_DOWN : begin
-      if not ((csPedidos.IsEmpty) or (csPedidos.Eof)) then
-        csPedidos.Next;
-    end;
-    VK_RETURN : Filtrar;
-  end;
-end;
-
 procedure TFrmManutencaoPedidos.Filtrar;
 begin
   csPedidos.Filtered := False;
@@ -714,14 +721,28 @@ procedure TFrmManutencaoPedidos.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     VK_ESCAPE : Close;
+    VK_RETURN : begin
+      if edPesquisa.Focused then begin
+        Filtrar;
+      end else begin
+        if edPesquisa.CanFocus then begin
+          edPesquisa.SetFocus;
+          edPesquisa.SelectAll;
+        end;
+      end;
+    end;
   end;
 end;
 
 procedure TFrmManutencaoPedidos.FormShow(Sender: TObject);
 begin
   csPedidos.CreateDataSet;
-  CarregaDados;
   AutoSizeDBGrid(gdPedidos);
+
+  edDataI.Date  := Date;
+  edDataF.Date  := Date;
+
+  CarregaDados;
 
   if edPesquisa.CanFocus then
     edPesquisa.SetFocus;
