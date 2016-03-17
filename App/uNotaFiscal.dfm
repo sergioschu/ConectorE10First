@@ -97,7 +97,6 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
-      ExplicitTop = 92
       object btFiltrar: TSpeedButton
         AlignWithMargins = True
         Left = 658
@@ -802,7 +801,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       TabOrder = 0
       object btConsultar: TSpeedButton
         AlignWithMargins = True
-        Left = 658
+        Left = 670
         Top = 3
         Width = 106
         Height = 64
@@ -866,22 +865,26 @@ object frmNotaFiscal: TfrmNotaFiscal
           C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
         OnClick = btConsultarClick
+        ExplicitLeft = 658
         ExplicitHeight = 37
       end
       object gbPeriodo: TGroupBox
-        Left = 0
-        Top = 0
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
         Width = 288
-        Height = 70
+        Height = 64
         Align = alLeft
         Caption = '  Per'#237'odo  '
         TabOrder = 0
-        ExplicitHeight = 43
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitHeight = 70
         object Label1: TLabel
           Left = 126
           Top = 21
           Width = 36
-          Height = 47
+          Height = 41
           Align = alClient
           Caption = ' At'#233' '
           Layout = tlCenter
@@ -892,30 +895,31 @@ object frmNotaFiscal: TfrmNotaFiscal
           Left = 162
           Top = 21
           Width = 124
-          Height = 47
+          Height = 41
           Align = alRight
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 1
-          ExplicitHeight = 20
+          ExplicitHeight = 47
         end
         object edDataI: TDateTimePicker
           Left = 2
           Top = 21
           Width = 124
-          Height = 47
+          Height = 41
           Align = alLeft
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 0
-          ExplicitHeight = 20
+          ExplicitHeight = 47
         end
       end
       object rgStatus: TRadioGroup
-        Left = 288
-        Top = 0
+        AlignWithMargins = True
+        Left = 297
+        Top = 3
         Width = 367
-        Height = 70
+        Height = 64
         Align = alLeft
         Caption = '  Status  '
         Columns = 3
@@ -927,7 +931,9 @@ object frmNotaFiscal: TfrmNotaFiscal
           'Recebidas'
           'Conferidas')
         TabOrder = 1
-        ExplicitHeight = 59
+        ExplicitLeft = 288
+        ExplicitTop = 0
+        ExplicitHeight = 70
       end
     end
   end
