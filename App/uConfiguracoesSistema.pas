@@ -25,6 +25,11 @@ type
     edDriverID: TLabeledEdit;
     edPorta: TLabeledEdit;
     btConnection: TSpeedButton;
+    edDiretorioLogs: TButtonedEdit;
+    Label2: TLabel;
+    edSenhaFTP: TLabeledEdit;
+    edUsuarioFTP: TLabeledEdit;
+    edSleepFTP: TLabeledEdit;
     procedure btSairClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure edDiretorioRelatorioRightButtonClick(Sender: TObject);
@@ -98,6 +103,10 @@ begin
   edDriverID.Text           := CONEXAO.DriverID;
   edPorta.Text              := CONEXAO.Port;
   edDiretorioRelatorio.Text := CONFIG_LOCAL.DirRelatorios;
+  edDiretorioLogs.Text      := CONFIG_LOCAL.DirLog;
+  edUsuarioFTP.Text         := CONFIG_LOCAL.FTPUsuario;
+  edSenhaFTP.Text           := CONFIG_LOCAL.FTPSenha;
+  edSleepFTP.Text           := IntToStr(CONFIG_LOCAL.Sleep);
 end;
 
 procedure TfrmConfiguracoesSistema.edDiretorioRelatorioRightButtonClick(
@@ -134,6 +143,10 @@ begin
   try
 
     ArqINI.WriteString('CONFIGURACOES', 'DIR_RELATORIOS', edDiretorioRelatorio.Text);
+    ArqINI.WriteString('CONFIGURACOES','DIR_LOGS', edDiretorioLogs.Text);
+    ArqINI.WriteString('CONFIGURACOES','FTP_USUARIO', edUsuarioFTP.Text);
+    ArqINI.WriteString('CONFIGURACOES','FTP_SENHA', edSenhaFTP.Text);
+    ArqINI.WriteInteger('CONFIGURACOES','FTP_SLEEP', StrToInt(edSleepFTP.Text));
 
     ArqINI.WriteString('CONEXAOBD', 'Database', edDataBase.Text);
     ArqINI.WriteString('CONEXAOBD', 'Server', edServer.Text);

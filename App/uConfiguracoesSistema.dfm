@@ -301,13 +301,9 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 4
-      ExplicitTop = 36
-      ExplicitWidth = 871
-      ExplicitHeight = 384
       object Label1: TLabel
         Left = 3
-        Top = 243
+        Top = 197
         Width = 167
         Height = 19
         Caption = 'Diret'#243'rio dos Relat'#243'rios'
@@ -321,7 +317,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       object btConnection: TSpeedButton
         AlignWithMargins = True
         Left = 251
-        Top = 187
+        Top = 147
         Width = 124
         Height = 50
         Caption = '&Testar'
@@ -432,10 +428,23 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         ParentFont = False
         OnClick = btConnectionClick
       end
+      object Label2: TLabel
+        Left = 3
+        Top = 247
+        Width = 130
+        Height = 19
+        Caption = 'Diret'#243'rio dos Logs'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
       object edDiretorioRelatorio: TButtonedEdit
         Left = 3
-        Top = 268
-        Width = 390
+        Top = 218
+        Width = 372
         Height = 27
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -451,7 +460,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edDataBase: TLabeledEdit
         Left = 3
-        Top = 30
+        Top = 18
         Width = 214
         Height = 27
         EditLabel.Width = 64
@@ -474,7 +483,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edServer: TLabeledEdit
         Left = 251
-        Top = 30
+        Top = 18
         Width = 124
         Height = 27
         EditLabel.Width = 59
@@ -497,7 +506,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edUserName: TLabeledEdit
         Left = 3
-        Top = 90
+        Top = 65
         Width = 214
         Height = 27
         EditLabel.Width = 54
@@ -520,7 +529,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edPassword: TLabeledEdit
         Left = 251
-        Top = 90
+        Top = 65
         Width = 124
         Height = 27
         EditLabel.Width = 43
@@ -543,7 +552,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edCharSet: TLabeledEdit
         Left = 3
-        Top = 150
+        Top = 116
         Width = 214
         Height = 27
         EditLabel.Width = 55
@@ -566,7 +575,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edDriverID: TLabeledEdit
         Left = 251
-        Top = 150
+        Top = 116
         Width = 124
         Height = 27
         EditLabel.Width = 37
@@ -589,7 +598,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       end
       object edPorta: TLabeledEdit
         Left = 3
-        Top = 210
+        Top = 170
         Width = 214
         Height = 27
         EditLabel.Width = 37
@@ -609,6 +618,93 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         ParentFont = False
         TabOrder = 6
         TextHint = 'Ex: 5432'
+      end
+      object edDiretorioLogs: TButtonedEdit
+        Left = 3
+        Top = 269
+        Width = 372
+        Height = 27
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        RightButton.ImageIndex = 0
+        RightButton.Visible = True
+        TabOrder = 8
+        Text = 'Diret'#243'rio de Logs'
+        OnRightButtonClick = edDiretorioRelatorioRightButtonClick
+      end
+      object edSenhaFTP: TLabeledEdit
+        Left = 165
+        Top = 319
+        Width = 124
+        Height = 27
+        EditLabel.Width = 75
+        EditLabel.Height = 19
+        EditLabel.Caption = 'Senha FTP'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -16
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = []
+        EditLabel.ParentFont = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        PasswordChar = '*'
+        TabOrder = 9
+      end
+      object edUsuarioFTP: TLabeledEdit
+        Left = 3
+        Top = 319
+        Width = 156
+        Height = 27
+        EditLabel.Width = 86
+        EditLabel.Height = 19
+        EditLabel.Caption = 'Usu'#225'rio FTP'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -16
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = []
+        EditLabel.ParentFont = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 10
+        TextHint = 'Ex: postgress'
+      end
+      object edSleepFTP: TLabeledEdit
+        Left = 295
+        Top = 319
+        Width = 80
+        Height = 27
+        EditLabel.Width = 70
+        EditLabel.Height = 19
+        EditLabel.Caption = 'Sleep FTP'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -16
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = []
+        EditLabel.ParentFont = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        NumbersOnly = True
+        ParentFont = False
+        PasswordChar = '*'
+        TabOrder = 11
       end
     end
   end
