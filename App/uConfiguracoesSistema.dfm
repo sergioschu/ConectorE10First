@@ -657,7 +657,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         Font.Style = []
         ParentFont = False
         PasswordChar = '*'
-        TabOrder = 9
+        TabOrder = 10
       end
       object edUsuarioFTP: TLabeledEdit
         Left = 3
@@ -679,7 +679,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        TabOrder = 10
+        TabOrder = 9
         TextHint = 'Ex: postgress'
       end
       object edSleepFTP: TLabeledEdit

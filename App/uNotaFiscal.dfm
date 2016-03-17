@@ -3,8 +3,8 @@ object frmNotaFiscal: TfrmNotaFiscal
   Top = 0
   BorderStyle = bsNone
   Caption = 'Painel de Controle de Notas Fiscais de Entrada'
-  ClientHeight = 461
-  ClientWidth = 769
+  ClientHeight = 483
+  ClientWidth = 797
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,16 +21,18 @@ object frmNotaFiscal: TfrmNotaFiscal
   object pnVisualizacao: TPanel
     Left = 0
     Top = 0
-    Width = 769
-    Height = 461
+    Width = 797
+    Height = 483
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 769
+    ExplicitHeight = 461
     object dgNotaFiscal: TDBGrid
       AlignWithMargins = True
       Left = 4
       Top = 164
-      Width = 761
-      Height = 227
+      Width = 789
+      Height = 249
       Align = alClient
       DataSource = dsNotaFiscal
       DrawingStyle = gdsGradient
@@ -84,7 +86,7 @@ object frmNotaFiscal: TfrmNotaFiscal
     object pnFiltro: TPanel
       Left = 1
       Top = 119
-      Width = 767
+      Width = 795
       Height = 42
       Align = alTop
       BevelOuter = bvNone
@@ -97,9 +99,10 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
+      ExplicitWidth = 767
       object btFiltrar: TSpeedButton
         AlignWithMargins = True
-        Left = 658
+        Left = 686
         Top = 3
         Width = 106
         Height = 36
@@ -169,7 +172,7 @@ object frmNotaFiscal: TfrmNotaFiscal
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 649
+        Width = 677
         Height = 36
         Align = alClient
         AutoSize = False
@@ -182,13 +185,14 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
+        ExplicitWidth = 649
       end
     end
     object Panel2: TPanel
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 761
+      Width = 789
       Height = 42
       Align = alTop
       BevelOuter = bvNone
@@ -202,12 +206,13 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
+      ExplicitWidth = 761
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 4
-      Top = 397
-      Width = 761
+      Top = 419
+      Width = 789
       Height = 60
       Align = alBottom
       BevelOuter = bvNone
@@ -234,18 +239,21 @@ object frmNotaFiscal: TfrmNotaFiscal
           Value = 100.000000000000000000
         end>
       TabOrder = 4
+      ExplicitTop = 397
+      ExplicitWidth = 761
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 374
+        Width = 388
         Height = 54
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 374
         object btAtualizar: TSpeedButton
           AlignWithMargins = True
-          Left = 271
+          Left = 285
           Top = 3
           Width = 100
           Height = 48
@@ -356,13 +364,13 @@ object frmNotaFiscal: TfrmNotaFiscal
           ExplicitHeight = 44
         end
         object pbAtualizaProduto: TGauge
-          Left = 216
+          Left = 230
           Top = 0
           Width = 52
           Height = 54
           Align = alRight
           BorderStyle = bsNone
-          ForeColor = clNavy
+          ForeColor = clLime
           Kind = gkPie
           Progress = 0
           ExplicitLeft = 200
@@ -593,13 +601,15 @@ object frmNotaFiscal: TfrmNotaFiscal
       end
       object Panel3: TPanel
         AlignWithMargins = True
-        Left = 383
+        Left = 397
         Top = 3
-        Width = 375
+        Width = 389
         Height = 54
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 383
+        ExplicitWidth = 375
         object btFechar: TSpeedButton
           AlignWithMargins = True
           Left = 3
@@ -672,7 +682,7 @@ object frmNotaFiscal: TfrmNotaFiscal
         end
         object btDetalhes: TSpeedButton
           AlignWithMargins = True
-          Left = 272
+          Left = 286
           Top = 3
           Width = 100
           Height = 48
@@ -786,7 +796,7 @@ object frmNotaFiscal: TfrmNotaFiscal
     object pnConsulta: TPanel
       Left = 1
       Top = 49
-      Width = 767
+      Width = 795
       Height = 70
       Align = alTop
       BevelOuter = bvNone
@@ -799,9 +809,10 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 0
+      ExplicitWidth = 767
       object btConsultar: TSpeedButton
         AlignWithMargins = True
-        Left = 670
+        Left = 684
         Top = 3
         Width = 106
         Height = 64
@@ -872,51 +883,57 @@ object frmNotaFiscal: TfrmNotaFiscal
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 288
+        Width = 302
         Height = 64
         Align = alLeft
         Caption = '  Per'#237'odo  '
         TabOrder = 0
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitHeight = 70
         object Label1: TLabel
-          Left = 126
-          Top = 21
-          Width = 36
-          Height = 41
+          AlignWithMargins = True
+          Left = 135
+          Top = 24
+          Width = 32
+          Height = 35
           Align = alClient
           Caption = ' At'#233' '
           Layout = tlCenter
+          ExplicitLeft = 126
+          ExplicitTop = 21
           ExplicitWidth = 34
           ExplicitHeight = 19
         end
         object edDataF: TDateTimePicker
-          Left = 162
-          Top = 21
+          AlignWithMargins = True
+          Left = 173
+          Top = 24
           Width = 124
-          Height = 41
+          Height = 35
           Align = alRight
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 1
-          ExplicitHeight = 47
+          ExplicitLeft = 162
+          ExplicitTop = 21
+          ExplicitHeight = 41
         end
         object edDataI: TDateTimePicker
-          Left = 2
-          Top = 21
+          AlignWithMargins = True
+          Left = 5
+          Top = 24
           Width = 124
-          Height = 41
+          Height = 35
           Align = alLeft
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 0
-          ExplicitHeight = 47
+          ExplicitLeft = 2
+          ExplicitTop = 21
+          ExplicitHeight = 41
         end
       end
       object rgStatus: TRadioGroup
         AlignWithMargins = True
-        Left = 297
+        Left = 311
         Top = 3
         Width = 367
         Height = 64
@@ -931,9 +948,7 @@ object frmNotaFiscal: TfrmNotaFiscal
           'Recebidas'
           'Conferidas')
         TabOrder = 1
-        ExplicitLeft = 288
-        ExplicitTop = 0
-        ExplicitHeight = 70
+        ExplicitLeft = 297
       end
     end
   end
