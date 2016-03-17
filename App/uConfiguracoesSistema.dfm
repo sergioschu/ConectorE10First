@@ -703,7 +703,6 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         Font.Style = []
         NumbersOnly = True
         ParentFont = False
-        PasswordChar = '*'
         TabOrder = 11
       end
     end
