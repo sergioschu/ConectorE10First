@@ -483,6 +483,7 @@ begin
         if not ((csNotaFiscal.IsEmpty) or (csNotaFiscal.Eof)) then
           csNotaFiscal.Next;
       end;
+      VK_ESCAPE : Close;
     end;
   end else begin
     case Key of
