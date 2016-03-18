@@ -436,8 +436,8 @@ begin
         try
           for I := 0 to Pred(PR.Count) do begin
             Lista.Add(TPRODUTO(PR.Itens[I]).CODIGOPRODUTO.asString + ';' +
-              TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDA.asString + ';' +
               TPRODUTO(PR.Itens[I]).DESCRICAO.asString + ';' +
+              TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDA.asString + ';' +
               TPRODUTO(PR.Itens[I]).DESCRICAOSKU.asString + ';' +
               TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDASKU.asString + ';' +
               TPRODUTO(PR.Itens[I]).QUANTIDADEPOREMBALAGEM.asString + ';' +

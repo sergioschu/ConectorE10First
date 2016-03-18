@@ -25,8 +25,6 @@ object frmNotaFiscal: TfrmNotaFiscal
     Height = 483
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 769
-    ExplicitHeight = 461
     object dgNotaFiscal: TDBGrid
       AlignWithMargins = True
       Left = 4
@@ -99,7 +97,6 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
-      ExplicitWidth = 767
       object btFiltrar: TSpeedButton
         AlignWithMargins = True
         Left = 686
@@ -185,7 +182,6 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 649
       end
     end
     object Panel2: TPanel
@@ -206,7 +202,6 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
-      ExplicitWidth = 761
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
@@ -239,8 +234,6 @@ object frmNotaFiscal: TfrmNotaFiscal
           Value = 100.000000000000000000
         end>
       TabOrder = 4
-      ExplicitTop = 397
-      ExplicitWidth = 761
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 3
@@ -250,7 +243,6 @@ object frmNotaFiscal: TfrmNotaFiscal
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 374
         object btAtualizar: TSpeedButton
           AlignWithMargins = True
           Left = 285
@@ -608,8 +600,6 @@ object frmNotaFiscal: TfrmNotaFiscal
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 383
-        ExplicitWidth = 375
         object btFechar: TSpeedButton
           AlignWithMargins = True
           Left = 3
@@ -809,7 +799,6 @@ object frmNotaFiscal: TfrmNotaFiscal
       ParentBackground = False
       ParentFont = False
       TabOrder = 0
-      ExplicitWidth = 767
       object btConsultar: TSpeedButton
         AlignWithMargins = True
         Left = 684
@@ -897,8 +886,6 @@ object frmNotaFiscal: TfrmNotaFiscal
           Align = alClient
           Caption = ' At'#233' '
           Layout = tlCenter
-          ExplicitLeft = 126
-          ExplicitTop = 21
           ExplicitWidth = 34
           ExplicitHeight = 19
         end
@@ -912,9 +899,6 @@ object frmNotaFiscal: TfrmNotaFiscal
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 1
-          ExplicitLeft = 162
-          ExplicitTop = 21
-          ExplicitHeight = 41
         end
         object edDataI: TDateTimePicker
           AlignWithMargins = True
@@ -926,9 +910,6 @@ object frmNotaFiscal: TfrmNotaFiscal
           Date = 42444.963246053240000000
           Time = 42444.963246053240000000
           TabOrder = 0
-          ExplicitLeft = 2
-          ExplicitTop = 21
-          ExplicitHeight = 41
         end
       end
       object rgStatus: TRadioGroup
@@ -948,7 +929,6 @@ object frmNotaFiscal: TfrmNotaFiscal
           'Recebidas'
           'Conferidas')
         TabOrder = 1
-        ExplicitLeft = 297
       end
     end
   end

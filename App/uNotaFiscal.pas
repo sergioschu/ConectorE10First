@@ -106,9 +106,12 @@ Var
   vrow,
   vcol,
   I,
-  J       : Integer;
+  J,
+  Count   : Integer;
   NOTAS   : array of TNOTA;
   Lista   : TStringList;
+  List    : TPropList;
+  Erro    : Boolean;
 begin
   if OpenDialog1.Execute then begin
     if Pos(ExtractFileExt(OpenDialog1.FileName), '|.xls|.xlsx|') > 0 then begin
@@ -155,6 +158,38 @@ begin
 
           NF.buscaIndicesExcel(Arquivo, Excel);
           NFI.buscaIndicesExcel(Arquivo, Excel);
+
+          Erro                                            := False;
+
+
+          Count                                           := GetPropList(NF.ClassInfo, tkProperties, @List, False);
+
+          for I := 0 to Pred(Count) do begin
+            if (TFieldTypeDomain(GetObjectProp(NF, List[I]^.Name)).excelTitulo <> '') and (TFieldTypeDomain(GetObjectProp(NF, List[I]^.Name)).excelIndice <= 0) then begin
+              Erro  := True;
+            end;
+          end;
+
+          Count                                           := GetPropList(NFI.ClassInfo, tkProperties, @List, False);
+
+          for I := 0 to Pred(Count) do begin
+            if (TFieldTypeDomain(GetObjectProp(NFI, List[I]^.Name)).excelTitulo <> '') and (TFieldTypeDomain(GetObjectProp(NFI, List[I]^.Name)).excelIndice <= 0) then begin
+              Erro  := True;
+            end;
+          end;
+
+          if Erro then begin
+              DisplayMsg(MSG_WAR, 'Estrutura do Arquivo Inválida, Verifique!', '', 'Colunas: ' + sLineBreak + 'Nota - Nº, ' + sLineBreak +
+                                                                                    'Nota - Série, ' + sLineBreak +
+                                                                                    'Nota - Emissão, ' + sLineBreak +
+                                                                                    'Destinatário - CPF/CNPJ, ' + sLineBreak +
+                                                                                    'SKU, ' + sLineBreak +
+                                                                                    'Qnt, ' + sLineBreak +
+                                                                                    'Preco B, ' + sLineBreak +
+                                                                                    'Item - Total bruto, ' + sLineBreak +
+                                                                                    'Item - CFOP');
+              Exit;
+          end;
 
           SetLength(NOTAS, 0);
           for I := 2 to vrow do begin
