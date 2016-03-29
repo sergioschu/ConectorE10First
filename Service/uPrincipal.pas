@@ -361,7 +361,6 @@ begin
                     TPEDIDO(P.Itens[I]).PEDIDO.asString + ';' +
                     TPEDIDO(P.Itens[I]).VIAGEM.asString + ';' +
                     TPEDIDO(P.Itens[I]).SEQUENCIA.asString + ';' +
-                    TTRANSPORTADORA(T.Itens[0]).CNPJ.asString + ';' +
                     TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
                     TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString + ';' +
                     TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString + ';' +

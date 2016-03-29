@@ -19,7 +19,6 @@ type
     Panel2: TPanel;
     GridPanel1: TGridPanel;
     Panel1: TPanel;
-    btAtualizarPedidos: TSpeedButton;
     pbAtualizaPedidos: TGauge;
     Panel3: TPanel;
     btFechar: TSpeedButton;
@@ -44,6 +43,9 @@ type
     edDataF: TDateTimePicker;
     edDataI: TDateTimePicker;
     rgStatus: TRadioGroup;
+    csPedidosSELECIONE: TBooleanField;
+    btAtualizarPedidos: TSpeedButton;
+    btReenviar: TSpeedButton;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -54,11 +56,16 @@ type
     procedure cbFiltroStatusChange(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btConsultarClick(Sender: TObject);
+    procedure gdPedidosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure gdPedidosCellClick(Column: TColumn);
+    procedure btReenviarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
     procedure AtualizarPedidos;
     procedure AtualizarTransportadora;
+    procedure Reenviar;
     { Private declarations }
   public
     { Public declarations }
@@ -603,6 +610,18 @@ begin
   end;
 end;
 
+procedure TFrmManutencaoPedidos.btReenviarClick(Sender: TObject);
+begin
+  if btReenviar.Tag = 0 then begin
+    btReenviar.Tag   := 1;
+    try
+      Reenviar;
+    finally
+      btReenviar.Tag := 0;
+    end;
+  end;
+end;
+
 procedure TFrmManutencaoPedidos.CarregaDados;
 Var
   FWC : TFWConnection;
@@ -746,6 +765,89 @@ begin
 
   if edPesquisa.CanFocus then
     edPesquisa.SetFocus;
+end;
+
+procedure TFrmManutencaoPedidos.gdPedidosCellClick(Column: TColumn);
+begin
+  if csPedidos.IsEmpty then Exit;
+
+  csPedidos.Edit;
+  csPedidosSELECIONE.Value  := not csPedidosSELECIONE.Value;
+  csPedidos.Post;
+end;
+
+procedure TFrmManutencaoPedidos.gdPedidosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+const
+  IsChecked : array[Boolean] of Integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED);
+var
+  DrawRect: TRect;
+begin
+  if csPedidos.IsEmpty then Exit;
+
+  if (gdSelected in State) or (gdFocused in State) then begin
+    gdPedidos.Canvas.Font.Color   := clWhite;
+    gdPedidos.Canvas.Brush.Color  := clBlue;
+    gdPedidos.Canvas.Font.Style   := [];
+  end;
+
+  gdPedidos.DefaultDrawDataCell( Rect, gdPedidos.Columns[DataCol].Field, State);
+
+  if Column.FieldName = csPedidosSELECIONE.FieldName then begin
+    DrawRect   := Rect;
+    InflateRect(DrawRect,-1,-1);
+    gdPedidos.Canvas.FillRect(Rect);
+    DrawFrameControl(gdPedidos.Canvas.Handle, DrawRect, DFC_BUTTON, ISChecked[Column.Field.AsBoolean]);
+  end;
+end;
+
+procedure TFrmManutencaoPedidos.Reenviar;
+var
+  FWC : TFWConnection;
+  P   : TPEDIDO;
+begin
+  if csPedidos.IsEmpty then begin
+    DisplayMsg(MSG_WAR, 'Não existem dados para alterar!');
+    Exit;
+  end;
+
+  csPedidos.DisableControls;
+  FWC  := TFWConnection.Create;
+  P    := TPEDIDO.Create(FWC);
+  DisplayMsg(MSG_WAIT, 'Atualizando pedidos!');
+  try
+    try
+      csPedidos.First;
+      while not csPedidos.Eof do begin
+        if csPedidosSELECIONE.Value then begin
+          P.SelectList('id = ' + csPedidosID.AsString + ' and status = 2');
+          if P.Count > 0 then begin
+            P.ID.Value           := csPedidosID.Value;
+            P.STATUS.Value       := 1;
+            P.Update;
+
+            csPedidos.Edit;
+            csPedidosSELECIONE.Value := False;
+            csPedidosSTATUS.Value    := 'Com Transportadora';
+            csPedidos.Post;
+          end;
+        end;
+        csPedidos.Next;
+      end;
+      FWC.Commit;
+      DisplayMsgFinaliza;
+    except
+      on E : Exception do begin
+        FWC.Rollback;
+        DisplayMsg(MSG_WAR, 'Erro ao atualizar pedidos!');
+        Exit;
+      end;
+    end;
+  finally
+    csPedidos.EnableControls;
+    FreeAndNil(P);
+    FreeAndNil(FWC);
+  end;
 end;
 
 end.
