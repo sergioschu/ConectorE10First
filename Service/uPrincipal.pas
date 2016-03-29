@@ -94,7 +94,7 @@ begin
                 CONF.Delimiter       := ';';
                 CONF.StrictDelimiter := True;
                 CONF.DelimitedText   := Lista[I];
-                if CONF.Count = 10 then begin
+                if CONF.Count = 12 then begin
                   SaveLog('arquivo valido!');
                   PR.SelectList('codigoproduto = ' + QuotedStr(CONF[5]));
                   if PR.Count > 0 then begin
@@ -103,8 +103,8 @@ begin
                       NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
                       if NI.Count > 0 then begin
                         NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                        NI.QUANTIDADEREC.Value     := FormataNumeros(CONF[8]);
-                        NI.QUANTIDADEAVA.Value     := FormataNumeros(CONF[9]);
+                        NI.QUANTIDADEREC.Value     := FormataNumeros(CONF[9]);
+                        NI.QUANTIDADEAVA.Value     := FormataNumeros(CONF[10]);
                         NI.Update;
 
                         NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
@@ -348,8 +348,10 @@ begin
     try
       P.SelectList('status = 1');
       if P.Count > 0 then begin
-        AFTP       := BuscaNumeroArquivo(Con, 2);
         for I := 0 to Pred(P.Count) do begin
+          AFTP       := BuscaNumeroArquivo(Con, 2);
+          Lista.Clear;
+
           T.SelectList('id = ' + TPEDIDO(P.Itens[I]).ID_TRANSPORTADORA.asString);
           if T.Count > 0 then begin
             PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
@@ -380,12 +382,12 @@ begin
           P.ID_ARQUIVO.Value := AFTP;
           P.STATUS.Value     := 2;
           P.Update;
+          if Lista.Count > 0 then begin
+            if not DirectoryExists(DirArquivosFTP) then
+              ForceDirectories(DirArquivosFTP);
+            Lista.SaveToFile(DirArquivosFTP + 'SC' + IntToStr(AFTP) + '.txt');
+          end;
         end;
-      end;
-      if Lista.Count > 0 then begin
-        if not DirectoryExists(DirArquivosFTP) then
-          ForceDirectories(DirArquivosFTP);
-        Lista.SaveToFile(DirArquivosFTP + 'SC' + IntToStr(AFTP) + '.txt');
       end;
 
       FTP     := TConexaoFTP.Create;
