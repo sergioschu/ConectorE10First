@@ -94,7 +94,7 @@ begin
                 CONF.Delimiter       := ';';
                 CONF.StrictDelimiter := True;
                 CONF.DelimitedText   := Lista[I];
-                if CONF.Count = 12 then begin
+                if CONF.Count = 11 then begin
                   SaveLog('arquivo valido!');
                   PR.SelectList('codigoproduto = ' + QuotedStr(CONF[5]));
                   if PR.Count > 0 then begin
@@ -103,8 +103,8 @@ begin
                       NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
                       if NI.Count > 0 then begin
                         NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                        NI.QUANTIDADEREC.Value     := FormataNumeros(CONF[9]);
-                        NI.QUANTIDADEAVA.Value     := FormataNumeros(CONF[10]);
+                        NI.QUANTIDADEREC.Value     := FormataNumeros(CONF[8]);
+                        NI.QUANTIDADEAVA.Value     := FormataNumeros(CONF[9]);
                         NI.Update;
 
                         NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
