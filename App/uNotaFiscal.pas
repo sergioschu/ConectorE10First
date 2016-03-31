@@ -194,7 +194,7 @@ begin
           SetLength(NOTAS, 0);
           for I := 2 to vrow do begin
             Achou   := False;
-            if not (IntToStr(arrData[I, 1]) = '') then begin
+            if not (Trim(arrData[I, 1]) = EmptyStr) then begin
               for J := Low(NOTAS) to High(NOTAS) do begin
 
                 if (NOTAS[J].DOCUMENTO = arrData[I, NF.DOCUMENTO.excelIndice]) and (NOTAS[High(NOTAS)].SERIE = StrToIntDef(arrData[I, NF.SERIE.excelIndice], 0)) and (NOTAS[High(NOTAS)].CNPJ = arrData[I, NF.CNPJCPF.excelIndice]) then begin
