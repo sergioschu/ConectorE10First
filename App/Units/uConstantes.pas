@@ -68,6 +68,7 @@ type
     ID_PRODUTO : Integer;
     QUANTIDADE : Currency;
     VALOR_UNITARIO : Currency;
+    IMPORTAR : Boolean;
   end;
 
 Const

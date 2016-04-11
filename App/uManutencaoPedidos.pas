@@ -194,6 +194,7 @@ begin
           SetLength(PedidoItens, 0);
           for I := 2 to vrow do begin
             SetLength(PedidoItens, Length(PedidoItens) + 1);
+            PedidoItens[High(PedidoItens)].IMPORTAR := True;
             for J := 1 to vcol do begin
               if arrData[1, J] = 'Pedido' then
                 PedidoItens[High(PedidoItens)].NUMEROPEDIDO     := arrData[I, J]
@@ -225,6 +226,19 @@ begin
                                 if arrData[1, J] = 'Item - Preço uni. bruto' then
                                   PedidoItens[High(PedidoItens)].VALOR_UNITARIO   := arrData[I, J];
             end;
+            pbAtualizaPedidos.Progress := I;
+          end;
+
+          //Validando Pedidos a importar (Não Repetir Pedidos)
+          DisplayMsg(MSG_WAIT, 'Identificando Pedidos a Importar!');
+
+          pbAtualizaPedidos.Progress  := 0;
+          pbAtualizaPedidos.MaxValue  := High(PedidoItens);
+
+          for I := Low(PedidoItens) to High(PedidoItens) do begin
+            PED.SelectList('PEDIDO = ' + QuotedStr(PedidoItens[I].NUMEROPEDIDO));
+            if PED.Count > 0 then
+              PedidoItens[I].IMPORTAR := False;
             pbAtualizaPedidos.Progress := I;
           end;
 
@@ -278,38 +292,40 @@ begin
             //Começa a Gravação dos Dados no BD
             for I := Low(PedidoItens) to High(PedidoItens) do begin
               if PedidoItens[I].NUMEROPEDIDO <> EmptyStr then begin
-                PED.SelectList('PEDIDO = ' + QuotedStr(PedidoItens[I].NUMEROPEDIDO));
-                if PED.Count = 0 then begin
-                  PED.ID.isNull               := True;
-                  PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
-                  PED.VIAGEM.Value            := '';
-                  PED.SEQUENCIA.Value         := 0;
-                  PED.ID_TRANSPORTADORA.Value := 0;
-                  PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
-                  PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
-                  PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
-                  PED.DEST_COMPLEMENTO.Value  := PedidoItens[I].DEST_COMPLEMENTO;
-                  PED.DEST_CEP.Value          := PedidoItens[I].DEST_CEP;
-                  PED.DEST_MUNICIPIO.Value    := PedidoItens[I].DEST_MUNICIPIO;
-                  PED.STATUS.Value            := 0;
-                  PED.ID_ARQUIVO.Value        := 0;
-                  PED.ID_USUARIO.Value        := USUARIO.CODIGO;
-                  PED.DATA_ENVIO.Value        := Now;
-                  PED.Insert;
-                  PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
-                end else begin
-                  PedidoItens[I].ID_PEDIDO    := TPEDIDO(PED.Itens[0]).ID.Value;
+                if PedidoItens[I].IMPORTAR then begin
+                  PED.SelectList('PEDIDO = ' + QuotedStr(PedidoItens[I].NUMEROPEDIDO));
+                  if PED.Count = 0 then begin
+                    PED.ID.isNull               := True;
+                    PED.PEDIDO.Value            := PedidoItens[I].NUMEROPEDIDO;
+                    PED.VIAGEM.Value            := '';
+                    PED.SEQUENCIA.Value         := 0;
+                    PED.ID_TRANSPORTADORA.Value := 0;
+                    PED.DEST_CNPJ.Value         := PedidoItens[I].DEST_CNPJ;
+                    PED.DEST_NOME.Value         := PedidoItens[I].DEST_NOME;
+                    PED.DEST_ENDERECO.Value     := PedidoItens[I].DEST_ENDERECO;
+                    PED.DEST_COMPLEMENTO.Value  := PedidoItens[I].DEST_COMPLEMENTO;
+                    PED.DEST_CEP.Value          := PedidoItens[I].DEST_CEP;
+                    PED.DEST_MUNICIPIO.Value    := PedidoItens[I].DEST_MUNICIPIO;
+                    PED.STATUS.Value            := 0;
+                    PED.ID_ARQUIVO.Value        := 0;
+                    PED.ID_USUARIO.Value        := USUARIO.CODIGO;
+                    PED.DATA_ENVIO.Value        := Now;
+                    PED.Insert;
+                    PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
+                  end else begin
+                    PedidoItens[I].ID_PEDIDO    := TPEDIDO(PED.Itens[0]).ID.Value;
+                  end;
+
+                  PEDITENS.ID.isNull            := True;
+                  PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
+                  PEDITENS.ID_PRODUTO.Value     := PedidoItens[I].ID_PRODUTO;
+                  PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
+                  PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
+                  PEDITENS.RECEBIDO.Value       := False;
+                  PEDITENS.Insert;
+
+                  pbAtualizaPedidos.Progress  := I;
                 end;
-
-                PEDITENS.ID.isNull            := True;
-                PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
-                PEDITENS.ID_PRODUTO.Value     := PedidoItens[I].ID_PRODUTO;
-                PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
-                PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
-                PEDITENS.RECEBIDO.Value       := False;
-                PEDITENS.Insert;
-
-                pbAtualizaPedidos.Progress  := I;
               end;
             end;
 
