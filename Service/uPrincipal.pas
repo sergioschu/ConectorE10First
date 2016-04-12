@@ -185,7 +185,7 @@ begin
                 MDD.Delimiter       := ';';
                 MDD.StrictDelimiter := True;
                 MDD.DelimitedText   := Lista[I];
-                if MDD.Count = 7 then begin
+                if MDD.Count = 8 then begin
                   PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
                   if PR.Count > 0 then begin
                     P.SelectList('pedido = ' + QuotedStr(MDD[0]));

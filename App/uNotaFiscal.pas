@@ -231,37 +231,34 @@ begin
           pbAtualizaProduto.MaxValue                                                 := Length(NOTAS);
           for I := Low(NOTAS) to High(NOTAS) do begin
             NF.SelectList('documento = ' + IntToStr(NOTAS[I].DOCUMENTO) + ' and serie = ' + IntToStr(NOTAS[I].SERIE) + ' and cnpjcpf = ' + QuotedStr(NOTAS[I].CNPJ));
-            if NF.Count > 0 then begin
-              NF.ID.Value    := TNOTAFISCAL(NF.Itens[0]).ID.Value;
-              NF.Delete;
-            end;
+            if NF.Count = 0 then begin
+              NF.DOCUMENTO.Value             := NOTAS[I].DOCUMENTO;
+              NF.SERIE.Value                 := NOTAS[I].SERIE;
+              NF.CNPJCPF.Value               := NOTAS[I].CNPJ;
+              NF.DATAEMISSAO.Value           := NOTAS[I].DATA;
+              NF.CFOP.Value                  := 5905;
+              NF.ESPECIE.Value               := 'NF';
+              NF.STATUS.Value                := 0;
+              NF.VALORTOTAL.Value            := NOTAS[I].VALOR;
+              NF.ID_ARQUIVO.Value            := 0;
+              NF.ID_USUARIO.Value            := 0;
+              NF.Insert;
+              for J := Low(NOTAS[I].ITENS) to High(NOTAS[I].ITENS) do begin
+                NFI.ID_NOTAFISCAL.Value      := NF.ID.Value;
+                NFI.SEQUENCIA.Value          := NOTAS[I].ITENS[J].SEQUENCIA;
+                NFI.QUANTIDADE.Value         := NOTAS[I].ITENS[J].QUANTIDADE;
+                NFI.QUANTIDADEREC.Value      := 0;
+                NFI.QUANTIDADEAVA.Value      := 0;
+                NFI.VALORUNITARIO.Value      := NOTAS[I].ITENS[J].UNITARIO;
+                NFI.VALORTOTAL.Value         := NOTAS[I].ITENS[J].TOTAL;
 
-            NF.DOCUMENTO.Value             := NOTAS[I].DOCUMENTO;
-            NF.SERIE.Value                 := NOTAS[I].SERIE;
-            NF.CNPJCPF.Value               := NOTAS[I].CNPJ;
-            NF.DATAEMISSAO.Value           := NOTAS[I].DATA;
-            NF.CFOP.Value                  := 5905;
-            NF.ESPECIE.Value               := 'NF';
-            NF.STATUS.Value                := 0;
-            NF.VALORTOTAL.Value            := NOTAS[I].VALOR;
-            NF.ID_ARQUIVO.Value            := 0;
-            NF.ID_USUARIO.Value            := 0;
-            NF.Insert;
-            for J := Low(NOTAS[I].ITENS) to High(NOTAS[I].ITENS) do begin
-              NFI.ID_NOTAFISCAL.Value      := NF.ID.Value;
-              NFI.SEQUENCIA.Value          := NOTAS[I].ITENS[J].SEQUENCIA;
-              NFI.QUANTIDADE.Value         := NOTAS[I].ITENS[J].QUANTIDADE;
-              NFI.QUANTIDADEREC.Value      := 0;
-              NFI.QUANTIDADEAVA.Value      := 0;
-              NFI.VALORUNITARIO.Value      := NOTAS[I].ITENS[J].UNITARIO;
-              NFI.VALORTOTAL.Value         := NOTAS[I].ITENS[J].TOTAL;
-
-              P.SelectList('upper(codigoproduto) = ' + QuotedStr(AnsiUpperCase(NOTAS[I].ITENS[J].SKU)));
-              if P.Count > 0 then begin
-                NFI.ID_PRODUTO.Value       := TPRODUTO(P.Itens[0]).ID.Value;
-                NFI.Insert;
-              end else begin
-                Lista.Add(NOTAS[I].ITENS[J].SKU);
+                P.SelectList('upper(codigoproduto) = ' + QuotedStr(AnsiUpperCase(NOTAS[I].ITENS[J].SKU)));
+                if P.Count > 0 then begin
+                  NFI.ID_PRODUTO.Value       := TPRODUTO(P.Itens[0]).ID.Value;
+                  NFI.Insert;
+                end else begin
+                  Lista.Add(NOTAS[I].ITENS[J].SKU);
+                end;
               end;
             end;
             pbAtualizaProduto.Progress     := I;
@@ -428,7 +425,7 @@ begin
         case csNotaFiscalSTATUSCOD.Value of
           0 : csNotaFiscalSTATUS.Value  := 'Não Enviada para o FTP';
           1 : csNotaFiscalSTATUS.Value  := 'Enviada para o FTP';
-          2 : csNotaFiscalSTATUS.Value  := 'MDD Recebido';
+          2 : csNotaFiscalSTATUS.Value  := 'CONF Recebido';
         end;
         csNotaFiscal.Post;
         SQL.Next;
