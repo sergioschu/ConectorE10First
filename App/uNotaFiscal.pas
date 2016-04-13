@@ -242,6 +242,7 @@ begin
               NF.VALORTOTAL.Value            := NOTAS[I].VALOR;
               NF.ID_ARQUIVO.Value            := 0;
               NF.ID_USUARIO.Value            := 0;
+              NF.DATA_IMPORTACAO.Value       := Now;
               NF.Insert;
               for J := Low(NOTAS[I].ITENS) to High(NOTAS[I].ITENS) do begin
                 NFI.ID_NOTAFISCAL.Value      := NF.ID.Value;
@@ -389,7 +390,7 @@ begin
       SQL.Close;
       SQL.SQL.Clear;
       SQL.SQL.Add('select id, documento, dataemissao, serie, cnpjcpf, status from notafiscal');
-      SQL.SQL.Add('where cast(dataemissao as date) between :datai and :dataf');
+      SQL.SQL.Add('where cast(data_importacao as date) between :datai and :dataf');
       SQL.ParamByName('datai').DataType   := ftDate;
       SQL.ParamByName('dataf').DataType   := ftDate;
 

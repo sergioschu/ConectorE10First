@@ -309,7 +309,7 @@ begin
                     PED.STATUS.Value            := 0;
                     PED.ID_ARQUIVO.Value        := 0;
                     PED.ID_USUARIO.Value        := USUARIO.CODIGO;
-                    PED.DATA_ENVIO.Value        := Now;
+                    PED.DATA_IMPORTACAO.Value   := Now;
                     PED.Insert;
                     PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
                   end else begin

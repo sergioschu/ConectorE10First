@@ -94,7 +94,9 @@ CREATE TABLE if not exists pedido
   id_arquivo integer NOT NULL,
   id_transportadora integer NOT NULL,
   id_usuario integer NOT NULL,
+  data_importacao timestamp with time zone,
   data_envio timestamp with time zone,
+  data_recebido timestamp with time zone,
   data_faturado timestamp with time zone,
   CONSTRAINT pk_lote PRIMARY KEY (id),
 CONSTRAINT fk_p_transportadora FOREIGN KEY (id_transportadora)
@@ -121,7 +123,7 @@ COMMENT ON COLUMN PEDIDO.STATUS IS
 CREATE TABLE pedidoitens
 (
   id serial NOT NULL,
-  id_pedido smallint NOT NULL,
+  id_pedido bigint NOT NULL,
   id_produto bigint NOT NULL,
   quantidade numeric(17,3),
   valor_unitario numeric(17,6),
@@ -148,6 +150,9 @@ CREATE TABLE notafiscal
   status smallint default 0,
   id_arquivo integer NOT NULL,
   id_usuario integer NOT NULL,
+  data_importacao timestamp without time zone,
+  data_envio timestamp without time zone,
+  data_recebido timestamp without time zone,
   CONSTRAINT pk_notafiscal PRIMARY KEY (id),
   CONSTRAINT fk_pi_arquivosftp FOREIGN KEY (id_arquivo)
       REFERENCES arquivosftp (id) MATCH SIMPLE
@@ -155,7 +160,6 @@ CREATE TABLE notafiscal
   CONSTRAINT fk_nf_usuario FOREIGN KEY (id_usuario)
       REFERENCES usuario (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
-
 );
 CREATE TABLE notafiscalitens
 (

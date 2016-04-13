@@ -17,6 +17,9 @@ type
     FSTATUS: TFieldInteger;
     FID_ARQUIVO: TFieldInteger;
     FID_USUARIO: TFieldInteger;
+    FDATA_IMPORTACAO: TFieldDateTime;
+    FDATA_ENVIO: TFieldDateTime;
+    FDATA_RECEBIDO: TFieldDateTime;
     procedure SetCFOP(const Value: TFieldInteger);
     procedure SetCNPJCPF(const Value: TFieldString);
     procedure SetDATAEMISSAO(const Value: TFieldDateTime);
@@ -28,20 +31,26 @@ type
     procedure SetSTATUS(const Value: TFieldInteger);
     procedure SetID_ARQUIVO(const Value: TFieldInteger);
     procedure SetID_USUARIO(const Value: TFieldInteger);
+    procedure SetDATA_IMPORTACAO(const Value: TFieldDateTime);
+    procedure SetDATA_ENVIO(const Value: TFieldDateTime);
+    procedure SetDATA_RECEBIDO(const Value: TFieldDateTime);
   protected
     procedure InitInstance; override;
   published
-    proPerty ID          : TFieldInteger read FID write SetID;
-    property DOCUMENTO   : TFieldInteger read FDOCUMENTO write SetDOCUMENTO;
-    property SERIE       : TFieldInteger read FSERIE write SetSERIE;
-    property CNPJCPF     : TFieldString read FCNPJCPF write SetCNPJCPF;
-    property DATAEMISSAO : TFieldDateTime read FDATAEMISSAO write SetDATAEMISSAO;
-    property CFOP        : TFieldInteger read FCFOP write SetCFOP;
-    property VALORTOTAL  : TFieldCurrency read FVALORTOTAL write SetVALORTOTAL;
-    property ESPECIE     : TFieldString read FESPECIE write SetESPECIE;
-    property STATUS      : TFieldInteger read FSTATUS write SetSTATUS;
-    property ID_ARQUIVO  : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
-    property ID_USUARIO  : TFieldInteger read FID_USUARIO write SetID_USUARIO;
+    proPerty ID              : TFieldInteger read FID write SetID;
+    property DOCUMENTO       : TFieldInteger read FDOCUMENTO write SetDOCUMENTO;
+    property SERIE           : TFieldInteger read FSERIE write SetSERIE;
+    property CNPJCPF         : TFieldString read FCNPJCPF write SetCNPJCPF;
+    property DATAEMISSAO     : TFieldDateTime read FDATAEMISSAO write SetDATAEMISSAO;
+    property CFOP            : TFieldInteger read FCFOP write SetCFOP;
+    property VALORTOTAL      : TFieldCurrency read FVALORTOTAL write SetVALORTOTAL;
+    property ESPECIE         : TFieldString read FESPECIE write SetESPECIE;
+    property STATUS          : TFieldInteger read FSTATUS write SetSTATUS;
+    property ID_ARQUIVO      : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
+    property ID_USUARIO      : TFieldInteger read FID_USUARIO write SetID_USUARIO;
+    property DATA_IMPORTACAO : TFieldDateTime read FDATA_IMPORTACAO write SetDATA_IMPORTACAO;
+    property DATA_ENVIO      : TFieldDateTime read FDATA_ENVIO write SetDATA_ENVIO;
+    property DATA_RECEBIDO   : TFieldDateTime read FDATA_RECEBIDO write SetDATA_RECEBIDO;
   End;
 
 implementation
@@ -81,6 +90,21 @@ end;
 procedure TNOTAFISCAL.SetDATAEMISSAO(const Value: TFieldDateTime);
 begin
   FDATAEMISSAO := Value;
+end;
+
+procedure TNOTAFISCAL.SetDATA_ENVIO(const Value: TFieldDateTime);
+begin
+  FDATA_ENVIO := Value;
+end;
+
+procedure TNOTAFISCAL.SetDATA_IMPORTACAO(const Value: TFieldDateTime);
+begin
+  FDATA_IMPORTACAO := Value;
+end;
+
+procedure TNOTAFISCAL.SetDATA_RECEBIDO(const Value: TFieldDateTime);
+begin
+  FDATA_RECEBIDO := Value;
 end;
 
 procedure TNOTAFISCAL.SetDOCUMENTO(const Value: TFieldInteger);

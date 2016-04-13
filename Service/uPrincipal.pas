@@ -112,6 +112,7 @@ begin
 
                         NF.ID.Value                := TNOTAFISCAL(NF.Itens[0]).ID.Value;
                         NF.STATUS.Value            := 2;
+                        NF.DATA_RECEBIDO.Value     := Now;
                         NF.Update;
                       end;
                     end;
@@ -198,6 +199,7 @@ begin
 
                         P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
                         P.STATUS.Value        := 3;
+                        P.DATA_RECEBIDO.Value := Now;
                         P.Update;
                       end else SaveLog('Nao achou o item do pedido!');
                     end else SaveLog('Nao achou o pedido!');
@@ -292,6 +294,7 @@ begin
             NF.ID.Value           := TNOTAFISCAL(NF.Itens[I]).ID.Value;
             NF.STATUS.Value       := 1;
             NF.ID_ARQUIVO.Value   := AFTP;
+            NF.DATA_ENVIO.Value   := Now;
             NF.Update;
           end;
         end;
@@ -381,6 +384,7 @@ begin
           P.ID.Value         := TPEDIDO(P.Itens[I]).ID.Value;
           P.ID_ARQUIVO.Value := AFTP;
           P.STATUS.Value     := 2;
+          P.DATA_ENVIO.Value := Now;
           P.Update;
           if Lista.Count > 0 then begin
             if not DirectoryExists(DirArquivosFTP) then

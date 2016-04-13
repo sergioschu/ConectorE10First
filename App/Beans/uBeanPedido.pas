@@ -21,6 +21,8 @@ type
     FID_USUARIO: TFieldInteger;
     FDATA_ENVIO: TFieldDateTime;
     FDATA_FATURADO: TFieldDateTime;
+    FDATA_RECEBIDO: TfieldDateTime;
+    FDATA_IMPORTACAO: TFieldDateTime;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -37,6 +39,8 @@ type
     procedure SetID_USUARIO(const Value: TFieldInteger);
     procedure SetDATA_ENVIO(const Value: TFieldDateTime);
     procedure SetDATA_FATURADO(const Value: TFieldDateTime);
+    procedure SetDATA_IMPORTACAO(const Value: TFieldDateTime);
+    procedure SetDATA_RECEBIDO(const Value: TfieldDateTime);
   protected
     procedure InitInstance; override;
   published
@@ -54,7 +58,9 @@ type
     property ID_ARQUIVO : TFieldInteger read FID_ARQUIVO write SetID_ARQUIVO;
     property ID_TRANSPORTADORA : TFieldInteger read FID_TRANSPORTADORA write SetID_TRANSPORTADORA;
     property ID_USUARIO : TFieldInteger read FID_USUARIO write SetID_USUARIO;
+    property DATA_IMPORTACAO : TFieldDateTime read FDATA_IMPORTACAO write SetDATA_IMPORTACAO;
     property DATA_ENVIO : TFieldDateTime read FDATA_ENVIO write SetDATA_ENVIO;
+    property DATA_RECEBIDO : TfieldDateTime read FDATA_RECEBIDO write SetDATA_RECEBIDO;
     property DATA_FATURADO : TFieldDateTime read FDATA_FATURADO write SetDATA_FATURADO;
   End;
 implementation
@@ -95,6 +101,16 @@ end;
 procedure TPEDIDO.SetDATA_FATURADO(const Value: TFieldDateTime);
 begin
   FDATA_FATURADO := Value;
+end;
+
+procedure TPEDIDO.SetDATA_IMPORTACAO(const Value: TFieldDateTime);
+begin
+  FDATA_IMPORTACAO := Value;
+end;
+
+procedure TPEDIDO.SetDATA_RECEBIDO(const Value: TfieldDateTime);
+begin
+  FDATA_RECEBIDO := Value;
 end;
 
 procedure TPEDIDO.SetDEST_CEP(const Value: TFieldString);
