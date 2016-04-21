@@ -658,7 +658,7 @@ begin
       SQL.SQL.Add('SELECT');
       SQL.SQL.Add('	P.ID,');
       SQL.SQL.Add('	P.PEDIDO,');
-      SQL.SQL.Add('	CAST(P.DATA_ENVIO AS DATE) AS DATA_ENVIO,');
+      SQL.SQL.Add('	CAST(P.DATA_IMPORTACAO AS DATE) AS DATA_ENVIO,');
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_ENDERECO,');
       SQL.SQL.Add('	P.DEST_CEP,');
@@ -673,7 +673,7 @@ begin
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('INNER JOIN TRANSPORTADORA T ON (T.ID = P.ID_TRANSPORTADORA)');
       SQL.SQL.Add('WHERE 1 = 1');
-      SQL.SQL.Add('AND CAST(P.DATA_ENVIO AS DATE) BETWEEN :DATAI AND :DATAF');
+      SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
 
       SQL.ParamByName('DATAI').DataType := ftDate;
       SQL.ParamByName('DATAF').DataType := ftDate;
