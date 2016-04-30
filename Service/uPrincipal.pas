@@ -96,15 +96,15 @@ begin
                 CONF.DelimitedText   := Lista[I];
                 if CONF.Count = 11 then begin
                   SaveLog('arquivo valido!');
-                  PR.SelectList('codigoproduto = ' + QuotedStr(CONF[5]));
+                  PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
                   if PR.Count > 0 then begin
                     NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and cnpjcpf = ' + QuotedStr(CONF[2]));
                     if NF.Count > 0 then begin
                       NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
                       if NI.Count > 0 then begin
                         NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                        NI.QUANTIDADEREC.Value     := FormataNumeros(CONF[8]);
-                        NI.QUANTIDADEAVA.Value     := FormataNumeros(CONF[9]);
+                        NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
+                        NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
                         NI.Update;
 
                         NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
@@ -114,9 +114,9 @@ begin
                         NF.STATUS.Value            := 2;
                         NF.DATA_RECEBIDO.Value     := Now;
                         NF.Update;
-                      end;
-                    end;
-                  end;
+                      end else SaveLog('Item da NF não foi encontrado!');
+                    end else SaveLog('Nota Fiscal não encontrada!');
+                  end else SaveLog('Produto não encontrado!');
                 end else SaveLog('registro invalido ' + IntToStr(CONF.Count) +'   ' + CONF.Text);
               end;
               DeleteFile(DirArquivosFTP + search_rec.Name);
@@ -186,7 +186,7 @@ begin
                 MDD.Delimiter       := ';';
                 MDD.StrictDelimiter := True;
                 MDD.DelimitedText   := Lista[I];
-                if MDD.Count = 8 then begin
+                if MDD.Count = 7 then begin
                   PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
                   if PR.Count > 0 then begin
                     P.SelectList('pedido = ' + QuotedStr(MDD[0]));
@@ -425,56 +425,75 @@ var
   FTP     : TConexaoFTP;
   PR      : TPRODUTO;
   I,
-  AFTP    : Integer;
+  AFTP,
+  Quant   : Integer;
   Lista   : TStringList;
+  Teste   : Boolean;
 begin
   Con := TFWConnection.Create;
   PR  := TPRODUTO.Create(Con);
   try
     Con.StartTransaction;
     try
-      PR.SelectList('status = 0');
-      if PR.Count > 0 then begin
-        SaveLog('Tem produtos para exportar');
-        AFTP         := BuscaNumeroArquivo(Con, 0);
-        Lista        := TStringList.Create;
-        try
-          for I := 0 to Pred(PR.Count) do begin
-            Lista.Add(TPRODUTO(PR.Itens[I]).CODIGOPRODUTO.asString + ';' +
-              TPRODUTO(PR.Itens[I]).DESCRICAO.asString + ';' +
-              TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDA.asString + ';' +
-              TPRODUTO(PR.Itens[I]).DESCRICAOSKU.asString + ';' +
-              TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDASKU.asString + ';' +
-              TPRODUTO(PR.Itens[I]).QUANTIDADEPOREMBALAGEM.asString + ';' +
-              TPRODUTO(PR.Itens[I]).UNIDADEDEMEDIDA.asString + ';' +
-              TPRODUTO(PR.Itens[I]).CODIGOBARRAS.asString + ';' +
-              TPRODUTO(PR.Itens[I]).ALTURAEMBALAGEM.asString + ';' +
-              TPRODUTO(PR.Itens[I]).COMPRIMENTOEMBALAGEM.asString + ';' +
-              TPRODUTO(PR.Itens[I]).LARGURAEMBALAGEM.asString + ';' +
-              TPRODUTO(PR.Itens[I]).PESOEMBALAGEM.asString + ';' +
-              TPRODUTO(PR.Itens[I]).PESOPRODUTO.asString + ';' +
-              TPRODUTO(PR.Itens[I]).QUANTIDADECAIXASALTURAPALET.asString + ';' +
-              TPRODUTO(PR.Itens[I]).QUANTIDADESCAIXASLASTROPALET.asString + ';' +
-              TPRODUTO(PR.Itens[I]).ALIQUOTAIPI.asString + ';' +
-              TPRODUTO(PR.Itens[I]).CLASSIFICACAOFISCAL.asString + ';' +
-              TPRODUTO(PR.Itens[I]).CATEGORIAPRODUTO.asString + ';'
-            );
+      Teste := True;
+      while Teste do begin
+        SaveLog('while');
+        PR.SelectList('status = 0');
+        SaveLog('select');
+        Quant        := 1000;
 
-            PR.ID.Value           := TPRODUTO(PR.Itens[I]).ID.Value;
-            PR.STATUS.Value       := 1;
-            PR.ID_ARQUIVO.Value   := AFTP;
-            PR.Update;
+        if PR.Count < Quant then begin
+          Quant      := PR.Count;
+          Teste      := False;
+        end;
+
+        if PR.Count > 0 then begin
+          SaveLog('Tem produtos para exportar');
+          AFTP         := BuscaNumeroArquivo(Con, 0);
+          SaveLog('Buscou um codigo para o FTP');
+          Lista        := TStringList.Create;
+          SaveLog('Passou do create');
+          try
+            for I := 0 to Pred(Quant) do begin
+              Lista.Add(TPRODUTO(PR.Itens[I]).CODIGOPRODUTO.asString + ';' +
+                TPRODUTO(PR.Itens[I]).DESCRICAO.asString + ';' +
+                TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDA.asString + ';' +
+                TPRODUTO(PR.Itens[I]).DESCRICAOSKU.asString + ';' +
+                TPRODUTO(PR.Itens[I]).DESCRICAOREDUZIDASKU.asString + ';' +
+                TPRODUTO(PR.Itens[I]).QUANTIDADEPOREMBALAGEM.asString + ';' +
+                TPRODUTO(PR.Itens[I]).UNIDADEDEMEDIDA.asString + ';' +
+                TPRODUTO(PR.Itens[I]).CODIGOBARRAS.asString + ';' +
+                TPRODUTO(PR.Itens[I]).ALTURAEMBALAGEM.asString + ';' +
+                TPRODUTO(PR.Itens[I]).COMPRIMENTOEMBALAGEM.asString + ';' +
+                TPRODUTO(PR.Itens[I]).LARGURAEMBALAGEM.asString + ';' +
+                TPRODUTO(PR.Itens[I]).PESOEMBALAGEM.asString + ';' +
+                TPRODUTO(PR.Itens[I]).PESOPRODUTO.asString + ';' +
+                TPRODUTO(PR.Itens[I]).QUANTIDADECAIXASALTURAPALET.asString + ';' +
+                TPRODUTO(PR.Itens[I]).QUANTIDADESCAIXASLASTROPALET.asString + ';' +
+                TPRODUTO(PR.Itens[I]).ALIQUOTAIPI.asString + ';' +
+                TPRODUTO(PR.Itens[I]).CLASSIFICACAOFISCAL.asString + ';' +
+                TPRODUTO(PR.Itens[I]).CATEGORIAPRODUTO.asString + ';'
+              );
+
+              PR.ID.Value           := TPRODUTO(PR.Itens[I]).ID.Value;
+              PR.STATUS.Value       := 1;
+              PR.ID_ARQUIVO.Value   := AFTP;
+              PR.Update;
+            end;
+            SaveLog('Passou do for');
+            if Lista.Count > 0 then begin
+              SaveLog('Tem algo na lista tio');
+              Lista.SaveToFile(DirArquivosFTP + 'PROD' + IntToStr(AFTP) + '.txt');
+              SaveLog('passou do salvar');
+            end;
+          finally
+            FreeAndNil(Lista);
           end;
-          if Lista.Count > 0 then begin
-            SaveLog('Tem algo na lista tio');
-            Lista.SaveToFile(DirArquivosFTP + 'PROD' + PR.ID_ARQUIVO.asString + '.txt');
-          end;
-        finally
-          FreeAndNil(Lista);
         end;
       end;
-
       Con.Commit;
+
+      SaveLog('antes da conexao');
 
       FTP := TConexaoFTP.Create;
       try
@@ -482,6 +501,7 @@ begin
       finally
         FreeAndNil(FTP);
       end;
+      SaveLog('depois da conexao');
 
     except
       on E : Exception do begin
@@ -490,6 +510,7 @@ begin
       end;
     end;
   finally
+    SaveLog('free');
     FreeAndNil(PR);
     FreeAndNil(Con);
   end;

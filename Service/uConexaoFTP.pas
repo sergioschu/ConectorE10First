@@ -148,7 +148,7 @@ begin
   SaveLog('Enviando arquivo de Produtos!');
   try
     FFTP.ChangeDir('prod');
-    FFTP.ChangeDir('receb');
+    FFTP.ChangeDir('homolog');
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
       repeat
         if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
