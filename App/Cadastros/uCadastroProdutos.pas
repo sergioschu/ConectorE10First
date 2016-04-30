@@ -165,7 +165,6 @@ begin
               end;
             end;
 
-//            P.CODIGOBARRAS.Value                 := P.CODIGOPRODUTO.Value;
             P.QUANTIDADECAIXASALTURAPALET.Value  := 1;
             P.QUANTIDADESCAIXASLASTROPALET.Value := 1;
             P.ALIQUOTAIPI.Value                  := 0;
@@ -173,6 +172,20 @@ begin
             P.CATEGORIAPRODUTO.Value             := 1;
             P.STATUS.Value                       := 0;
             P.ID_ARQUIVO.Value                   := 0;
+
+            //A pedido do Benhur 29.04.2016 -> Converter as Dimensões em Metros
+            if P.ALTURAEMBALAGEM.Value > 0 then begin
+              P.ALTURAEMBALAGEM.Value := P.ALTURAEMBALAGEM.Value / 100;
+              P.ALTURAEMBALAGEM.Value := Trunc(P.ALTURAEMBALAGEM.Value * 1000000) / 1000000; //Truncar na 6 casa
+            end;
+            if P.COMPRIMENTOEMBALAGEM.Value > 0 then begin
+              P.COMPRIMENTOEMBALAGEM.Value := P.COMPRIMENTOEMBALAGEM.Value / 100;
+              P.COMPRIMENTOEMBALAGEM.Value := Trunc(P.COMPRIMENTOEMBALAGEM.Value * 1000000) / 1000000; //Truncar na 6 casa
+            end;
+            if P.LARGURAEMBALAGEM.Value > 0 then begin
+              P.LARGURAEMBALAGEM.Value := P.LARGURAEMBALAGEM.Value / 100;
+              P.LARGURAEMBALAGEM.Value := Trunc(P.LARGURAEMBALAGEM.Value * 1000000) / 1000000; //Truncar na 6 casa
+            end;
 
             P.SelectList('codigoproduto = ' + P.CODIGOPRODUTO.asSQL);
             if P.Count > 0 then begin
