@@ -40,7 +40,7 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
       Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = []
-      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleHotTrack]
+      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
       ParentFont = False
       TabOrder = 0
       TitleFont.Charset = DEFAULT_CHARSET
@@ -50,6 +50,7 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
       TitleFont.Style = []
       OnCellClick = gdPedidosCellClick
       OnDrawColumnCell = gdPedidosDrawColumnCell
+      OnTitleClick = gdPedidosTitleClick
       Columns = <
         item
           Expanded = False
@@ -908,7 +909,7 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
     Left = 440
     Top = 328
     Bitmap = {
-      494C010102000C00C80010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000C00CC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

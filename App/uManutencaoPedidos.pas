@@ -60,12 +60,14 @@ type
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure gdPedidosCellClick(Column: TColumn);
     procedure btReenviarClick(Sender: TObject);
+    procedure gdPedidosTitleClick(Column: TColumn);
   private
     procedure CarregaDados;
     procedure Filtrar;
     procedure AtualizarPedidos;
     procedure AtualizarTransportadora;
     procedure Reenviar;
+    procedure MarcarDesmarcarTodos;
     { Private declarations }
   public
     { Public declarations }
@@ -814,6 +816,37 @@ begin
     InflateRect(DrawRect,-1,-1);
     gdPedidos.Canvas.FillRect(Rect);
     DrawFrameControl(gdPedidos.Canvas.Handle, DrawRect, DFC_BUTTON, ISChecked[Column.Field.AsBoolean]);
+  end;
+end;
+
+procedure TFrmManutencaoPedidos.gdPedidosTitleClick(Column: TColumn);
+begin
+  if UpperCase(Column.FieldName) = 'SELECIONE' then
+    MarcarDesmarcarTodos;
+end;
+
+procedure TFrmManutencaoPedidos.MarcarDesmarcarTodos;
+Var
+  Aux : Boolean;
+begin
+  if not csPedidos.IsEmpty then begin
+
+    Aux := not csPedidosSELECIONE.Value;
+
+    csPedidos.DisableControls;
+
+    try
+      csPedidos.First;
+      while not csPedidos.Eof do begin
+        csPedidos.Edit;
+        csPedidosSELECIONE.Value  := Aux;
+        csPedidos.Post;
+        csPedidos.Next;
+      end;
+    finally
+      csPedidos.EnableControls;
+      DisplayMsgFinaliza
+    end;
   end;
 end;
 
