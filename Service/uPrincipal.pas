@@ -64,6 +64,7 @@ var
   PR          : TPRODUTO;
   NF          : TNOTAFISCAL;
   NI          : TNOTAFISCALITENS;
+  Deletar     : Boolean;
 begin
   SaveLog('antes da conexao com FTP');
   FTP   := TConexaoFTP.Create;
@@ -86,8 +87,9 @@ begin
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('CONF', search_rec.Name) > 0) then begin
-            Lista    := TStringList.Create;
-            CONF     := TStringList.Create;
+            Deletar                    := True;
+            Lista                      := TStringList.Create;
+            CONF                       := TStringList.Create;
             try
               Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
               for I := 0 to Pred(Lista.Count) do begin
@@ -100,26 +102,50 @@ begin
                   if PR.Count > 0 then begin
                     NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and cnpjcpf = ' + QuotedStr(CONF[2]));
                     if NF.Count > 0 then begin
-                      NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                      if NI.Count > 0 then begin
-                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                        NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
-                        NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
-                        NI.Update;
+                      if TNOTAFISCAL(NF.Itens[0]).STATUS.Value <= 1 then begin
+                        NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                        if NI.Count > 0 then begin
+                          NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
+                          NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
+                          NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
+                          NI.Update;
 
-                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
-                        NI.Update;
+                          NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
+                          NI.Update;
 
-                        NF.ID.Value                := TNOTAFISCAL(NF.Itens[0]).ID.Value;
-                        NF.STATUS.Value            := 2;
-                        NF.DATA_RECEBIDO.Value     := Now;
-                        NF.Update;
-                      end else SaveLog('Item da NF não foi encontrado!');
-                    end else SaveLog('Nota Fiscal não encontrada!');
-                  end else SaveLog('Produto não encontrado!');
-                end else SaveLog('registro invalido ' + IntToStr(CONF.Count) +'   ' + CONF.Text);
+                          NF.ID.Value                := TNOTAFISCAL(NF.Itens[0]).ID.Value;
+                          NF.STATUS.Value            := 2;
+                          NF.DATA_RECEBIDO.Value     := Now;
+                          NF.Update;
+
+                        end else begin
+                          SaveLog('Item da NF' + CONF[5] + ' não foi encontrado!');
+                          Deletar                    := False;
+                          Break;
+                        end;
+                      end else begin
+                        SaveLog('Nota Fiscal ' + CONF[0] + ' já foi recebida!');
+                        Deletar                      := False;
+                        Break;
+                      end;
+                    end else begin
+                      SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada!');
+                      Deletar                        := False;
+                      Break;
+                    end;
+                  end else begin
+                    SaveLog('Produto ' + CONF[5] + ' não encontrado!');
+                    Deletar                          := False;
+                    Break;
+                  end;
+                end else begin
+                  SaveLog('registro invalido ' + IntToStr(CONF.Count) +'   ' + CONF.Text);
+                  Deletar                            := False;
+                  Break;
+                end;
               end;
-              DeleteFile(DirArquivosFTP + search_rec.Name);
+              if Deletar then
+                DeleteFile(DirArquivosFTP + search_rec.Name);
             finally
               FreeAndNil(Lista);
               FreeAndNil(CONF);
@@ -156,6 +182,7 @@ var
   PR          : TPRODUTO;
   P           : TPEDIDO;
   PI          : TPEDIDOITENS;
+  Deletar     : Boolean;
 begin
   SaveLog('antes da conexao com FTP');
   FTP   := TConexaoFTP.Create;
@@ -182,6 +209,7 @@ begin
             MDD      := TStringList.Create;
             try
               Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+              Deletar               := True;
               for I := 0 to Pred(Lista.Count) do begin
                 MDD.Delimiter       := ';';
                 MDD.StrictDelimiter := True;
@@ -191,22 +219,45 @@ begin
                   if PR.Count > 0 then begin
                     P.SelectList('pedido = ' + QuotedStr(MDD[0]));
                     if P.Count > 0 then begin
-                      PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                      if PI.Count > 0 then begin
-                        PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
-                        PI.RECEBIDO.Value     := True;
-                        PI.Update;
+                      if TPEDIDO(P.Itens[0]).STATUS.Value <= 2 then begin
+                        PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                        if PI.Count > 0 then begin
+                          PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
+                          PI.RECEBIDO.Value     := True;
+                          PI.Update;
 
-                        P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
-                        P.STATUS.Value        := 3;
-                        P.DATA_RECEBIDO.Value := Now;
-                        P.Update;
-                      end else SaveLog('Nao achou o item do pedido!');
-                    end else SaveLog('Nao achou o pedido!');
-                  end else SaveLog('Nao achou o produto!');
-                end else SaveLog('Arquivo invalido! ' + IntToStr(MDD.Count) + ' ' + MDD.Text);
+                          P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
+                          P.STATUS.Value        := 3;
+                          P.DATA_RECEBIDO.Value := Now;
+                          P.Update;
+                        end else begin
+                          SaveLog('Nao achou o item ' + MDD[2] + ' do pedido!');
+                          Deletar               := False;
+                          Break;
+                        end;
+                      end else begin
+                        SaveLog('Pedido ' + MDD[0] + ' já foi recebido!');
+                        Deletar                 := False;
+                        Break;
+                      end;
+                    end else begin
+                      SaveLog('Nao achou o pedido ' + MDD[0] + '!');
+                      Deletar                   := False;
+                      Break;
+                    end;
+                  end else begin
+                    SaveLog('Nao achou o produto ' + MDD[2] + '!');
+                    Deletar                     := False;
+                    Break;
+                  end;
+                end else begin
+                  SaveLog('Arquivo invalido! ' + IntToStr(MDD.Count) + ' ' + MDD.Text);
+                  Deletar                       := False;
+                  Break;
+                end;
               end;
-              DeleteFile(DirArquivosFTP + search_rec.Name);
+              if Deletar then
+                DeleteFile(DirArquivosFTP + search_rec.Name);
             finally
               FreeAndNil(Lista);
               FreeAndNil(MDD);
