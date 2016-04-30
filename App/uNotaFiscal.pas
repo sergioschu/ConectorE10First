@@ -61,12 +61,14 @@ type
     procedure dgNotaFiscalCellClick(Column: TColumn);
     procedure btConferidaClick(Sender: TObject);
     procedure btConsultarClick(Sender: TObject);
+    procedure dgNotaFiscalTitleClick(Column: TColumn);
   private
     procedure CarregaDados;
     procedure AtualizarNotasFiscais;
     procedure Filtrar;
     procedure ImprimirDetalhes;
     procedure ReenviaConfirma(Status : Integer);
+    procedure MarcarDesmarcarTodos;
     { Private declarations }
   public
     { Public declarations }
@@ -427,6 +429,7 @@ begin
           0 : csNotaFiscalSTATUS.Value  := 'Não Enviada para o FTP';
           1 : csNotaFiscalSTATUS.Value  := 'Enviada para o FTP';
           2 : csNotaFiscalSTATUS.Value  := 'CONF Recebido';
+          3 : csNotaFiscalSTATUS.Value  := 'Conferida';
         end;
         csNotaFiscal.Post;
         SQL.Next;
@@ -489,6 +492,12 @@ begin
     dgNotaFiscal.Canvas.FillRect(Rect);
     DrawFrameControl(dgNotaFiscal.Canvas.Handle, DrawRect, DFC_BUTTON, ISChecked[Column.Field.AsBoolean]);
   end;
+end;
+
+procedure TfrmNotaFiscal.dgNotaFiscalTitleClick(Column: TColumn);
+begin
+  if UpperCase(Column.FieldName) = 'SELECIONAR' then
+    MarcarDesmarcarTodos;
 end;
 
 procedure TfrmNotaFiscal.Filtrar;
@@ -574,6 +583,31 @@ begin
   finally
     FreeAndNil(SQL);
     FreeAndNil(FWC);
+  end;
+end;
+
+procedure TfrmNotaFiscal.MarcarDesmarcarTodos;
+Var
+  Aux : Boolean;
+begin
+  if not csNotaFiscal.IsEmpty then begin
+
+    Aux := not csNotaFiscalSELECIONAR.Value;
+
+    csNotaFiscal.DisableControls;
+
+    try
+      csNotaFiscal.First;
+      while not csNotaFiscal.Eof do begin
+        csNotaFiscal.Edit;
+        csNotaFiscalSELECIONAR.Value  := Aux;
+        csNotaFiscal.Post;
+        csNotaFiscal.Next;
+      end;
+    finally
+      csNotaFiscal.EnableControls;
+      DisplayMsgFinaliza
+    end;
   end;
 end;
 

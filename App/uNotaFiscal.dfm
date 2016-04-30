@@ -39,7 +39,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = []
-      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleHotTrack]
+      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
       ParentFont = False
       TabOrder = 3
       TitleFont.Charset = DEFAULT_CHARSET
@@ -49,6 +49,7 @@ object frmNotaFiscal: TfrmNotaFiscal
       TitleFont.Style = []
       OnCellClick = dgNotaFiscalCellClick
       OnDrawColumnCell = dgNotaFiscalDrawColumnCell
+      OnTitleClick = dgNotaFiscalTitleClick
       Columns = <
         item
           Expanded = False
