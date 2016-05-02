@@ -426,8 +426,9 @@ begin
       for I := 0 to Count - 1 do
         TFieldTypeDomain(GetObjectProp(TFWPersistence(FItens.Items[J]), List[I]^.Name)).Free;
       FreeAndNil(TFWPersistence(FItens.Items[J]).FItens);
-      Dispose(FItens.Items[J]);
       FreeAndNil(TFWPersistence(FItens.Items[J]).FSQLDS);
+      Dispose(FItens.Items[J]);
+      FItens.Items[J] := nil;
     end;
     FItens.Clear;
 
