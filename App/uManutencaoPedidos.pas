@@ -46,6 +46,7 @@ type
     csPedidosSELECIONE: TBooleanField;
     btAtualizarPedidos: TSpeedButton;
     btReenviar: TSpeedButton;
+    btExportar: TSpeedButton;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -61,6 +62,7 @@ type
     procedure gdPedidosCellClick(Column: TColumn);
     procedure btReenviarClick(Sender: TObject);
     procedure gdPedidosTitleClick(Column: TColumn);
+    procedure btExportarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -607,6 +609,22 @@ begin
       CarregaDados;
     finally
       btConsultar.Tag  := 0;
+    end;
+  end;
+end;
+
+procedure TFrmManutencaoPedidos.btExportarClick(Sender: TObject);
+Var
+  Arq : string;
+begin
+
+  if btExportar.Tag = 0 then begin
+    btExportar.Tag    := 1;
+    try
+      Arq := DirArquivosExcel;
+      ExpXLS(csPedidos, 'Pedidos_' + FormatDateTime('ddmmyyyy', Date) + '.xlsx');
+    finally
+      btExportar.Tag  := 0;
     end;
   end;
 end;

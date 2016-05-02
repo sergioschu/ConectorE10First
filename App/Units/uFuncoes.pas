@@ -13,7 +13,7 @@ uses
   Winapi.Windows,
   Vcl.Menus,
   Vcl.Forms,
-  System.Classes;
+  System.Classes, Data.DB, System.Win.ComObj;
 
   procedure CarregarConfigLocal;
   procedure CarregaArrayMenus(Menu : TMainMenu);
@@ -31,6 +31,7 @@ uses
   procedure SaveLog(Msg: String);
   function FormataData(Data : TDateTime) : String;
   function FormataNumeros(Valor : String) : Double;
+  procedure ExpXLS(DataSet: TDataSet; NomeArq: string);
 
 implementation
 
@@ -432,4 +433,56 @@ begin
     FreeAndNil(Log);
   end;
 end;
+
+procedure ExpXLS(DataSet: TDataSet; NomeArq: string);
+var
+  ExcApp: OleVariant;
+  I,
+  L : Integer;
+  VarNomeArq : String;
+begin
+
+  DataSet.DisableControls;
+
+  try
+
+    if DataSet.IsEmpty then
+      Exit;
+
+    VarNomeArq := DirArquivosExcel + NomeArq;
+
+    if not DirectoryExists(DirArquivosExcel) then
+      ForceDirectories(DirArquivosExcel);
+
+    if FileExists(VarNomeArq) then
+      DeleteFile(PChar(VarNomeArq));
+
+    ExcApp := CreateOleObject('Excel.Application');
+    ExcApp.Visible := True;
+    ExcApp.WorkBooks.Add;
+    DataSet.First;
+    L := 1;
+    DataSet.First;
+    while not DataSet.Eof do begin
+      if L = 1 then begin
+        for I := 1 to DataSet.Fields.Count - 1 do
+          if DataSet.Fields[i].Visible then
+            ExcApp.WorkBooks[1].Sheets[1].Cells[L,I] := DataSet.Fields[i].DisplayName;
+        L := L + 1;
+      end;
+
+      for I := 1 to DataSet.Fields.Count - 1 do
+        if DataSet.Fields[i].Visible then
+          ExcApp.WorkBooks[1].Sheets[1].Cells[L,I] := DataSet.Fields[i].DisplayText;
+
+      DataSet.Next;
+      L := L + 1;
+    end;
+    ExcApp.Columns.AutoFit;
+    ExcApp.WorkBooks[1].SaveAs(VarNomeArq);
+  finally
+    DataSet.EnableControls;
+  end;
+end;
+
 end.

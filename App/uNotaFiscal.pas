@@ -47,6 +47,7 @@ type
     edDataI: TDateTimePicker;
     btConsultar: TSpeedButton;
     rgStatus: TRadioGroup;
+    btExportar: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -62,6 +63,7 @@ type
     procedure btConferidaClick(Sender: TObject);
     procedure btConsultarClick(Sender: TObject);
     procedure dgNotaFiscalTitleClick(Column: TColumn);
+    procedure btExportarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure AtualizarNotasFiscais;
@@ -343,6 +345,22 @@ begin
       ImprimirDetalhes;
     finally
       btDetalhes.Tag   := 0;
+    end;
+  end;
+end;
+
+procedure TfrmNotaFiscal.btExportarClick(Sender: TObject);
+Var
+  Arq : string;
+begin
+
+  if btExportar.Tag = 0 then begin
+    btExportar.Tag    := 1;
+    try
+      Arq := DirArquivosExcel;
+      ExpXLS(csNotaFiscal, 'NotasFiscais_' + FormatDateTime('ddmmyyyy', Date) + '.xlsx');
+    finally
+      btExportar.Tag  := 0;
     end;
   end;
 end;

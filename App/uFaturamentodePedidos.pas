@@ -43,6 +43,7 @@ type
     edDataF: TDateTimePicker;
     edDataI: TDateTimePicker;
     rgStatus: TRadioGroup;
+    btExportar: TSpeedButton;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -55,11 +56,14 @@ type
     procedure btImprimirClick(Sender: TObject);
     procedure cbFiltroStatusChange(Sender: TObject);
     procedure btConsultarClick(Sender: TObject);
+    procedure btExportarClick(Sender: TObject);
+    procedure gdPedidosTitleClick(Column: TColumn);
   private
     procedure CarregaDados;
     procedure Filtrar;
     procedure FaturarPedidos;
     procedure ImprimirPedidos;
+    procedure MarcarDesmarcarTodos;
     { Private declarations }
   public
     { Public declarations }
@@ -86,6 +90,22 @@ begin
       CarregaDados;
     finally
       btConsultar.Tag  := 0;
+    end;
+  end;
+end;
+
+procedure TFrmFaturamentodePedidos.btExportarClick(Sender: TObject);
+Var
+  Arq : string;
+begin
+
+  if btExportar.Tag = 0 then begin
+    btExportar.Tag    := 1;
+    try
+      Arq := DirArquivosExcel;
+      ExpXLS(csPedidos, 'Pedidos_' + FormatDateTime('ddmmyyyy', Date) + '.xlsx');
+    finally
+      btExportar.Tag  := 0;
     end;
   end;
 end;
@@ -350,6 +370,12 @@ begin
   end;
 end;
 
+procedure TFrmFaturamentodePedidos.gdPedidosTitleClick(Column: TColumn);
+begin
+  if UpperCase(Column.FieldName) = 'SELECIONE' then
+    MarcarDesmarcarTodos;
+end;
+
 procedure TFrmFaturamentodePedidos.ImprimirPedidos;
 Var
   FWC     : TFWConnection;
@@ -451,6 +477,31 @@ begin
     end;
   end else
     DisplayMsg(MSG_WAR, 'Não há Pedidos para Impressão, Verifique!');
+end;
+
+procedure TFrmFaturamentodePedidos.MarcarDesmarcarTodos;
+Var
+  Aux : Boolean;
+begin
+  if not csPedidos.IsEmpty then begin
+
+    Aux := not csPedidosSELECIONAR.Value;
+
+    csPedidos.DisableControls;
+
+    try
+      csPedidos.First;
+      while not csPedidos.Eof do begin
+        csPedidos.Edit;
+        csPedidosSELECIONAR.Value  := Aux;
+        csPedidos.Post;
+        csPedidos.Next;
+      end;
+    finally
+      csPedidos.EnableControls;
+      DisplayMsgFinaliza
+    end;
+  end;
 end;
 
 end.
