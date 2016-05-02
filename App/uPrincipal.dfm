@@ -74,6 +74,9 @@ object frmPrincipal: TfrmPrincipal
         OnClick = RedefinirSenhaClick
       end
     end
+    object Relatrios1: TMenuItem
+      Caption = 'Relat'#243'rios'
+    end
     object miSair: TMenuItem
       Caption = 'Sair'
       ShortCut = 27

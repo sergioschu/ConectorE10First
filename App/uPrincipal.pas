@@ -22,6 +22,7 @@ type
     Pedidos1: TMenuItem;
     FaturamentodePedidos1: TMenuItem;
     ransportadoras1: TMenuItem;
+    Relatrios1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
