@@ -70,6 +70,7 @@ type
     procedure AtualizarTransportadora;
     procedure Reenviar;
     procedure MarcarDesmarcarTodos;
+    procedure OrdenarGrid(Column : TColumn);
     { Private declarations }
   public
     { Public declarations }
@@ -77,7 +78,7 @@ type
 
 var
   FrmManutencaoPedidos: TFrmManutencaoPedidos;
-
+  OrdenarPor : string;
 implementation
 
 uses
@@ -840,7 +841,9 @@ end;
 procedure TFrmManutencaoPedidos.gdPedidosTitleClick(Column: TColumn);
 begin
   if UpperCase(Column.FieldName) = 'SELECIONE' then
-    MarcarDesmarcarTodos;
+    MarcarDesmarcarTodos
+  else
+    OrdenarGrid(Column);
 end;
 
 procedure TFrmManutencaoPedidos.MarcarDesmarcarTodos;
@@ -866,6 +869,27 @@ begin
       DisplayMsgFinaliza
     end;
   end;
+end;
+
+procedure TFrmManutencaoPedidos.OrdenarGrid(Column: TColumn);
+var
+  Decrescente : Boolean;
+  IndexName   : String;
+begin
+  Decrescente := Column.FieldName = OrdenarPor;
+
+  csPedidos.IndexDefs.Clear;
+  if Decrescente then begin
+    IndexName      :=  Column.FieldName + '_IDX_D';
+    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, [ixDescending]);
+    OrdenarPor     := '';
+  end else begin
+    IndexName      := Column.FieldName + '_IDX';
+    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, []);
+    OrdenarPor     := Column.FieldName;
+  end;
+
+  csPedidos.IndexName := IndexName;
 end;
 
 procedure TFrmManutencaoPedidos.Reenviar;

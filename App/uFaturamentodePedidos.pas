@@ -44,6 +44,7 @@ type
     edDataI: TDateTimePicker;
     rgStatus: TRadioGroup;
     btExportar: TSpeedButton;
+    csImpressaoPedidosNOMETRANSPORTADORA: TStringField;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -64,6 +65,7 @@ type
     procedure FaturarPedidos;
     procedure ImprimirPedidos;
     procedure MarcarDesmarcarTodos;
+    procedure OrdenarGrid(Column : TColumn);
     { Private declarations }
   public
     { Public declarations }
@@ -71,6 +73,7 @@ type
 
 var
   FrmFaturamentodePedidos: TFrmFaturamentodePedidos;
+  OrdenarPor : string;
 
 implementation
 
@@ -372,8 +375,10 @@ end;
 
 procedure TFrmFaturamentodePedidos.gdPedidosTitleClick(Column: TColumn);
 begin
-  if UpperCase(Column.FieldName) = 'SELECIONE' then
-    MarcarDesmarcarTodos;
+  if UpperCase(Column.FieldName) = 'SELECIONAR' then
+    MarcarDesmarcarTodos
+  else
+    OrdenarGrid(Column);
 end;
 
 procedure TFrmFaturamentodePedidos.ImprimirPedidos;
@@ -426,8 +431,10 @@ begin
           SQL.SQL.Add('SELECT');
           SQL.SQL.Add('	PED.PEDIDO AS NUMEROPEDIDO,');
           SQL.SQL.Add('	P.CODIGOPRODUTO AS SKU,');
-          SQL.SQL.Add('	PEDITENS.QUANTIDADE');
+          SQL.SQL.Add('	PEDITENS.QUANTIDADE,');
+          SQL.SQL.Add(' T.NOME');
           SQL.SQL.Add('FROM PEDIDO PED');
+          SQL.SQL.Add('INNER JOIN TRANSPORTADORA T ON PED.ID_TRANSPORTADORA = T.ID');
           SQL.SQL.Add('INNER JOIN PEDIDOITENS PEDITENS ON (PEDITENS.ID_PEDIDO = PED.ID)');
           SQL.SQL.Add('INNER JOIN PRODUTO P ON (P.ID = PEDITENS.ID_PRODUTO)');
           SQL.SQL.Add('WHERE 1 = 1');
@@ -443,8 +450,9 @@ begin
             while not SQL.Eof do begin
               for I := 1 to SQL.FieldByName('QUANTIDADE').AsInteger do begin
                 csImpressaoPedidos.Append;
-                csImpressaoPedidosPEDIDO.Value  := SQL.FieldByName('NUMEROPEDIDO').Value;
-                csImpressaoPedidosSKU.Value     := SQL.FieldByName('SKU').Value;
+                csImpressaoPedidosPEDIDO.Value              := SQL.FieldByName('NUMEROPEDIDO').Value;
+                csImpressaoPedidosSKU.Value                 := SQL.FieldByName('SKU').Value;
+                csImpressaoPedidosNOMETRANSPORTADORA.Value  := SQL.FieldByName('NOME').Value;
                 csImpressaoPedidos.Post;
               end;
               SQL.Next;
@@ -502,6 +510,27 @@ begin
       DisplayMsgFinaliza
     end;
   end;
+end;
+
+procedure TFrmFaturamentodePedidos.OrdenarGrid(Column: TColumn);
+var
+  Decrescente : Boolean;
+  IndexName   : String;
+begin
+  Decrescente := Column.FieldName = OrdenarPor;
+
+  csPedidos.IndexDefs.Clear;
+  if Decrescente then begin
+    IndexName      :=  Column.FieldName + '_IDX_D';
+    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, [ixDescending]);
+    OrdenarPor     := '';
+  end else begin
+    IndexName      := Column.FieldName + '_IDX';
+    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, []);
+    OrdenarPor     := Column.FieldName;
+  end;
+
+  csPedidos.IndexName := IndexName;
 end;
 
 end.

@@ -40,7 +40,7 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
       Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = []
-      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleHotTrack]
+      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
       ParentFont = False
       TabOrder = 0
       TitleFont.Charset = DEFAULT_CHARSET
@@ -878,6 +878,10 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
     object csImpressaoPedidosSKU: TStringField
       FieldName = 'SKU'
       Size = 25
+    end
+    object csImpressaoPedidosNOMETRANSPORTADORA: TStringField
+      FieldName = 'NOMETRANSPORTADORA'
+      Size = 100
     end
   end
 end
