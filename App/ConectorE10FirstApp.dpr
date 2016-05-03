@@ -29,7 +29,8 @@ uses
   uManutencaoPedidos in 'uManutencaoPedidos.pas' {FrmManutencaoPedidos},
   uFaturamentodePedidos in 'uFaturamentodePedidos.pas' {FrmFaturamentodePedidos},
   uCadastroTransportadora in 'Cadastros\uCadastroTransportadora.pas' {frmCadastroTransportadora},
-  uBeanTransportadoras in 'Beans\uBeanTransportadoras.pas';
+  uBeanTransportadoras in 'Beans\uBeanTransportadoras.pas',
+  uRelDivergencias in 'uRelDivergencias.pas' {frmRelDivergencias};
 
 {$R *.res}
 
@@ -40,7 +41,6 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
-  Application.CreateForm(TfrmCadastroTransportadora, frmCadastroTransportadora);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);

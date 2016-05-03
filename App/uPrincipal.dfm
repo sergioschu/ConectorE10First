@@ -76,6 +76,10 @@ object frmPrincipal: TfrmPrincipal
     end
     object Relatrios1: TMenuItem
       Caption = 'Relat'#243'rios'
+      object Divergncias1: TMenuItem
+        Caption = 'Diverg'#234'ncias'
+        OnClick = Divergncias1Click
+      end
     end
     object miSair: TMenuItem
       Caption = 'Sair'

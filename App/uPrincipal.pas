@@ -23,6 +23,7 @@ type
     FaturamentodePedidos1: TMenuItem;
     ransportadoras1: TMenuItem;
     Relatrios1: TMenuItem;
+    Divergncias1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -34,6 +35,7 @@ type
     procedure Pedidos1Click(Sender: TObject);
     procedure FaturamentodePedidos1Click(Sender: TObject);
     procedure ransportadoras1Click(Sender: TObject);
+    procedure Divergncias1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -57,7 +59,8 @@ uses
   uNotaFiscal,
   uManutencaoPedidos,
   uFaturamentodePedidos,
-  uCadastroTransportadora;
+  uCadastroTransportadora,
+  uRelDivergencias;
 
 {$R *.dfm}
 
@@ -78,6 +81,17 @@ begin
   if USUARIO.CODIGO > 0 then begin
     DefinePermissaoMenu(MainMenu1);
     miSair.Visible          := True;
+  end;
+end;
+
+procedure TfrmPrincipal.Divergncias1Click(Sender: TObject);
+begin
+  try
+    if frmRelDivergencias = nil then
+      frmRelDivergencias := TfrmRelDivergencias.Create(Self);
+    frmRelDivergencias.ShowModal;
+  finally
+    FreeAndNil(frmRelDivergencias);
   end;
 end;
 
