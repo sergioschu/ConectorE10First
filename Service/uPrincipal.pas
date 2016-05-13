@@ -100,36 +100,27 @@ begin
                   SaveLog('arquivo valido!');
                   PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
                   if PR.Count > 0 then begin
-                    NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and cnpjcpf = ' + QuotedStr(CONF[2]));
+                    NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and status <= 1');
                     if NF.Count > 0 then begin
-                      if TNOTAFISCAL(NF.Itens[0]).STATUS.Value <= 1 then begin
-                        NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                        if NI.Count > 0 then begin
-                          NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                          NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
-                          NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
-                          NI.Update;
+                      NI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                      if NI.Count > 0 then begin
+                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
+                        NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
+                        NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
+                        NI.Update;
 
-                          NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID_NOTAFISCAL.Value;
-                          NI.Update;
+                        NF.ID.Value                := TNOTAFISCAL(NF.Itens[0]).ID.Value;
+                        NF.STATUS.Value            := 2;
+                        NF.DATA_RECEBIDO.Value     := Now;
+                        NF.Update;
 
-                          NF.ID.Value                := TNOTAFISCAL(NF.Itens[0]).ID.Value;
-                          NF.STATUS.Value            := 2;
-                          NF.DATA_RECEBIDO.Value     := Now;
-                          NF.Update;
-
-                        end else begin
-                          SaveLog('Item da NF' + CONF[5] + ' não foi encontrado!');
-                          Deletar                    := False;
-                          Break;
-                        end;
                       end else begin
-                        SaveLog('Nota Fiscal ' + CONF[0] + ' já foi recebida!');
-                        Deletar                      := False;
+                        SaveLog('Item da NF' + CONF[5] + ' não foi encontrado!');
+                        Deletar                    := False;
                         Break;
                       end;
                     end else begin
-                      SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada!');
+                      SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada ou já recebida!');
                       Deletar                        := False;
                       Break;
                     end;
@@ -235,11 +226,8 @@ begin
                           Deletar               := False;
                           Break;
                         end;
-                      end else begin
+                      end else
                         SaveLog('Pedido ' + MDD[0] + ' já foi recebido!');
-                        Deletar                 := False;
-                        Break;
-                      end;
                     end else begin
                       SaveLog('Nao achou o pedido ' + MDD[0] + '!');
                       Deletar                   := False;
