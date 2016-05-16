@@ -71,6 +71,16 @@ type
     IMPORTAR : Boolean;
   end;
 
+  TNOTAENTRADA = record
+    DOCUMENTO : Integer;
+    SERIE : Integer;
+    ID : Integer;
+  end;
+
+  TPEDIDOS = record
+    ID : Integer;
+    PEDIDO : String;
+  end;
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
   DirArquivosFTP : string = 'C:\ConectorE10First\arquivosFTP\';
