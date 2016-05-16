@@ -70,7 +70,6 @@ type
     procedure AtualizarTransportadora;
     procedure Reenviar;
     procedure MarcarDesmarcarTodos;
-    procedure OrdenarGrid(Column : TColumn);
     { Private declarations }
   public
     { Public declarations }
@@ -78,7 +77,7 @@ type
 
 var
   FrmManutencaoPedidos: TFrmManutencaoPedidos;
-  OrdenarPor : string;
+
 implementation
 
 uses
@@ -531,7 +530,7 @@ begin
             //Começa a Gravação dos Dados no BD
             for I := Low(PedidoTransp) to High(PedidoTransp) do begin
               if PedidoTransp[I].NUMEROPEDIDO <> EmptyStr then begin
-                PED.SelectList('PEDIDO = ' + QuotedStr(PedidoTransp[I].NUMEROPEDIDO));
+                PED.SelectList('STATUS = 0 AND PEDIDO = ' + QuotedStr(PedidoTransp[I].NUMEROPEDIDO));
                 if PED.Count = 1 then begin
                   PED.ID.Value                := TPEDIDO(PED.Itens[0]).ID.Value;
                   PED.ID_TRANSPORTADORA.Value := PedidoTransp[I].ID_Transportadora;
@@ -869,27 +868,6 @@ begin
       DisplayMsgFinaliza
     end;
   end;
-end;
-
-procedure TFrmManutencaoPedidos.OrdenarGrid(Column: TColumn);
-var
-  Decrescente : Boolean;
-  IndexName   : String;
-begin
-  Decrescente := Column.FieldName = OrdenarPor;
-
-  csPedidos.IndexDefs.Clear;
-  if Decrescente then begin
-    IndexName      :=  Column.FieldName + '_IDX_D';
-    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, [ixDescending]);
-    OrdenarPor     := '';
-  end else begin
-    IndexName      := Column.FieldName + '_IDX';
-    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, []);
-    OrdenarPor     := Column.FieldName;
-  end;
-
-  csPedidos.IndexName := IndexName;
 end;
 
 procedure TFrmManutencaoPedidos.Reenviar;

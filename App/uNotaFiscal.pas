@@ -71,7 +71,6 @@ type
     procedure ImprimirDetalhes;
     procedure ReenviaConfirma(Status : Integer);
     procedure MarcarDesmarcarTodos;
-    procedure OrdenarGrid(Column : TColumn);
     { Private declarations }
   public
     { Public declarations }
@@ -79,7 +78,7 @@ type
 
 var
   frmNotaFiscal: TfrmNotaFiscal;
-  OrdenarPor : string;
+
 implementation
 uses
   uFuncoes,
@@ -630,27 +629,6 @@ begin
       DisplayMsgFinaliza
     end;
   end;
-end;
-
-procedure TfrmNotaFiscal.OrdenarGrid(Column: TColumn);
-var
-  Decrescente : Boolean;
-  IndexName   : String;
-begin
-  Decrescente            := Column.FieldName = OrdenarPor;
-
-  csNotaFiscal.IndexDefs.Clear;
-  if Decrescente then begin
-    IndexName            :=  Column.FieldName + '_IDX_D';
-    csNotaFiscal.IndexDefs.Add(IndexName, Column.FieldName, [ixDescending]);
-    OrdenarPor           := '';
-  end else begin
-    IndexName            := Column.FieldName + '_IDX';
-    csNotaFiscal.IndexDefs.Add(IndexName, Column.FieldName, []);
-    OrdenarPor           := Column.FieldName;
-  end;
-
-  csNotaFiscal.IndexName := IndexName;
 end;
 
 procedure TfrmNotaFiscal.ReenviaConfirma(Status : Integer);

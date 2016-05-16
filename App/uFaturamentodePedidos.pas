@@ -65,7 +65,6 @@ type
     procedure FaturarPedidos;
     procedure ImprimirPedidos;
     procedure MarcarDesmarcarTodos;
-    procedure OrdenarGrid(Column : TColumn);
     { Private declarations }
   public
     { Public declarations }
@@ -73,7 +72,6 @@ type
 
 var
   FrmFaturamentodePedidos: TFrmFaturamentodePedidos;
-  OrdenarPor : string;
 
 implementation
 
@@ -162,7 +160,7 @@ begin
       SQL.SQL.Add('SELECT');
       SQL.SQL.Add('	P.ID,');
       SQL.SQL.Add('	P.PEDIDO,');
-      SQL.SQL.Add('	CAST(P.DATA_ENVIO AS DATE) AS DATA_ENVIO,');
+      SQL.SQL.Add('	CAST(P.DATA_IMPORTACAO AS DATE) AS DATA_IMPORTACAO,');
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_MUNICIPIO,');
       SQL.SQL.Add('	P.STATUS,');
@@ -173,7 +171,7 @@ begin
       SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('WHERE 1 = 1');
-      SQL.SQL.Add('AND CAST(P.DATA_ENVIO AS DATE) BETWEEN :DATAI AND :DATAF');
+      SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
 
       SQL.ParamByName('DATAI').DataType := ftDate;
       SQL.ParamByName('DATAF').DataType := ftDate;
@@ -510,27 +508,6 @@ begin
       DisplayMsgFinaliza
     end;
   end;
-end;
-
-procedure TFrmFaturamentodePedidos.OrdenarGrid(Column: TColumn);
-var
-  Decrescente : Boolean;
-  IndexName   : String;
-begin
-  Decrescente := Column.FieldName = OrdenarPor;
-
-  csPedidos.IndexDefs.Clear;
-  if Decrescente then begin
-    IndexName      :=  Column.FieldName + '_IDX_D';
-    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, [ixDescending]);
-    OrdenarPor     := '';
-  end else begin
-    IndexName      := Column.FieldName + '_IDX';
-    csPedidos.IndexDefs.Add(IndexName, Column.FieldName, []);
-    OrdenarPor     := Column.FieldName;
-  end;
-
-  csPedidos.IndexName := IndexName;
 end;
 
 end.

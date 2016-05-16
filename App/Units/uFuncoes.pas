@@ -13,7 +13,11 @@ uses
   Winapi.Windows,
   Vcl.Menus,
   Vcl.Forms,
-  System.Classes, Data.DB, System.Win.ComObj;
+  System.Classes,
+  Data.DB,
+  System.Win.ComObj,
+  Datasnap.DBClient,
+  Vcl.Graphics;
 
   procedure CarregarConfigLocal;
   procedure CarregaArrayMenus(Menu : TMainMenu);
@@ -22,6 +26,7 @@ uses
   procedure AutoSizeDBGrid(const DBGrid: TDBGrid);
   procedure AjustaForm(Form : TForm);
   procedure CriarComandoSequenciaMenu(Menu: TMainMenu);
+  procedure OrdenarGrid(Column: TColumn);
   function ValidaUsuario(Email, Senha : String) : Boolean;
   function MD5(Texto : String): String;
   Function Criptografa(Texto : String; Tipo : String) : String;
@@ -192,6 +197,56 @@ begin
   end else begin
     raise Exception.Create('Menu não Específicado, Verifique!');
     Exit;
+  end;
+end;
+
+procedure OrdenarGrid(Column: TColumn);
+var
+  Indice    : string;
+  Existe    : Boolean;
+  I         : Integer;
+  CDS_idx   : TClientDataSet;
+  DB_GRID   : TDBGrid;
+  C         : TColumn;
+begin
+
+  if Column.Grid.DataSource.DataSet is TClientDataSet then begin
+
+    CDS_idx := TClientDataSet(Column.Grid.DataSource.DataSet);
+
+    if CDS_idx.IndexFieldNames = Column.FieldName then begin
+
+      Indice := AnsiUpperCase(Column.FieldName+'_INV');
+
+      Existe  := False;
+      For I := 0 to Pred(CDS_idx.IndexDefs.Count) do begin
+        if AnsiUpperCase(CDS_idx.IndexDefs[I].Name) = Indice then begin
+          Existe := True;
+          Break;
+        end;
+      end;
+
+      if not Existe then
+        with CDS_idx.IndexDefs.AddIndexDef do begin
+          Name := indice;
+          Fields := Column.FieldName;
+          Options := [ixDescending];
+        end;
+      CDS_idx.IndexName := Indice;
+    end else
+      CDS_idx.IndexFieldNames := Column.FieldName;
+
+    if Column.Grid is TDBGrid then begin
+      DB_GRID := TDBGrid(Column.Grid);
+      for I := 0 to DB_GRID.Columns.Count - 1 do begin
+        C := DB_GRID.Columns[I];
+        if Column <> C then begin
+          if C.Title.Font.Color <> clWindowText then
+            C.Title.Font.Color := clWindowText;
+        end;
+      end;
+      Column.Title.Font.Color := clBlue;
+    end;
   end;
 end;
 
