@@ -29,8 +29,6 @@ object frmRelDivergencias: TfrmRelDivergencias
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 414
-    ExplicitHeight = 226
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 3
@@ -62,8 +60,6 @@ object frmRelDivergencias: TfrmRelDivergencias
           Value = 100.000000000000000000
         end>
       TabOrder = 0
-      ExplicitTop = 163
-      ExplicitWidth = 408
       object Panel1: TPanel
         Left = 1
         Top = 1
@@ -71,7 +67,6 @@ object frmRelDivergencias: TfrmRelDivergencias
         Height = 58
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 203
         object btRelatorio: TSpeedButton
           AlignWithMargins = True
           Left = 51
@@ -613,8 +608,6 @@ object frmRelDivergencias: TfrmRelDivergencias
         Height = 58
         Align = alClient
         TabOrder = 1
-        ExplicitLeft = 204
-        ExplicitWidth = 203
         object btSair: TSpeedButton
           AlignWithMargins = True
           Left = 4
@@ -748,8 +741,6 @@ object frmRelDivergencias: TfrmRelDivergencias
         'Notas Fiscais'
         'Pedidos')
       TabOrder = 1
-      ExplicitWidth = 297
-      ExplicitHeight = 78
     end
     object gbSelecionaPeriodo: TGroupBox
       AlignWithMargins = True
@@ -766,7 +757,6 @@ object frmRelDivergencias: TfrmRelDivergencias
       Font.Style = []
       ParentFont = False
       TabOrder = 2
-      ExplicitTop = 87
       object GridPanel2: TGridPanel
         AlignWithMargins = True
         Left = 5
@@ -798,7 +788,6 @@ object frmRelDivergencias: TfrmRelDivergencias
             Value = 100.000000000000000000
           end>
         TabOrder = 0
-        ExplicitTop = 56
         object Panel3: TPanel
           Left = 1
           Top = 1
@@ -806,8 +795,6 @@ object frmRelDivergencias: TfrmRelDivergencias
           Height = 60
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 178
-          ExplicitHeight = 58
           object Label1: TLabel
             AlignWithMargins = True
             Left = 4
@@ -817,8 +804,6 @@ object frmRelDivergencias: TfrmRelDivergencias
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Inicial'
-            ExplicitLeft = 8
-            ExplicitTop = 6
             ExplicitWidth = 79
           end
           object edDataInicial: TDateTimePicker
@@ -831,9 +816,6 @@ object frmRelDivergencias: TfrmRelDivergencias
             Date = 42399.076077650460000000
             Time = 42399.076077650460000000
             TabOrder = 0
-            ExplicitLeft = 8
-            ExplicitTop = 31
-            ExplicitWidth = 134
           end
         end
         object Panel4: TPanel
@@ -843,9 +825,6 @@ object frmRelDivergencias: TfrmRelDivergencias
           Height = 60
           Align = alClient
           TabOrder = 1
-          ExplicitLeft = 179
-          ExplicitWidth = 178
-          ExplicitHeight = 58
           object Label2: TLabel
             AlignWithMargins = True
             Left = 4
@@ -855,8 +834,6 @@ object frmRelDivergencias: TfrmRelDivergencias
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Final'
-            ExplicitLeft = 47
-            ExplicitTop = 6
             ExplicitWidth = 70
           end
           object edDataFinal: TDateTimePicker
@@ -869,9 +846,6 @@ object frmRelDivergencias: TfrmRelDivergencias
             Date = 42399.076077650460000000
             Time = 42399.076077650460000000
             TabOrder = 0
-            ExplicitLeft = 39
-            ExplicitTop = 31
-            ExplicitWidth = 134
           end
         end
       end
@@ -884,9 +858,6 @@ object frmRelDivergencias: TfrmRelDivergencias
         Align = alTop
         Caption = 'Exibir todos'
         TabOrder = 1
-        ExplicitLeft = 56
-        ExplicitTop = 32
-        ExplicitWidth = 97
       end
     end
   end

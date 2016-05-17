@@ -109,7 +109,7 @@ begin
             SQL.ParamByName('DATAF').Value    := edDataFinal.Date;
           end;
           SQL.SQL.Add('AND ((NF.DATA_ENVIO IS NULL) OR (NF.DATA_RECEBIDO IS NULL))');
-          SQL.SQL.Add('ORDER BY NF.DOCUMENTO');
+          SQL.SQL.Add('ORDER BY STATUS, NF.DOCUMENTO');
         end;
         1 : begin
 
@@ -118,6 +118,9 @@ begin
           SQL.SQL.Add('	P.DATA_IMPORTACAO,');
           SQL.SQL.Add('	P.DATA_ENVIO,');
           SQL.SQL.Add('	P.DATA_RECEBIDO,');
+          SQL.SQL.Add('	((DATE_PART(''DAY'', AGE(P.DATA_RECEBIDO, P.DATA_ENVIO)) * 24) +');
+          SQL.SQL.Add('	(DATE_PART(''HOURS'', AGE(P.DATA_RECEBIDO, P.DATA_ENVIO)))) AS HORAS,');
+          SQL.SQL.Add('	(DATE_PART(''MINUTES'', AGE(P.DATA_RECEBIDO, P.DATA_ENVIO))) AS MINUTOS,');
           SQL.SQL.Add('	CASE WHEN P.DATA_ENVIO IS NULL	THEN');
           SQL.SQL.Add('		''AGUARDANDO ENVIO''');
           SQL.SQL.Add('		ELSE');
@@ -136,7 +139,7 @@ begin
             SQL.ParamByName('DATAF').Value    := edDataFinal.Date;
           end;
           SQL.SQL.Add('AND ((P.DATA_ENVIO IS NULL) OR (P.DATA_RECEBIDO IS NULL) OR (P.DATA_FATURADO IS NULL))');
-          SQL.SQL.Add('ORDER BY P.PEDIDO');
+          SQL.SQL.Add('ORDER BY STATUS, P.PEDIDO');
         end;
       end;
 
