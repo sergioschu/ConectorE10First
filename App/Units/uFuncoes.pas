@@ -13,6 +13,7 @@ uses
   Winapi.Windows,
   Vcl.Menus,
   Vcl.Forms,
+  Vcl.StdCtrls,
   System.Classes,
   Data.DB,
   System.Win.ComObj,
@@ -37,7 +38,7 @@ uses
   function FormataData(Data : TDateTime) : String;
   function FormataNumeros(Valor : String) : Double;
   procedure ExpXLS(DataSet: TDataSet; NomeArq: string);
-
+  procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
 implementation
 
 Uses
@@ -47,6 +48,13 @@ Uses
   uBeanUsuario,
   uBeanUsuario_Permissao,
   uDomains;
+
+procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
+begin
+  edtQuantidade.Text := '0';
+  if not cds.IsEmpty then
+    edtQuantidade.Text := IntToStr(cds.RecordCount);
+end;
 
 function FormataNumeros(Valor : String) : Double;
 begin

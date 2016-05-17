@@ -47,6 +47,7 @@ type
     btAtualizarPedidos: TSpeedButton;
     btReenviar: TSpeedButton;
     btExportar: TSpeedButton;
+    edTotalRegistros: TEdit;
     procedure btFecharClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -640,6 +641,7 @@ begin
     btPesquisar.Tag    := 1;
     try
       Filtrar;
+      TotalizaRegistros(csPedidos, edTotalRegistros);
     finally
       btPesquisar.Tag  := 0;
     end;
@@ -728,7 +730,7 @@ begin
           SQL.Next;
         end;
       end;
-
+      TotalizaRegistros(csPedidos, edTotalRegistros);
     except
       on E : Exception do begin
         DisplayMsg(MSG_ERR, 'Erro ao Carregar os dados da Tela.', '', E.Message);
@@ -754,7 +756,8 @@ var
 begin
   Accept := False;
   for I := 0 to Pred(csPedidos.FieldCount) do begin
-    Accept  := Pos(AnsiUpperCase(edPesquisa.Text), AnsiUpperCase(csPedidos.Fields[I].Value)) > 0;
+    if not csPedidos.Fields[I].IsNull then
+      Accept  := Pos(AnsiUpperCase(edPesquisa.Text), AnsiUpperCase(csPedidos.Fields[I].AsString)) > 0;
     if Accept then
       Break;
   end;

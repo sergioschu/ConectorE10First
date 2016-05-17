@@ -48,6 +48,7 @@ type
     btConsultar: TSpeedButton;
     rgStatus: TRadioGroup;
     btExportar: TSpeedButton;
+    edTotalRegistros: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -376,6 +377,7 @@ begin
     btFiltrar.Tag   := 1;
     try
       Filtrar;
+      TotalizaRegistros(csNotaFiscal, edTotalRegistros);
     finally
       btFiltrar.Tag := 0;
     end;
@@ -452,6 +454,7 @@ begin
         csNotaFiscal.Post;
         SQL.Next;
       end;
+      TotalizaRegistros(csNotaFiscal, edTotalRegistros);
     except
       on E : Exception do begin
         DisplayMsg(MSG_WAR, 'Erro ao realizar consulta!' , '', E.Message);
@@ -473,7 +476,8 @@ var
 begin
   Accept := False;
   for I := 0 to Pred(csNotaFiscal.FieldCount) do begin
-    Accept     := Pos(edPesquisa.Text, csNotaFiscal.Fields[I].AsString) > 0;
+    if not csNotaFiscal.Fields[I].IsNull then
+      Accept     := Pos(edPesquisa.Text, csNotaFiscal.Fields[I].AsString) > 0;
     if Accept then Exit;
   end;
 end;
@@ -563,7 +567,6 @@ begin
   edDataF.Date   := Date;
   CarregaDados;
   AutoSizeDBGrid(dgNotaFiscal);
-
   if edPesquisa.CanFocus then
     edPesquisa.SetFocus;
 end;

@@ -178,13 +178,14 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC2C2
           C293949385868587888785868590908FB3B3B3FBFBFBFFFFFFFFFFFFFFFFFFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+        OnClick = btPesquisarClick
         ExplicitLeft = 685
       end
       object edPesquisa: TEdit
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 686
+        Width = 580
         Height = 34
         Align = alClient
         AutoSize = False
@@ -197,6 +198,28 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
+        ExplicitWidth = 686
+      end
+      object edTotalRegistros: TEdit
+        AlignWithMargins = True
+        Left = 589
+        Top = 3
+        Width = 100
+        Height = 34
+        Align = alRight
+        AutoSize = False
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -19
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        ExplicitLeft = 3
+        ExplicitHeight = 36
       end
     end
     object Panel2: TPanel

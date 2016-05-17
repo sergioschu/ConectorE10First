@@ -45,6 +45,7 @@ type
     rgStatus: TRadioGroup;
     btExportar: TSpeedButton;
     csImpressaoPedidosNOMETRANSPORTADORA: TStringField;
+    edTotalRegistros: TEdit;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -59,6 +60,7 @@ type
     procedure btConsultarClick(Sender: TObject);
     procedure btExportarClick(Sender: TObject);
     procedure gdPedidosTitleClick(Column: TColumn);
+    procedure btPesquisarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -140,6 +142,19 @@ begin
   end;
 end;
 
+procedure TFrmFaturamentodePedidos.btPesquisarClick(Sender: TObject);
+begin
+  if btPesquisar.Tag = 0 then begin
+    btPesquisar.Tag  := 1;
+    try
+      Filtrar;
+      TotalizaRegistros(csPedidos, edTotalRegistros);
+    finally
+      btPesquisar.Tag := 0;
+    end;
+  end;
+end;
+
 procedure TFrmFaturamentodePedidos.CarregaDados;
 Var
   FWC : TFWConnection;
@@ -207,7 +222,7 @@ begin
           SQL.Next;
         end;
       end;
-
+      TotalizaRegistros(csPedidos, edTotalRegistros);
     except
       on E : Exception do begin
         DisplayMsg(MSG_ERR, 'Erro ao Carregar os dados da Tela.', '', E.Message);
@@ -233,7 +248,8 @@ var
 begin
   Accept := False;
   for I := 0 to Pred(csPedidos.FieldCount) do begin
-    Accept  := Pos(AnsiUpperCase(edPesquisa.Text), AnsiUpperCase(csPedidos.Fields[I].Value)) > 0;
+    if not csPedidos.Fields[I].IsNull then
+      Accept  := Pos(AnsiUpperCase(edPesquisa.Text), AnsiUpperCase(csPedidos.Fields[I].AsString)) > 0;
     if Accept then
       Break;
   end;
