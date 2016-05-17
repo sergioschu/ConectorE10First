@@ -209,11 +209,12 @@ begin
   PI     := TPEDIDOITENS.Create(CON);
   try
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-      SaveLog('Tem arquivo MDD para enviar');
+      SaveLog('Tem arquivos para enviar');
       CON.StartTransaction;
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
+            SaveLog('Arquivo é um MDD!');
             Lista    := TStringList.Create;
             MDD      := TStringList.Create;
             SetLength(PEDIDOS, 0);
@@ -227,7 +228,7 @@ begin
                 if MDD.Count = 7 then begin
                   for J := Low(PEDIDOS) to High(PEDIDOS) do begin
                     if PEDIDOS[J].PEDIDO = MDD[2] then begin
-                      PEDIDOATUAL := PEDIDOS[I];
+                      PEDIDOATUAL := PEDIDOS[J];
                       Achou       := True;
                       Break;
                     end;
