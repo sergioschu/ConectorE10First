@@ -85,7 +85,6 @@ begin
   PR     := TPRODUTO.Create(CON);
   try
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-      CON.StartTransaction;
       SaveLog('Achou pelo menos 1!');
       SetLength(NOTAENTRADA, 0);
       try
@@ -95,66 +94,73 @@ begin
             Lista                      := TStringList.Create;
             CONF                       := TStringList.Create;
             try
-              Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
-              for I := 0 to Pred(Lista.Count) do begin
-                CONF.Delimiter       := ';';
-                CONF.StrictDelimiter := True;
-                CONF.DelimitedText   := Lista[I];
-                if CONF.Count = 11 then begin
-                  SaveLog('arquivo valido!');
-                  Achou := False;
-                  for J := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
-                    if (IntToStr(NOTAENTRADA[J].DOCUMENTO) = CONF[0]) and (IntToStr(NOTAENTRADA[J].SERIE) = CONF[1]) then begin
-                      Achou := True;
-                      NOTAATUAL.DOCUMENTO   := NOTAENTRADA[J].DOCUMENTO;
-                      NOTAATUAL.SERIE       := NOTAENTRADA[J].SERIE;
-                      NOTAATUAL.ID          := NOTAENTRADA[J].ID;
-                      Break;
+              CON.StartTransaction;
+              try
+                Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+                for I := 0 to Pred(Lista.Count) do begin
+                  CONF.Delimiter       := ';';
+                  CONF.StrictDelimiter := True;
+                  CONF.DelimitedText   := Lista[I];
+                  if CONF.Count = 11 then begin
+                    SaveLog('arquivo valido!');
+                    Achou := False;
+                    for J := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
+                      if (IntToStr(NOTAENTRADA[J].DOCUMENTO) = CONF[0]) and (IntToStr(NOTAENTRADA[J].SERIE) = CONF[1]) then begin
+                        Achou := True;
+                        NOTAATUAL.DOCUMENTO   := NOTAENTRADA[J].DOCUMENTO;
+                        NOTAATUAL.SERIE       := NOTAENTRADA[J].SERIE;
+                        NOTAATUAL.ID          := NOTAENTRADA[J].ID;
+                        Break;
+                      end;
                     end;
-                  end;
 
-                  if not Achou then begin
-                    NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and status <= 1');
-                    if NF.Count > 0 then begin
-                      SetLength(NOTAENTRADA, Length(NOTAENTRADA) + 1);
-                      NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO  := TNOTAFISCAL(NF.Itens[0]).DOCUMENTO.Value;
-                      NOTAENTRADA[High(NOTAENTRADA)].SERIE      := TNOTAFISCAL(NF.Itens[0]).SERIE.Value;
-                      NOTAENTRADA[High(NOTAENTRADA)].ID         := TNOTAFISCAL(NF.Itens[0]).ID.Value;
+                    if not Achou then begin
+                      NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and status <= 1');
+                      if NF.Count > 0 then begin
+                        SetLength(NOTAENTRADA, Length(NOTAENTRADA) + 1);
+                        NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO  := TNOTAFISCAL(NF.Itens[0]).DOCUMENTO.Value;
+                        NOTAENTRADA[High(NOTAENTRADA)].SERIE      := TNOTAFISCAL(NF.Itens[0]).SERIE.Value;
+                        NOTAENTRADA[High(NOTAENTRADA)].ID         := TNOTAFISCAL(NF.Itens[0]).ID.Value;
 
-                      NOTAATUAL.DOCUMENTO := NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO;
-                      NOTAATUAL.SERIE := NOTAENTRADA[High(NOTAENTRADA)].SERIE;
-                      NOTAATUAL.ID := NOTAENTRADA[High(NOTAENTRADA)].ID;
-                    end else begin
-                      SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada ou já recebida!');
-                      Deletar                        := False;
-                      Break;
+                        NOTAATUAL.DOCUMENTO := NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO;
+                        NOTAATUAL.SERIE := NOTAENTRADA[High(NOTAENTRADA)].SERIE;
+                        NOTAATUAL.ID := NOTAENTRADA[High(NOTAENTRADA)].ID;
+                      end else begin
+                        SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada ou já recebida!');
+                        Deletar                        := False;
+                        Break;
+                      end;
                     end;
+                    PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
+                    if PR.Count > 0 then begin
+                      NI.SelectList('ID_NOTAFISCAL = ' + IntToStr(NOTAATUAL.ID) + ' AND ID_PRODUTO = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                      if NI.Count > 0 then begin
+                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
+                        NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
+                        NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
+                        NI.Update;
+                      end else SaveLog('Produto ' + CONF[5] + ' não encontrado na nota!');
+                    end else SaveLog('Produto não encontrado!');
                   end;
-                  PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
-                  if PR.Count > 0 then begin
-                    NI.SelectList('ID_NOTAFISCAL = ' + IntToStr(NOTAATUAL.ID) + ' AND ID_PRODUTO = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                    if NI.Count > 0 then begin
-                      NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                      NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
-                      NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
-                      NI.Update;
-                    end else SaveLog('Produto ' + CONF[5] + ' não encontrado na nota!');
-                  end else SaveLog('Produto não encontrado!');
+                end;
+                for I := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
+                  NF.ID.Value                      := NOTAENTRADA[I].ID;
+                  NF.DATA_RECEBIDO.Value           := Now;
+                  NF.STATUS.Value                  := 2;
+                  NF.Update;
+                end;
+                if Deletar then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
+                CON.Commit;
+              except
+                on E : Exception do begin
+                  CON.Rollback;
+                  SaveLog('Erro ao bucar CONF: ' + E.Message);
                 end;
               end;
-              for I := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
-                NF.ID.Value                      := NOTAENTRADA[I].ID;
-                NF.DATA_RECEBIDO.Value           := Now;
-                NF.STATUS.Value                  := 2;
-                NF.Update;
-              end;
-              if Deletar then
-                DeleteFile(DirArquivosFTP + search_rec.Name);
-            except
-              on E : Exception do begin
-                CON.Rollback;
-                SaveLog('Erro ao bucar CONF: ' + E.Message);
-              end;
+            finally
+              FreeAndNil(CONF);
+              FreeAndNil(Lista);
             end;
           end;
         until FindNext(search_rec) <> 0;
@@ -210,88 +216,93 @@ begin
   try
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
       SaveLog('Tem arquivos para enviar');
-      CON.StartTransaction;
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
             SaveLog('Arquivo é um MDD!');
-            Lista    := TStringList.Create;
-            MDD      := TStringList.Create;
-            SetLength(PEDIDOS, 0);
+            CON.StartTransaction;
             try
-              Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
-              Deletar               := True;
-              for I := 0 to Pred(Lista.Count) do begin
-                MDD.Delimiter       := ';';
-                MDD.StrictDelimiter := True;
-                MDD.DelimitedText   := Lista[I];
-                if MDD.Count = 7 then begin
-                  for J := Low(PEDIDOS) to High(PEDIDOS) do begin
-                    if PEDIDOS[J].PEDIDO = MDD[2] then begin
-                      PEDIDOATUAL := PEDIDOS[J];
-                      Achou       := True;
-                      Break;
+              Lista    := TStringList.Create;
+              MDD      := TStringList.Create;
+              SetLength(PEDIDOS, 0);
+              try
+                Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+                Deletar               := True;
+                for I := 0 to Pred(Lista.Count) do begin
+                  MDD.Delimiter       := ';';
+                  MDD.StrictDelimiter := True;
+                  MDD.DelimitedText   := Lista[I];
+                  if MDD.Count = 7 then begin
+                    for J := Low(PEDIDOS) to High(PEDIDOS) do begin
+                      if PEDIDOS[J].PEDIDO = MDD[2] then begin
+                        PEDIDOATUAL := PEDIDOS[J];
+                        Achou       := True;
+                        Break;
+                      end;
                     end;
-                  end;
 
-                  if not Achou then begin
-                    P.SelectList('pedido = ' + QuotedStr(MDD[0]) + ' and status <= 2');
-                    if P.Count > 0 then begin
-                      SetLength(PEDIDOS, Length(PEDIDOS) + 1);
-                      PEDIDOS[High(PEDIDOS)].PEDIDO := TPEDIDO(P.Itens[0]).PEDIDO.Value;
-                      PEDIDOS[High(PEDIDOS)].ID     := TPEDIDO(P.Itens[0]).ID.Value;
+                    if not Achou then begin
+                      P.SelectList('pedido = ' + QuotedStr(MDD[0]) + ' and status <= 2');
+                      if P.Count > 0 then begin
+                        SetLength(PEDIDOS, Length(PEDIDOS) + 1);
+                        PEDIDOS[High(PEDIDOS)].PEDIDO := TPEDIDO(P.Itens[0]).PEDIDO.Value;
+                        PEDIDOS[High(PEDIDOS)].ID     := TPEDIDO(P.Itens[0]).ID.Value;
 
-                      PEDIDOATUAL                   := PEDIDOS[High(PEDIDOS)];
-                    end else begin
-                      SaveLog('Pedido ' + MDD[0] + ' já recebido ou nao existe!');
-                      Deletar                       := False;
-                      Break;
+                        PEDIDOATUAL                   := PEDIDOS[High(PEDIDOS)];
+                      end else begin
+                        SaveLog('Pedido ' + MDD[0] + ' já recebido ou nao existe!');
+                        Deletar                       := False;
+                        Break;
+                      end;
                     end;
-                  end;
 
-                  PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
-                  if PR.Count > 0 then begin
-                    PI.SelectList('id_pedido = ' + IntToStr(PEDIDOATUAL.ID) + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                    if PI.Count > 0 then begin
-                      PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
-                      PI.RECEBIDO.Value     := True;
-                      PI.Update;
+                    PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
+                    if PR.Count > 0 then begin
+                      PI.SelectList('id_pedido = ' + IntToStr(PEDIDOATUAL.ID) + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                      if PI.Count > 0 then begin
+                        PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
+                        PI.RECEBIDO.Value     := True;
+                        PI.Update;
+                      end else begin
+                        SaveLog('Nao achou o item ' + MDD[2] + ' do pedido!');
+                        Deletar               := False;
+                        Break;
+                      end;
                     end else begin
-                      SaveLog('Nao achou o item ' + MDD[2] + ' do pedido!');
-                      Deletar               := False;
+                      SaveLog('Nao achou o produto ' + MDD[2] + '!');
+                      Deletar                     := False;
                       Break;
                     end;
                   end else begin
-                    SaveLog('Nao achou o produto ' + MDD[2] + '!');
-                    Deletar                     := False;
+                    SaveLog('Arquivo invalido! ' + IntToStr(MDD.Count) + ' ' + MDD.Text);
+                    Deletar                       := False;
                     Break;
                   end;
-                end else begin
-                  SaveLog('Arquivo invalido! ' + IntToStr(MDD.Count) + ' ' + MDD.Text);
-                  Deletar                       := False;
-                  Break;
                 end;
+                for I := Low(PEDIDOS) to High(PEDIDOS) do begin
+                  P.ID.Value                      := PEDIDOS[I].ID;
+                  P.STATUS.Value                  := 3;
+                  P.DATA_RECEBIDO.Value           := Now;
+                  P.Update;
+                end;
+                if Deletar then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
+              finally
+                FreeAndNil(Lista);
+                FreeAndNil(MDD);
               end;
-              for I := Low(PEDIDOS) to High(PEDIDOS) do begin
-                P.ID.Value                      := PEDIDOS[I].ID;
-                P.STATUS.Value                  := 3;
-                P.DATA_RECEBIDO.Value           := Now;
-                P.Update;
+              CON.Commit;
+            except
+              on E : Exception do begin
+                CON.Rollback;
+                SaveLog('Erro ao bucar MDD: ' + E.Message);
               end;
-              if Deletar then
-                DeleteFile(DirArquivosFTP + search_rec.Name);
-            finally
-              FreeAndNil(Lista);
-              FreeAndNil(MDD);
             end;
           end;
         until FindNext(search_rec) <> 0;
-        CON.Commit;
       except
-        on E : Exception do begin
-          CON.Rollback;
+        on E : Exception do
           SaveLog('Erro ao bucar MDD: ' + E.Message);
-        end;
       end;
       FindClose(search_rec);
     end;
