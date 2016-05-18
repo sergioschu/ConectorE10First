@@ -466,10 +466,10 @@ begin
             while not SQL.Eof do begin
               for I := 1 to SQL.FieldByName('QUANTIDADE').AsInteger do begin
                 csImpressaoPedidos.Append;
-                csImpressaoPedidosPEDIDO.Value              := SQL.FieldByName('NUMEROPEDIDO').Value;
-                csImpressaoPedidosSKU.Value                 := SQL.FieldByName('SKU').Value;
-                csImpressaoPedidosNOMETRANSPORTADORA.Value  := SQL.FieldByName('NOME').Value;
-                csImpressaoPedidosVOLUMES_DOCUMENTO.Value   := SQL.FieldByName('VOLUMES_DOCUMENTO').Value;
+                csImpressaoPedidosPEDIDO.Value              := SQL.FieldByName('NUMEROPEDIDO').AsString;
+                csImpressaoPedidosSKU.Value                 := SQL.FieldByName('SKU').AsString;
+                csImpressaoPedidosNOMETRANSPORTADORA.Value  := SQL.FieldByName('NOME').AsString;
+                csImpressaoPedidosVOLUMES_DOCUMENTO.Value   := SQL.FieldByName('VOLUMES_DOCUMENTO').AsInteger;
                 csImpressaoPedidos.Post;
               end;
               SQL.Next;
