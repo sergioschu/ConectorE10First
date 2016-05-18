@@ -247,6 +247,7 @@ begin
                         SetLength(PEDIDOS, Length(PEDIDOS) + 1);
                         PEDIDOS[High(PEDIDOS)].PEDIDO := TPEDIDO(P.Itens[0]).PEDIDO.Value;
                         PEDIDOS[High(PEDIDOS)].ID     := TPEDIDO(P.Itens[0]).ID.Value;
+                        PEDIDOS[High(PEDIDOS)].VOLUMES:= StrToIntDef(MDD[6], 1);
 
                         PEDIDOATUAL                   := PEDIDOS[High(PEDIDOS)];
                       end else begin
@@ -283,6 +284,7 @@ begin
                   P.ID.Value                      := PEDIDOS[I].ID;
                   P.STATUS.Value                  := 3;
                   P.DATA_RECEBIDO.Value           := Now;
+                  P.VOLUMES_DOCUMENTO.Value       := PEDIDOS[I].VOLUMES;
                   P.Update;
                 end;
                 if Deletar then

@@ -80,6 +80,7 @@ type
   TPEDIDOS = record
     ID : Integer;
     PEDIDO : String;
+    VOLUMES : Integer;
   end;
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
