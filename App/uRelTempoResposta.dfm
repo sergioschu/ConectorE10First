@@ -31,8 +31,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 349
-    ExplicitHeight = 263
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 3
@@ -64,8 +62,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
           Value = 100.000000000000000000
         end>
       TabOrder = 0
-      ExplicitTop = 200
-      ExplicitWidth = 343
       object Panel1: TPanel
         Left = 1
         Top = 1
@@ -614,7 +610,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
         Height = 58
         Align = alClient
         TabOrder = 1
-        ExplicitWidth = 171
         object btSair: TSpeedButton
           AlignWithMargins = True
           Left = 4
@@ -780,7 +775,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
             Value = 100.000000000000000000
           end>
         TabOrder = 0
-        ExplicitHeight = 84
         object Panel3: TPanel
           Left = 1
           Top = 1
@@ -788,7 +782,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
           Height = 59
           Align = alClient
           TabOrder = 0
-          ExplicitHeight = 60
           object Label1: TLabel
             AlignWithMargins = True
             Left = 4
@@ -811,7 +804,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
             Date = 42399.076077650460000000
             Time = 42399.076077650460000000
             TabOrder = 0
-            ExplicitTop = 29
           end
         end
         object Panel4: TPanel
@@ -821,8 +813,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
           Height = 59
           Align = alClient
           TabOrder = 1
-          ExplicitWidth = 166
-          ExplicitHeight = 60
           object Label2: TLabel
             AlignWithMargins = True
             Left = 4
@@ -845,8 +835,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
             Date = 42399.076077650460000000
             Time = 42399.076077650460000000
             TabOrder = 0
-            ExplicitTop = 29
-            ExplicitWidth = 158
           end
         end
       end
@@ -860,7 +848,6 @@ object frmRelTempoResposta: TfrmRelTempoResposta
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitTop = 160
       object rgOpcoes: TRadioGroup
         AlignWithMargins = True
         Left = 3

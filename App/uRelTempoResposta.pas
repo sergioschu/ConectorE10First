@@ -145,8 +145,6 @@ begin
 
       SQL.SQL.Add('ORDER BY TIPO_DOCUMENTO, DOCUMENTO_PEDIDO');
 
-      ShowMessage(SQL.SQL.Text);
-
       SQL.ParamByName('DATAI').DataType := ftDate;
       SQL.ParamByName('DATAF').DataType := ftDate;
       SQL.ParamByName('DATAI').Value    := edDataInicial.Date;
