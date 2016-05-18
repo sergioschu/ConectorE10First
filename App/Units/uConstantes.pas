@@ -81,6 +81,7 @@ type
     ID : Integer;
     PEDIDO : String;
     VOLUMES : Integer;
+    PRODUTOS : array of String;
   end;
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';

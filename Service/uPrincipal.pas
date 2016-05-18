@@ -198,6 +198,7 @@ var
   Achou       : Boolean;
   PEDIDOS     : array of TPEDIDOS;
   PEDIDOATUAL : TPEDIDOS;
+  Arquivo     : String;
 begin
   SaveLog('antes da conexao com FTP');
   FTP   := TConexaoFTP.Create;
@@ -209,110 +210,121 @@ begin
 
   SaveLog('Passou da conexao com FTP');
 
-  CON    := TFWConnection.Create;
-  P      := TPEDIDO.Create(CON);
-  PR     := TPRODUTO.Create(CON);
-  PI     := TPEDIDOITENS.Create(CON);
   try
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-      SaveLog('Tem arquivos para enviar');
-      try
-        repeat
-          if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
-            SaveLog('Arquivo é um MDD!');
-            CON.StartTransaction;
-            try
-              Lista    := TStringList.Create;
-              MDD      := TStringList.Create;
-              SetLength(PEDIDOS, 0);
-              try
-                Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
-                Deletar               := True;
-                for I := 0 to Pred(Lista.Count) do begin
-                  MDD.Delimiter       := ';';
-                  MDD.StrictDelimiter := True;
-                  MDD.DelimitedText   := Lista[I];
-                  if MDD.Count = 7 then begin
-                    for J := Low(PEDIDOS) to High(PEDIDOS) do begin
-                      if PEDIDOS[J].PEDIDO = MDD[2] then begin
-                        PEDIDOATUAL := PEDIDOS[J];
-                        Achou       := True;
-                        Break;
-                      end;
-                    end;
-
-                    if not Achou then begin
-                      P.SelectList('pedido = ' + QuotedStr(MDD[0]) + ' and status <= 2');
-                      if P.Count > 0 then begin
-                        SetLength(PEDIDOS, Length(PEDIDOS) + 1);
-                        PEDIDOS[High(PEDIDOS)].PEDIDO := TPEDIDO(P.Itens[0]).PEDIDO.Value;
-                        PEDIDOS[High(PEDIDOS)].ID     := TPEDIDO(P.Itens[0]).ID.Value;
-                        PEDIDOS[High(PEDIDOS)].VOLUMES:= StrToIntDef(MDD[6], 1);
-
-                        PEDIDOATUAL                   := PEDIDOS[High(PEDIDOS)];
-                      end else begin
-                        SaveLog('Pedido ' + MDD[0] + ' já recebido ou nao existe!');
-                        Deletar                       := False;
-                        Break;
-                      end;
-                    end;
-
-                    PR.SelectList('codigoproduto = ' + QuotedStr(MDD[2]));
-                    if PR.Count > 0 then begin
-                      PI.SelectList('id_pedido = ' + IntToStr(PEDIDOATUAL.ID) + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                      if PI.Count > 0 then begin
-                        PI.ID.Value           := TPEDIDOITENS(PI.Itens[0]).ID.Value;
-                        PI.RECEBIDO.Value     := True;
-                        PI.Update;
-                      end else begin
-                        SaveLog('Nao achou o item ' + MDD[2] + ' do pedido!');
-                        Deletar               := False;
-                        Break;
-                      end;
-                    end else begin
-                      SaveLog('Nao achou o produto ' + MDD[2] + '!');
-                      Deletar                     := False;
+      SaveLog('Existe arquivo na pasta local, arquivo: ' + search_rec.Name);
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
+          SaveLog('Arquivo é um MDD');
+          Lista   := TStringList.Create;
+          MDD     := TStringList.Create;
+          SetLength(PEDIDOS, 0);
+          Deletar := True;
+          try
+            MDD.Delimiter       := ';';
+            MDD.StrictDelimiter := True;
+            SaveLog('Antes de Carregar o Arquivo!');
+            Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+            SaveLog('Depois de Carregar o Arquivo!');
+            if Lista.Count > 0 then begin
+              SaveLog('Arquivo não esta Vazio!');
+              for I := 0 to Pred(Lista.Count) do begin
+                SaveLog('Antes do Delimit');
+                MDD.DelimitedText   := Lista[I];
+                SaveLog('Depois do Delimit');
+                if MDD.Count = 7 then begin
+                  SaveLog('MDD Válido!');
+                  for J := 0 to Pred(Length(PEDIDOS)) do begin
+                    if PEDIDOS[J].PEDIDO = MDD[2] then begin
+                      SetLength(PEDIDOS[J].PRODUTOS, Length(PEDIDOS[J].PRODUTOS) + 1);
+                      PEDIDOS[J].PRODUTOS[High(PEDIDOS[J].PRODUTOS)] := MDD[2];
+                      Achou       := True;
+                      SaveLog('Inserindo Itens no Pedido');
                       Break;
                     end;
-                  end else begin
-                    SaveLog('Arquivo invalido! ' + IntToStr(MDD.Count) + ' ' + MDD.Text);
-                    Deletar                       := False;
-                    Break;
+                  end;
+                  if not Achou then begin
+                    SaveLog('Não Achou, Vamos incluir');
+                    SetLength(PEDIDOS, Length(PEDIDOS) + 1);
+                    SaveLog('Aumentou o tamanho do array');
+                    PEDIDOS[High(PEDIDOS)].PEDIDO      := MDD[0];
+                    PEDIDOS[High(PEDIDOS)].VOLUMES     := StrToIntDef(MDD[6], 1);
+                    SaveLog('atribuiu os valores');
+
+                    SetLength(PEDIDOS[High(PEDIDOS)].PRODUTOS, 1);
+                    SaveLog('aumentou array de itens');
+                    PEDIDOS[High(PEDIDOS)].PRODUTOS[0] := MDD[2];
+                    SaveLog('Inseriu um Pedido no Array');
+                  end;
+                end else SaveLog('Linha com tamanho inválido!');
+              end;
+              CON    := TFWConnection.Create;
+              P      := TPEDIDO.Create(CON);
+              PR     := TPRODUTO.Create(CON);
+              PI     := TPEDIDOITENS.Create(CON);
+              try
+                SaveLog('Percorrendo Array');
+                CON.StartTransaction;
+                try
+                  for I := Low(PEDIDOS) to High(PEDIDOS) do begin
+                    P.SelectList('pedido = ' + QuotedStr(PEDIDOS[I].PEDIDO) + ' and status <= 2');
+                    if P.Count > 0 then begin
+                      for J := Low(PEDIDOS[I].PRODUTOS) to High(PEDIDOS[I].PRODUTOS) do begin
+                        PR.SelectList('upper(codigoproduto) = ' + QuotedStr(AnsiUpperCase(PEDIDOS[I].PRODUTOS[J])));
+                        if PR.Count > 0 then begin
+                          PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                          if PI.Count = 0 then begin
+                            SaveLog('Produto não esta incluido no pedido!');
+                            Deletar := False;
+                          end;
+                        end else begin
+                          SaveLog('Produto ' + PEDIDOS[I].PRODUTOS[J] + ' não cadastrado!');
+                          Deletar := False;
+                        end;
+                      end;
+                      if Deletar then begin
+                        P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
+                        P.STATUS.Value        := 3;
+                        P.DATA_RECEBIDO.Value := Now;
+                        P.Update;
+                      end;
+                    end else begin
+                      SaveLog('Pedido Não Encontrado ou já recebido!');
+                      Deletar := False;
+                    end;
+                  end;
+                  CON.Commit;
+                except
+                  on E : Exception do begin
+                    CON.Rollback;
+                    SaveLog('Erro ao Salvar Dados, Erro: ' + E.Message);
                   end;
                 end;
-                for I := Low(PEDIDOS) to High(PEDIDOS) do begin
-                  P.ID.Value                      := PEDIDOS[I].ID;
-                  P.STATUS.Value                  := 3;
-                  P.DATA_RECEBIDO.Value           := Now;
-                  P.VOLUMES_DOCUMENTO.Value       := PEDIDOS[I].VOLUMES;
-                  P.Update;
-                end;
-                if Deletar then
-                  DeleteFile(DirArquivosFTP + search_rec.Name);
               finally
-                FreeAndNil(Lista);
-                FreeAndNil(MDD);
+                FreeAndNil(P);
+                FreeAndNil(PR);
+                FreeAndNil(PI);
+                FreeAndNil(CON);
               end;
-              CON.Commit;
-            except
-              on E : Exception do begin
-                CON.Rollback;
-                SaveLog('Erro ao bucar MDD: ' + E.Message);
+              if Deletar then
+                DeleteFile(DirArquivosFTP + search_rec.Name)
+              else begin
+                Arquivo := DirArquivosFTP + search_rec.Name;
+                if CopyFile(PWidechar(Arquivo), PWidechar(DirArquivosFTP + 'Erros\' + search_rec.Name), false) then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
               end;
-            end;
+            end else SaveLog('Arquivo Vazio!');
+          finally
+            FreeAndNil(Lista);
+            FreeAndNil(MDD);
           end;
-        until FindNext(search_rec) <> 0;
-      except
-        on E : Exception do
-          SaveLog('Erro ao bucar MDD: ' + E.Message);
-      end;
-      FindClose(search_rec);
+        end else SaveLog('Arquivo não é um MDD!');
+      until (FindNext(search_rec) <> 0);
+
     end;
-  finally
-    FreeAndNil(PI);
-    FreeAndNil(PR);
-    FreeAndNil(P);
-    FreeAndNil(CON);
+  except
+    on E : Exception do
+      SaveLog('Ocorreu algum erro ao verificar arquivos locais, Erro: ' + E.Message);
   end;
 end;
 
