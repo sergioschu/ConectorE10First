@@ -180,3 +180,7 @@ CREATE TABLE notafiscalitens
       REFERENCES produto (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+alter table pedido add volumes_documento integer;
+
+update pedido set volumes_documento = 1;

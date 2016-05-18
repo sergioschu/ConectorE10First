@@ -46,6 +46,7 @@ type
     btExportar: TSpeedButton;
     csImpressaoPedidosNOMETRANSPORTADORA: TStringField;
     edTotalRegistros: TEdit;
+    csImpressaoPedidosVOLUMES_DOCUMENTO: TIntegerField;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -444,6 +445,7 @@ begin
           SQL.SQL.Clear;
           SQL.SQL.Add('SELECT');
           SQL.SQL.Add('	PED.PEDIDO AS NUMEROPEDIDO,');
+          SQL.SQL.Add(' PED.VOLUMES_DOCUMENTO,');
           SQL.SQL.Add('	P.CODIGOPRODUTO AS SKU,');
           SQL.SQL.Add('	PEDITENS.QUANTIDADE,');
           SQL.SQL.Add(' T.NOME');
@@ -453,7 +455,7 @@ begin
           SQL.SQL.Add('INNER JOIN PRODUTO P ON (P.ID = PEDITENS.ID_PRODUTO)');
           SQL.SQL.Add('WHERE 1 = 1');
           SQL.SQL.Add('AND PED.ID IN (' + Pedidos + ')');
-          SQL.SQL.Add('ORDER BY 1,2');
+          SQL.SQL.Add('ORDER BY 1,3');
           SQL.Connection  := FWC.FDConnection;
           SQL.Prepare;
           SQL.Open;
@@ -467,6 +469,7 @@ begin
                 csImpressaoPedidosPEDIDO.Value              := SQL.FieldByName('NUMEROPEDIDO').Value;
                 csImpressaoPedidosSKU.Value                 := SQL.FieldByName('SKU').Value;
                 csImpressaoPedidosNOMETRANSPORTADORA.Value  := SQL.FieldByName('NOME').Value;
+                csImpressaoPedidosVOLUMES_DOCUMENTO.Value   := SQL.FieldByName('VOLUMES_DOCUMENTO').Value;
                 csImpressaoPedidos.Post;
               end;
               SQL.Next;

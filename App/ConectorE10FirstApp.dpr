@@ -30,7 +30,8 @@ uses
   uFaturamentodePedidos in 'uFaturamentodePedidos.pas' {FrmFaturamentodePedidos},
   uCadastroTransportadora in 'Cadastros\uCadastroTransportadora.pas' {frmCadastroTransportadora},
   uBeanTransportadoras in 'Beans\uBeanTransportadoras.pas',
-  uRelDivergencias in 'uRelDivergencias.pas' {frmRelDivergencias};
+  uRelDivergencias in 'uRelDivergencias.pas' {frmRelDivergencias},
+  uRelTempoResposta in 'uRelTempoResposta.pas' {frmRelTempoResposta};
 
 {$R *.res}
 
@@ -41,6 +42,7 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
+  Application.CreateForm(TfrmRelTempoResposta, frmRelTempoResposta);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);

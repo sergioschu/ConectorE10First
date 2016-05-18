@@ -24,6 +24,7 @@ type
     ransportadoras1: TMenuItem;
     Relatrios1: TMenuItem;
     Divergncias1: TMenuItem;
+    TempodeResposta1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -36,6 +37,7 @@ type
     procedure FaturamentodePedidos1Click(Sender: TObject);
     procedure ransportadoras1Click(Sender: TObject);
     procedure Divergncias1Click(Sender: TObject);
+    procedure TempodeResposta1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -60,7 +62,8 @@ uses
   uManutencaoPedidos,
   uFaturamentodePedidos,
   uCadastroTransportadora,
-  uRelDivergencias;
+  uRelDivergencias,
+  uRelTempoResposta;
 
 {$R *.dfm}
 
@@ -192,6 +195,17 @@ begin
     FrmRedefinirSenha.ShowModal;
   finally
     FreeAndNil(FrmRedefinirSenha);
+  end;
+end;
+
+procedure TfrmPrincipal.TempodeResposta1Click(Sender: TObject);
+begin
+  try
+    if frmRelTempoResposta = nil then
+      frmRelTempoResposta := TfrmRelTempoResposta.Create(Self);
+    frmRelTempoResposta.ShowModal;
+  finally
+    FreeAndNil(frmRelTempoResposta);
   end;
 end;
 

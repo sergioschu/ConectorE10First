@@ -1,9 +1,9 @@
-object frmRelDivergencias: TfrmRelDivergencias
+object frmRelTempoResposta: TfrmRelTempoResposta
   Left = 0
   Top = 0
-  Caption = 'Relat'#243'rio de Diverg'#234'ncias'
-  ClientHeight = 263
-  ClientWidth = 349
+  Caption = 'Relat'#243'rio Tempo de Resposta'
+  ClientHeight = 250
+  ClientWidth = 348
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object frmRelDivergencias: TfrmRelDivergencias
   object pnPrincipal: TPanel
     Left = 0
     Top = 0
-    Width = 349
-    Height = 263
+    Width = 348
+    Height = 250
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -31,11 +31,13 @@ object frmRelDivergencias: TfrmRelDivergencias
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitWidth = 349
+    ExplicitHeight = 263
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 3
-      Top = 200
-      Width = 343
+      Top = 187
+      Width = 342
       Height = 60
       Align = alBottom
       BevelOuter = bvLowered
@@ -62,6 +64,8 @@ object frmRelDivergencias: TfrmRelDivergencias
           Value = 100.000000000000000000
         end>
       TabOrder = 0
+      ExplicitTop = 200
+      ExplicitWidth = 343
       object Panel1: TPanel
         Left = 1
         Top = 1
@@ -606,10 +610,11 @@ object frmRelDivergencias: TfrmRelDivergencias
       object Panel2: TPanel
         Left = 171
         Top = 1
-        Width = 171
+        Width = 170
         Height = 58
         Align = alClient
         TabOrder = 1
+        ExplicitWidth = 171
         object btSair: TSpeedButton
           AlignWithMargins = True
           Left = 4
@@ -729,42 +734,27 @@ object frmRelDivergencias: TfrmRelDivergencias
         end
       end
     end
-    object rgOpcoes: TRadioGroup
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 343
-      Height = 71
-      Align = alClient
-      Caption = ' Op'#231#245'es de Diverg'#234'ncias '
-      Columns = 2
-      ItemIndex = 1
-      Items.Strings = (
-        'Notas Fiscais'
-        'Pedidos')
-      TabOrder = 1
-    end
     object gbSelecionaPeriodo: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 80
-      Width = 343
-      Height = 114
-      Align = alBottom
-      Caption = '  Selecione a Data de Importa'#231#227'o '
+      Top = 3
+      Width = 342
+      Height = 90
+      Align = alTop
+      Caption = '  Data de Importa'#231#227'o '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
       object GridPanel2: TGridPanel
         AlignWithMargins = True
         Left = 5
-        Top = 47
-        Width = 333
-        Height = 62
+        Top = 24
+        Width = 332
+        Height = 61
         Align = alClient
         BevelOuter = bvLowered
         ColumnCollection = <
@@ -790,76 +780,113 @@ object frmRelDivergencias: TfrmRelDivergencias
             Value = 100.000000000000000000
           end>
         TabOrder = 0
+        ExplicitHeight = 84
         object Panel3: TPanel
           Left = 1
           Top = 1
           Width = 165
-          Height = 60
+          Height = 59
           Align = alClient
           TabOrder = 0
+          ExplicitHeight = 60
           object Label1: TLabel
             AlignWithMargins = True
             Left = 4
             Top = 4
             Width = 157
-            Height = 19
+            Height = 18
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Inicial'
             ExplicitWidth = 79
+            ExplicitHeight = 19
           end
           object edDataInicial: TDateTimePicker
             AlignWithMargins = True
             Left = 4
-            Top = 29
+            Top = 28
             Width = 157
             Height = 27
             Align = alBottom
             Date = 42399.076077650460000000
             Time = 42399.076077650460000000
             TabOrder = 0
+            ExplicitTop = 29
           end
         end
         object Panel4: TPanel
           Left = 166
           Top = 1
-          Width = 166
-          Height = 60
+          Width = 165
+          Height = 59
           Align = alClient
           TabOrder = 1
+          ExplicitWidth = 166
+          ExplicitHeight = 60
           object Label2: TLabel
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 158
-            Height = 19
+            Width = 157
+            Height = 18
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Final'
             ExplicitWidth = 70
+            ExplicitHeight = 19
           end
           object edDataFinal: TDateTimePicker
             AlignWithMargins = True
             Left = 4
-            Top = 29
-            Width = 158
+            Top = 28
+            Width = 157
             Height = 27
             Align = alBottom
             Date = 42399.076077650460000000
             Time = 42399.076077650460000000
             TabOrder = 0
+            ExplicitTop = 29
+            ExplicitWidth = 158
           end
         end
       end
-      object cbExibirTodos: TCheckBox
+    end
+    object Panel5: TPanel
+      AlignWithMargins = True
+      Left = 3
+      Top = 97
+      Width = 342
+      Height = 84
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 2
+      ExplicitTop = 160
+      object rgOpcoes: TRadioGroup
         AlignWithMargins = True
-        Left = 5
-        Top = 24
-        Width = 333
-        Height = 17
-        Align = alTop
-        Caption = 'Exibir todos'
+        Left = 3
+        Top = 3
+        Width = 168
+        Height = 78
+        Align = alLeft
+        Caption = ' Tempo de Resposta '
+        ItemIndex = 0
+        Items.Strings = (
+          'Hora'
+          'Minutos')
+        TabOrder = 0
+        OnClick = rgOpcoesClick
+      end
+      object edTempo: TLabeledEdit
+        Left = 177
+        Top = 40
+        Width = 160
+        Height = 27
+        EditLabel.Width = 123
+        EditLabel.Height = 19
+        EditLabel.Caption = 'Tempo em Horas'
+        NumbersOnly = True
         TabOrder = 1
+        Text = '72'
       end
     end
   end

@@ -315,6 +315,7 @@ begin
                     PED.ID_ARQUIVO.Value        := 0;
                     PED.ID_USUARIO.Value        := USUARIO.CODIGO;
                     PED.DATA_IMPORTACAO.Value   := Now;
+                    PED.VOLUMES_DOCUMENTO.Value := 1;
                     PED.Insert;
                     PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
                   end else begin

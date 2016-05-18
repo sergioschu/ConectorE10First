@@ -140,6 +140,10 @@
             <Form>frmRelDivergencias</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="uRelTempoResposta.pas">
+            <Form>frmRelTempoResposta</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

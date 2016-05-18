@@ -23,6 +23,7 @@ type
     FDATA_FATURADO: TFieldDateTime;
     FDATA_RECEBIDO: TfieldDateTime;
     FDATA_IMPORTACAO: TFieldDateTime;
+    FVOLUMES_DOCUMENTO: TFieldInteger;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -41,6 +42,7 @@ type
     procedure SetDATA_FATURADO(const Value: TFieldDateTime);
     procedure SetDATA_IMPORTACAO(const Value: TFieldDateTime);
     procedure SetDATA_RECEBIDO(const Value: TfieldDateTime);
+    procedure SetVOLUMES_DOCUMENTO(const Value: TFieldInteger);
   protected
     procedure InitInstance; override;
   published
@@ -62,6 +64,7 @@ type
     property DATA_ENVIO : TFieldDateTime read FDATA_ENVIO write SetDATA_ENVIO;
     property DATA_RECEBIDO : TfieldDateTime read FDATA_RECEBIDO write SetDATA_RECEBIDO;
     property DATA_FATURADO : TFieldDateTime read FDATA_FATURADO write SetDATA_FATURADO;
+    property VOLUMES_DOCUMENTO : TFieldInteger read FVOLUMES_DOCUMENTO write SetVOLUMES_DOCUMENTO;
   End;
 implementation
 
@@ -81,7 +84,6 @@ begin
   DEST_MUNICIPIO.isNotNull   := True;
   ID_TRANSPORTADORA.isNotNull:= True;
   ID_USUARIO.isNotNull       := True;
-
 
   PEDIDO.Size                := 20;
   VIAGEM.Size                := 10;
@@ -181,6 +183,11 @@ end;
 procedure TPEDIDO.SetVIAGEM(const Value: TFieldString);
 begin
   FVIAGEM := Value;
+end;
+
+procedure TPEDIDO.SetVOLUMES_DOCUMENTO(const Value: TFieldInteger);
+begin
+  FVOLUMES_DOCUMENTO := Value;
 end;
 
 end.

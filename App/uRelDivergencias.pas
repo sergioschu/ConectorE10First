@@ -28,6 +28,7 @@ type
     procedure btSairClick(Sender: TObject);
     procedure btRelatorioClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     procedure VisualizarRelatorio;
     { Private declarations }
@@ -64,6 +65,13 @@ begin
   Close;
 end;
 
+procedure TfrmRelDivergencias.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
+end;
+
 procedure TfrmRelDivergencias.FormShow(Sender: TObject);
 begin
   edDataInicial.Date  := Date;
@@ -89,17 +97,24 @@ begin
 
       case rgOpcoes.ItemIndex of
         0 : begin//NOTA FISCAL
+
           SQL.SQL.Add('SELECT');
           SQL.SQL.Add('	NF.DATAEMISSAO,');
           SQL.SQL.Add('	NF.DOCUMENTO,');
           SQL.SQL.Add('	NF.DATA_IMPORTACAO,');
           SQL.SQL.Add('	NF.DATA_ENVIO,');
           SQL.SQL.Add('	NF.DATA_RECEBIDO,');
-          SQL.SQL.Add('	CASE WHEN NF.DATA_ENVIO IS NULL	THEN');
-          SQL.SQL.Add('		''AGUARDANDO ENVIO''');
+          SQL.SQL.Add('	((DATE_PART(''DAY'', AGE(NF.DATA_RECEBIDO, NF.DATA_ENVIO)) * 24) +');
+          SQL.SQL.Add('	(DATE_PART(''HOURS'', AGE(NF.DATA_RECEBIDO, NF.DATA_ENVIO)))) AS HORAS,');
+          SQL.SQL.Add('	(DATE_PART(''MINUTES'', AGE(NF.DATA_RECEBIDO, NF.DATA_ENVIO))) AS MINUTOS,');
+          SQL.SQL.Add('	CASE WHEN STATUS = 2 THEN');
+          SQL.SQL.Add('		''AGUARDANDO CONFERENCIA''');
           SQL.SQL.Add('		ELSE');
-          SQL.SQL.Add('		CASE WHEN NF.DATA_RECEBIDO IS NULL THEN');
-          SQL.SQL.Add('			''AGUARDANDO RECEBIMENTO'' END END AS STATUS');
+          SQL.SQL.Add('		CASE WHEN NF.DATA_ENVIO IS NULL	THEN');
+          SQL.SQL.Add('			''AGUARDANDO ENVIO''');
+          SQL.SQL.Add('			ELSE');
+          SQL.SQL.Add('			CASE WHEN NF.DATA_RECEBIDO IS NULL THEN');
+          SQL.SQL.Add('				''AGUARDANDO RECEBIMENTO'' END END END AS STATUS');
           SQL.SQL.Add('FROM NOTAFISCAL NF WHERE 1 = 1');
           if not cbExibirTodos.Checked then begin
             SQL.SQL.Add('AND CAST(NF.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
@@ -108,11 +123,10 @@ begin
             SQL.ParamByName('DATAI').Value    := edDataInicial.Date;
             SQL.ParamByName('DATAF').Value    := edDataFinal.Date;
           end;
-          SQL.SQL.Add('AND ((NF.DATA_ENVIO IS NULL) OR (NF.DATA_RECEBIDO IS NULL))');
+          SQL.SQL.Add('AND ((NF.DATA_ENVIO IS NULL) OR (NF.DATA_RECEBIDO IS NULL) OR (NF.STATUS = 2))');
           SQL.SQL.Add('ORDER BY STATUS, NF.DOCUMENTO');
         end;
         1 : begin
-
           SQL.SQL.Add('SELECT');
           SQL.SQL.Add('	P.PEDIDO,');
           SQL.SQL.Add('	P.DATA_IMPORTACAO,');

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<TfrxReport Version="5.2.3" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Default" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42396,5981039468" ReportOptions.Description.Text="" ReportOptions.LastChange="42492,8935492245" ScriptLanguage="PascalScript" ScriptText.Text="&#13;&#10;begin&#13;&#10;&#13;&#10;end.">
+<TfrxReport Version="5.2.3" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Default" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42396,5981039468" ReportOptions.Description.Text="" ReportOptions.LastChange="42507,9480568634" ScriptLanguage="PascalScript" ScriptText.Text="&#13;&#10;begin&#13;&#10;&#13;&#10;end.">
   <Datasets>
     <item DataSet="frxDBDataset1" DataSetName="frxDBDataset1"/>
   </Datasets>
@@ -16,10 +16,16 @@
       <TfrxMemoView Name="Memo1" Align="baLeft" Left="0" Top="0" Width="83,14966" Height="56,69291339" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="1" HAlign="haRight" ParentFont="False" VAlign="vaCenter" Text="SKU.: "/>
     </TfrxMasterData>
     <TfrxGroupHeader Name="GroupHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="66,14173228" Left="0" Top="18,89765" Width="718,1107" Condition="frxDBDataset1.&#34;PEDIDO&#34;" StartNewPage="True">
-      <TfrxMemoView Name="frxDBDataset1numeropedido" Align="baLeft" Left="83,14966" Top="0" Width="147,40167" Height="56,69291339" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="0" ParentFont="False" VAlign="vaCenter" Text="[frxDBDataset1.&#34;PEDIDO&#34;]"/>
-      <TfrxBarCodeView Name="BarCode2" Align="baLeft" Left="230,55133" Top="0" Width="90" Height="56,69295" BarType="bcCodeEAN128" Expression="&#60;frxDBDataset1.&#34;PEDIDO&#34;&#62;" Rotation="0" Text="12345678" WideBarRatio="2" Zoom="1" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Arial" Font.Style="0"/>
-      <TfrxMemoView Name="Memo2" Align="baLeft" Left="0" Top="0" Width="83,14966" Height="56,69291339" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="1" ParentFont="False" VAlign="vaCenter" Text="Pedido Nº"/>
-      <TfrxMemoView Name="Memo3" Align="baLeft" Left="320,55133" Top="0" Width="396,85065" Height="56,69291339" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="0" ParentFont="False" Text="Transportadora: [frxDBDataset1.&#34;NOMETRANSPORTADORA&#34;]"/>
+      <TfrxMemoView Name="frxDBDataset1numeropedido" Align="baLeft" Left="86,92919" Top="0" Width="124,72449" Height="56,69291339" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="0" ParentFont="False" WordWrap="False" VAlign="vaCenter" Text="[frxDBDataset1.&#34;PEDIDO&#34;]&#13;&#10;&#13;&#10;[frxDBDataset1.&#34;VOLUMES_DOCUMENTO&#34;]">
+        <Formats>
+          <item/>
+          <item/>
+        </Formats>
+      </TfrxMemoView>
+      <TfrxBarCodeView Name="BarCode2" Align="baLeft" Left="211,65368" Top="0" Width="90" Height="56,69295" BarType="bcCodeEAN128" Expression="&#60;frxDBDataset1.&#34;PEDIDO&#34;&#62;" Rotation="0" Text="12345678" WideBarRatio="2" Zoom="1" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Arial" Font.Style="0"/>
+      <TfrxMemoView Name="Memo2" Align="baLeft" Left="0" Top="0" Width="86,92919" Height="56,69291339" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="1" HAlign="haRight" ParentFont="False" WordWrap="False" VAlign="vaCenter" Text="Pedido N.º&#13;&#10;&#13;&#10;Volume.:"/>
+      <TfrxMemoView Name="Memo3" Align="baWidth" Left="301,65368" Top="0" Width="416,45702" Height="18,89763291" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="1" HAlign="haCenter" ParentFont="False" VAlign="vaBottom" Text="Transportadora:"/>
+      <TfrxMemoView Name="Memo4" Align="baWidth" Left="301,65368" Top="21,23624" Width="416,45702" Height="26,45669291" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="0" HAlign="haCenter" ParentFont="False" VAlign="vaCenter" Text="[frxDBDataset1.&#34;NOMETRANSPORTADORA&#34;]"/>
     </TfrxGroupHeader>
   </TfrxReportPage>
 </TfrxReport>

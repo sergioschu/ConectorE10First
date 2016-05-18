@@ -213,7 +213,6 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 702
       end
       object edTotalRegistros: TEdit
         AlignWithMargins = True
@@ -233,8 +232,6 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        ExplicitLeft = 3
-        ExplicitHeight = 36
       end
     end
     object Panel2: TPanel
@@ -1042,7 +1039,7 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
     Left = 440
     Top = 328
     Bitmap = {
-      494C010102000C00DC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000C00E00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

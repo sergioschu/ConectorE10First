@@ -80,6 +80,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Diverg'#234'ncias'
         OnClick = Divergncias1Click
       end
+      object TempodeResposta1: TMenuItem
+        Caption = 'Tempo de Resposta'
+        OnClick = TempodeResposta1Click
+      end
     end
     object miSair: TMenuItem
       Caption = 'Sair'

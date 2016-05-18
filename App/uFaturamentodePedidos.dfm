@@ -198,7 +198,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 686
       end
       object edTotalRegistros: TEdit
         AlignWithMargins = True
@@ -218,8 +217,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        ExplicitLeft = 3
-        ExplicitHeight = 36
       end
     end
     object Panel2: TPanel
@@ -905,6 +902,9 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
     object csImpressaoPedidosNOMETRANSPORTADORA: TStringField
       FieldName = 'NOMETRANSPORTADORA'
       Size = 100
+    end
+    object csImpressaoPedidosVOLUMES_DOCUMENTO: TIntegerField
+      FieldName = 'VOLUMES_DOCUMENTO'
     end
   end
 end
