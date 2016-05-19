@@ -184,3 +184,5 @@ CREATE TABLE notafiscalitens
 alter table pedido add volumes_documento integer;
 
 update pedido set volumes_documento = 1;
+
+alter table pedido add codigo_rastreio character varying(100);

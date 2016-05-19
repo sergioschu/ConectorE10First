@@ -25,10 +25,17 @@ implementation
 procedure TTRANSPORTADORA.InitInstance;
 begin
   inherited;
-  ID.isPK    := True;
+  ID.isPK             := True;
 
-  CNPJ.Size   := 19;
-  NOME.Size   := 100;
+  CNPJ.Size           := 19;
+  NOME.Size           := 100;
+
+  NOME.isSearchField  := True;
+  CNPJ.isSearchField  := True;
+
+  ID.displayLabel     := 'Código';
+  NOME.displayLabel   := 'Nome';
+  CNPJ.displayLabel   := 'CNPJ';
 end;
 
 procedure TTRANSPORTADORA.SetCNPJ(const Value: TFieldString);

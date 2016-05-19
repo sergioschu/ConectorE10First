@@ -31,7 +31,9 @@ uses
   uCadastroTransportadora in 'Cadastros\uCadastroTransportadora.pas' {frmCadastroTransportadora},
   uBeanTransportadoras in 'Beans\uBeanTransportadoras.pas',
   uRelDivergencias in 'uRelDivergencias.pas' {frmRelDivergencias},
-  uRelTempoResposta in 'uRelTempoResposta.pas' {frmRelTempoResposta};
+  uRelTempoResposta in 'uRelTempoResposta.pas' {frmRelTempoResposta},
+  uRelCodigoRastreio in 'uRelCodigoRastreio.pas' {frmRelCodigoRastreio},
+  uSeleciona in 'uSeleciona.pas' {frmSeleciona};
 
 {$R *.res}
 
@@ -42,7 +44,6 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
-  Application.CreateForm(TfrmRelTempoResposta, frmRelTempoResposta);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);

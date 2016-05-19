@@ -24,6 +24,7 @@ type
     FDATA_RECEBIDO: TfieldDateTime;
     FDATA_IMPORTACAO: TFieldDateTime;
     FVOLUMES_DOCUMENTO: TFieldInteger;
+    FCODIGO_RASTREIO: TFieldString;
     procedure SetDEST_CEP(const Value: TFieldString);
     procedure SetDEST_CNPJ(const Value: TFieldString);
     procedure SetDEST_COMPLEMENTO(const Value: TFieldString);
@@ -43,6 +44,7 @@ type
     procedure SetDATA_IMPORTACAO(const Value: TFieldDateTime);
     procedure SetDATA_RECEBIDO(const Value: TfieldDateTime);
     procedure SetVOLUMES_DOCUMENTO(const Value: TFieldInteger);
+    procedure SetCODIGO_RASTREIO(const Value: TFieldString);
   protected
     procedure InitInstance; override;
   published
@@ -65,6 +67,7 @@ type
     property DATA_RECEBIDO : TfieldDateTime read FDATA_RECEBIDO write SetDATA_RECEBIDO;
     property DATA_FATURADO : TFieldDateTime read FDATA_FATURADO write SetDATA_FATURADO;
     property VOLUMES_DOCUMENTO : TFieldInteger read FVOLUMES_DOCUMENTO write SetVOLUMES_DOCUMENTO;
+    property CODIGO_RASTREIO : TFieldString read FCODIGO_RASTREIO write SetCODIGO_RASTREIO;
   End;
 implementation
 
@@ -93,6 +96,12 @@ begin
   DEST_COMPLEMENTO.Size      := 30;
   DEST_CEP.Size              := 9;
   DEST_MUNICIPIO.Size        := 30;
+  CODIGO_RASTREIO.Size       := 100;
+end;
+
+procedure TPEDIDO.SetCODIGO_RASTREIO(const Value: TFieldString);
+begin
+  FCODIGO_RASTREIO := Value;
 end;
 
 procedure TPEDIDO.SetDATA_ENVIO(const Value: TFieldDateTime);

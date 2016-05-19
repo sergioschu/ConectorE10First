@@ -23,6 +23,7 @@ type
   public
     { Public declarations }
     procedure ImprimirRelatorio(Relatorio : String);
+    function Selecionar(Tabela : TFWPersistence; ValorControl : String = '') : Integer;
   end;
 
 var
@@ -34,7 +35,8 @@ implementation
 Uses
   uConstantes,
   uFuncoes,
-  uMensagem;
+  uMensagem,
+  uSeleciona;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -92,6 +94,27 @@ begin
       frxReport1.ShowReport();
   finally
     frxReport1.Clear;
+  end;
+end;
+
+function TDMUtil.Selecionar(Tabela: TFWPersistence;
+  ValorControl: String): Integer;
+var
+  Control : TEdit;
+begin
+  Result                      := 0;
+  Control                     := TEdit.Create(nil);
+  try
+    if not Assigned(frmSeleciona) then
+      frmSeleciona            := TfrmSeleciona.Create(nil);
+    if ValorControl <> '' then
+      Control.Text            := ValorControl;
+    frmSeleciona.Retorno      := Control;
+    frmSeleciona.FTabelaPai   := Tabela;
+    if (frmSeleciona.ShowModal = mrOk) or (Control.Text <> '') then
+      Result                  := StrToIntDef(Control.Text,0);
+  finally
+    FreeAndNil(Control);
   end;
 end;
 

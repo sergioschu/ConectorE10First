@@ -144,6 +144,14 @@
             <Form>frmRelTempoResposta</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="uRelCodigoRastreio.pas">
+            <Form>frmRelCodigoRastreio</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="uSeleciona.pas">
+            <Form>frmSeleciona</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

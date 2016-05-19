@@ -25,6 +25,7 @@ type
     Relatrios1: TMenuItem;
     Divergncias1: TMenuItem;
     TempodeResposta1: TMenuItem;
+    CdigodeRastreio1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -38,6 +39,7 @@ type
     procedure ransportadoras1Click(Sender: TObject);
     procedure Divergncias1Click(Sender: TObject);
     procedure TempodeResposta1Click(Sender: TObject);
+    procedure CdigodeRastreio1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -63,9 +65,21 @@ uses
   uFaturamentodePedidos,
   uCadastroTransportadora,
   uRelDivergencias,
-  uRelTempoResposta;
+  uRelTempoResposta,
+  uRelCodigoRastreio;
 
 {$R *.dfm}
+
+procedure TfrmPrincipal.CdigodeRastreio1Click(Sender: TObject);
+begin
+  try
+    if frmRelCodigoRastreio = nil then
+      frmRelCodigoRastreio := TfrmRelCodigoRastreio.Create(Self);
+    frmRelCodigoRastreio.ShowModal;
+  finally
+    FreeAndNil(frmRelCodigoRastreio);
+  end;
+end;
 
 procedure TfrmPrincipal.ConfigGerais1Click(Sender: TObject);
 begin

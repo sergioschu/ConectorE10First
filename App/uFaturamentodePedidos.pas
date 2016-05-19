@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Datasnap.DBClient,
   Vcl.Samples.Gauges, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids,
-  Vcl.DBGrids, FireDAC.Comp.Client, Vcl.ComCtrls;
+  Vcl.DBGrids, FireDAC.Comp.Client, Vcl.ComCtrls, System.Win.ComObj, Vcl.Mask,
+  JvExMask, JvToolEdit;
 
 type
   TFrmFaturamentodePedidos = class(TForm)
@@ -40,13 +41,15 @@ type
     btConsultar: TSpeedButton;
     gbPeriodo: TGroupBox;
     Label1: TLabel;
-    edDataF: TDateTimePicker;
-    edDataI: TDateTimePicker;
     rgStatus: TRadioGroup;
     btExportar: TSpeedButton;
     csImpressaoPedidosNOMETRANSPORTADORA: TStringField;
     edTotalRegistros: TEdit;
     csImpressaoPedidosVOLUMES_DOCUMENTO: TIntegerField;
+    btRastreio: TSpeedButton;
+    OpenDialog1: TOpenDialog;
+    edDataI: TJvDateEdit;
+    edDataF: TJvDateEdit;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -62,12 +65,14 @@ type
     procedure btExportarClick(Sender: TObject);
     procedure gdPedidosTitleClick(Column: TColumn);
     procedure btPesquisarClick(Sender: TObject);
+    procedure btRastreioClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
     procedure FaturarPedidos;
     procedure ImprimirPedidos;
     procedure MarcarDesmarcarTodos;
+    procedure AtualizarCodigoRastreio;
     { Private declarations }
   public
     { Public declarations }
@@ -85,6 +90,164 @@ uses
   uFWConnection, uBeanPedido, uDMUtil;
 
 {$R *.dfm}
+
+procedure TFrmFaturamentodePedidos.AtualizarCodigoRastreio;
+const
+  xlCellTypeLastCell = $0000000B;
+type
+  TListaPedidos = record
+    ID_Pedido : Integer;
+    NumeroPedido : String;
+    CodigoRastreio: String;
+  End;
+
+Var
+  FWC     : TFWConnection;
+  PED     : TPEDIDO;
+  Arquivo,
+  Aux     : String;
+  Excel   : OleVariant;
+  arrData : Variant;
+  Contador,
+  vrow,
+  vcol,
+  I, J    : Integer;
+  ArqValido,
+  AchouColuna     : Boolean;
+  Colunas         : array of String;
+  ListadePedidos  : array of TListaPedidos;
+begin
+
+  if OpenDialog1.Execute then begin
+    if Pos(ExtractFileExt(OpenDialog1.FileName), '|.xls|.xlsx|') > 0 then begin
+      Arquivo := OpenDialog1.FileName;
+
+      if not FileExists(Arquivo) then begin
+        DisplayMsg(MSG_WAR, 'Arquivo selecionado não existe! Verifique!');
+        Exit;
+      end;
+
+      DisplayMsg(MSG_WAIT, 'Validando arquivo!');
+
+      // Cria Excel- OLE Object
+      Excel                      := CreateOleObject('Excel.Application');
+
+      FWC       := TFWConnection.Create;
+      PED       := TPEDIDO.Create(FWC);
+
+      try
+        try
+
+          FWC.StartTransaction;
+
+          // Esconde Excel
+          Excel.Visible  := False;
+          // Abre o Workbook
+          Excel.Workbooks.Open(Arquivo);
+
+          Excel.Cells.SpecialCells(xlCellTypeLastCell, EmptyParam).Activate;
+          vrow                                 := Excel.ActiveCell.Row;
+          vcol                                 := Excel.ActiveCell.Column;
+          arrData                              := Excel.Range['A1', Excel.WorkSheets[1].Cells[vrow, vcol].Address].Value;
+
+          SetLength(Colunas, 2);
+          Colunas[0] := 'Pedido - Nº';
+          Colunas[1] := 'Nr. de rastreio';
+
+          ArqValido := True;
+          for I := Low(Colunas) to High(Colunas) do begin
+            AchouColuna := False;
+            for J := 1 to vcol do begin
+              if AnsiUpperCase(Colunas[I]) = AnsiUpperCase(arrData[1, J]) then begin
+                AchouColuna := True;
+                Break;
+              end;
+            end;
+            if not AchouColuna then begin
+              ArqValido := False;
+              Break;
+            end;
+          end;
+
+          if not ArqValido then begin
+            Aux := 'Colunas.:';
+            for I := Low(Colunas) to High(Colunas) do
+              Aux := Aux + sLineBreak + Colunas[I];
+
+            DisplayMsg(MSG_WAR, 'Arquivo Inválido, Verifique as Colunas!', '', Aux);
+            Exit;
+          end;
+
+          DisplayMsg(MSG_WAIT, 'Capturando Pedidos do arquivo!');
+
+          SetLength(ListadePedidos, 0);
+          for I := 2 to vrow do begin
+
+            SetLength(ListadePedidos, Length(ListadePedidos) + 1);
+            ListadePedidos[High(ListadePedidos)].ID_Pedido      := 0;
+            ListadePedidos[High(ListadePedidos)].NumeroPedido   := EmptyStr;
+            ListadePedidos[High(ListadePedidos)].CodigoRastreio := EmptyStr;
+
+            for J := 1 to vcol do begin
+              if arrData[1, J] = 'Pedido - Nº' then
+                ListadePedidos[High(ListadePedidos)].NumeroPedido := arrData[I, J]
+              else
+                if arrData[1, J] = 'Nr. de rastreio' then
+                  ListadePedidos[High(ListadePedidos)].CodigoRastreio := arrData[I, J];
+            end;
+          end;
+
+          DisplayMsg(MSG_WAIT, 'Identificando Pedidos!');
+
+          for I := Low(ListadePedidos) to High(ListadePedidos) do begin
+            if Length(Trim(ListadePedidos[I].CodigoRastreio)) > 0 then begin //Somente os que te Código de Rastreio
+
+              PED.SelectList('STATUS = 5 AND PEDIDO = ' + QuotedStr(ListadePedidos[I].NumeroPedido));
+              if PED.Count > 0 then
+                ListadePedidos[I].ID_Pedido := TPEDIDO(PED.Itens[0]).ID.Value;
+            end;
+          end;
+
+          DisplayMsg(MSG_WAIT, 'Atualizando Pedidos no Banco de Dados!');
+
+          Contador := 0;
+          //Começa a Gravação dos Dados no BD
+          for I := Low(ListadePedidos) to High(ListadePedidos) do begin
+            if ListadePedidos[I].ID_Pedido > 0 then begin
+              PED.ClearFields;
+              PED.ID.Value              := ListadePedidos[I].ID_Pedido;
+              PED.CODIGO_RASTREIO.Value := ListadePedidos[I].CodigoRastreio;
+              PED.Update;
+              Contador := Contador + 1;
+            end;
+          end;
+
+          if Contador > 0 then begin
+            FWC.Commit;
+            DisplayMsg(MSG_OK, 'Atualização Realizada com Sucesso!' + sLineBreak + sLineBreak + 'Foram atualizados ' + IntToStr(Contador) + ' Pedidos!');
+          end else begin
+            DisplayMsg(MSG_WAR, 'Nenhum Código de Rastreio foi Atualizado!');
+          end;
+
+        except
+          on E : Exception do begin
+            FWC.Rollback;
+            DisplayMsg(MSG_ERR, 'Erro ao atualizar Códigos de Rastreio!', '', E.Message);
+            Exit;
+          end;
+        end;
+      finally
+        arrData := Unassigned;
+        if not VarIsEmpty(Excel) then begin
+          Excel.Quit;
+          Excel := Unassigned;
+        end;
+        FreeAndNil(PED);
+        FreeAndNil(FWC);
+      end;
+    end;
+  end;
+end;
 
 procedure TFrmFaturamentodePedidos.btConsultarClick(Sender: TObject);
 begin
@@ -156,6 +319,21 @@ begin
   end;
 end;
 
+procedure TFrmFaturamentodePedidos.btRastreioClick(Sender: TObject);
+begin
+  if btRastreio.Tag = 0 then begin
+    btRastreio.Tag := 1;
+    try
+      AtualizarCodigoRastreio;
+      //Só recarregar os dados caso estiver exibindo todos ou os Despachados
+      if rgStatus.ItemIndex in [0,4] then
+        CarregaDados;
+    finally
+      btRastreio.Tag := 0;
+    end;
+  end;
+end;
+
 procedure TFrmFaturamentodePedidos.CarregaDados;
 Var
   FWC : TFWConnection;
@@ -180,10 +358,13 @@ begin
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_MUNICIPIO,');
       SQL.SQL.Add('	P.STATUS,');
-      SQL.SQL.Add('	CASE P.STATUS WHEN 3 THEN ''MDD Recebido''');
-      SQL.SQL.Add('	              WHEN 4 THEN ''Pedido Impresso''');
-      SQL.SQL.Add('	              ELSE ''Pedido Faturado''');
-      SQL.SQL.Add('	END AS STATUSTEXTO,');
+      SQL.SQL.Add('	CASE WHEN ((P.STATUS = 5) AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) > 0))');
+      SQL.SQL.Add('		THEN ''Pedido Despachado''');
+      SQL.SQL.Add('			ELSE');
+      SQL.SQL.Add('			CASE P.STATUS WHEN 3 THEN ''MDD Recebido''');
+      SQL.SQL.Add('				WHEN 4 THEN ''Pedido Impresso''');
+      SQL.SQL.Add('				WHEN 5 THEN ''Pedido Faturado''');
+      SQL.SQL.Add('				ELSE ''Status não Definido'' END END AS STATUSTEXTO,');
       SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('WHERE 1 = 1');
@@ -198,7 +379,8 @@ begin
         0 : SQL.SQL.Add('AND P.STATUS IN (3,4,5)');
         1 : SQL.SQL.Add('AND P.STATUS = 3');
         2 : SQL.SQL.Add('AND P.STATUS = 4');
-        3 : SQL.SQL.Add('AND P.STATUS = 5');
+        3 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) = 0))');
+        4 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) > 0))');
       end;
 
       SQL.Connection                      := FWC.FDConnection;

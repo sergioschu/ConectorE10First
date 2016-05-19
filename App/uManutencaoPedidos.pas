@@ -347,7 +347,7 @@ begin
         except
           on E : Exception do begin
             FWC.Rollback;
-            DisplayMsg(MSG_ERR, 'Erro ao atualizar Produtos!', '', E.Message);
+            DisplayMsg(MSG_ERR, 'Erro ao atualizar Pedidos!', '', E.Message);
             Exit;
           end;
         end;

@@ -84,6 +84,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Tempo de Resposta'
         OnClick = TempodeResposta1Click
       end
+      object CdigodeRastreio1: TMenuItem
+        Caption = 'C'#243'digo de Rastreio'
+        OnClick = CdigodeRastreio1Click
+      end
     end
     object miSair: TMenuItem
       Caption = 'Sair'
