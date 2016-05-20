@@ -1,0 +1,33 @@
+object frmDados: TfrmDados
+  Left = 0
+  Top = 0
+  BorderStyle = bsNone
+  ClientHeight = 240
+  ClientWidth = 463
+  Color = clWhite
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Visible = True
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object mnPrincipal: TMemo
+    Left = 0
+    Top = 0
+    Width = 463
+    Height = 240
+    Align = alClient
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clNavy
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+  end
+end

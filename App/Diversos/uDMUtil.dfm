@@ -4,27 +4,6 @@ object DMUtil: TDMUtil
   OnDestroy = DataModuleDestroy
   Height = 330
   Width = 495
-  object frxReport1: TfrxReport
-    Version = '5.2.3'
-    DotMatrixReport = False
-    IniFile = '\Software\Fast Reports'
-    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
-    PreviewOptions.Zoom = 1.000000000000000000
-    PrintOptions.Printer = 'Padr'#227'o'
-    PrintOptions.PrintOnSheet = 0
-    ReportOptions.CreateDate = 42379.957623009250000000
-    ReportOptions.LastChange = 42379.957623009250000000
-    ScriptLanguage = 'PascalScript'
-    ScriptText.Strings = (
-      'begin'
-      ''
-      'end.')
-    Left = 352
-    Top = 24
-    Datasets = <>
-    Variables = <>
-    Style = <>
-  end
   object frxDesigner1: TfrxDesigner
     DefaultScriptLanguage = 'PascalScript'
     DefaultFont.Charset = DEFAULT_CHARSET
@@ -95,7 +74,7 @@ object DMUtil: TDMUtil
     Left = 233
     Top = 57
     Bitmap = {
-      494C010102000800F00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000800F40010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000FEFEFE00F3F3F300CACA
