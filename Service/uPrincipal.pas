@@ -5,10 +5,13 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.SvcMgr, Vcl.Dialogs,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, uFWConnection,
-  IdExplicitTLSClientServerBase, IdFTP;
+  IdExplicitTLSClientServerBase, IdFTP, Vcl.ExtCtrls, FireDAC.UI.Intf,
+  FireDAC.VCLUI.Wait, FireDAC.Stan.Intf, FireDAC.Comp.UI, System.Win.ComObj;
 
 type
   TServiceConectorE10 = class(TService)
+    Timer1: TTimer;
+    FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure ServiceExecute(Sender: TService);
     procedure ServiceAfterInstall(Sender: TService);
     procedure ServicePause(Sender: TService; var Paused: Boolean);
@@ -17,6 +20,7 @@ type
     procedure ServiceShutdown(Sender: TService);
     procedure ServiceAfterUninstall(Sender: TService);
     procedure ServiceContinue(Sender: TService; var Continued: Boolean);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -84,7 +88,7 @@ begin
   NI     := TNOTAFISCALITENS.Create(CON);
   PR     := TPRODUTO.Create(CON);
   try
-    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
       SaveLog('Achou pelo menos 1!');
       SetLength(NOTAENTRADA, 0);
       try
@@ -211,7 +215,7 @@ begin
   SaveLog('Passou da conexao com FTP');
 
   try
-    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
       SaveLog('Existe arquivo na pasta local, arquivo: ' + search_rec.Name);
       repeat
         if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
@@ -637,23 +641,13 @@ begin
 end;
 
 procedure TServiceConectorE10.ServiceExecute(Sender: TService);
-var
-  ConFTP : TConexaoFTP;
 begin
-  while not Self.Terminated do begin
-    SaveLog('Enviar Produtos');
-    EnviaProdutos;
-    SaveLog('Enviar NFs');
-    EnviaNotasFiscais;
-    SaveLog('Buscar CONF');
-    BuscaCONF;
-    SaveLog('Enviar Pedidos');
-    EnviaPedidos;
-    SaveLog('Buscar MDD');
-    BuscaMDD;
-    ServiceThread.ProcessRequests(False);
-    SaveLog('Sleep');
-    Sleep(CONFIG_LOCAL.Sleep);
+  Timer1.Enabled := True;
+  try
+  while not Self.Terminated do
+    ServiceThread.ProcessRequests(True);
+  finally
+    Timer1.Enabled := False;
   end;
 end;
 
@@ -698,6 +692,33 @@ procedure TServiceConectorE10.ServiceStop(Sender: TService;
 begin
   Stopped     := True;
   SaveLog('Servico Parado!');
+end;
+
+procedure TServiceConectorE10.Timer1Timer(Sender: TObject);
+begin
+  SaveLog('Início do Execute do Timmer');
+  try
+    try
+      SaveLog('Enviar Produtos');
+      EnviaProdutos;
+      SaveLog('Enviar NFs');
+      EnviaNotasFiscais;
+      SaveLog('Buscar CONF');
+      BuscaCONF;
+      SaveLog('Enviar Pedidos');
+      EnviaPedidos;
+      SaveLog('Buscar MDD');
+      BuscaMDD;
+      SaveLog('Antes do ProcessRequest');
+    except
+     on E : Exception do
+       SaveLog('Ocorreu algum erro na execução do processo no Timmer! Erro: ' + E.Message);
+    end;
+    SaveLog('Sleep');
+    Sleep(CONFIG_LOCAL.Sleep);
+  finally
+    SaveLog('Final do Execute do Timmer');
+  end;
 end;
 
 end.

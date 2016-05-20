@@ -16,13 +16,16 @@ uses Classes,
   FireDAC.Stan.Async,
   FireDAC.UI.Intf,
   Data.DB,
-  FireDAC.Comp.Client;
+  FireDAC.Comp.Client,
+  FireDAC.VCLUI.Wait,
+  FireDAC.Comp.UI;
 
 type
   TFWConnection = class(TObject)
   private
     FFDConnection  : TFDConnection;
     FFDTransaction : TFDTransaction;
+    FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     function GetFDConnection: TFDConnection;
     procedure SetFDConnection(const Value: TFDConnection);
     procedure SetFDTransaction(const Value: TFDTransaction);
