@@ -97,16 +97,19 @@ begin
     FFTP.ChangeDir('armz');
     FFTP.ChangeDir('receb');
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-      repeat
-        if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
-          SaveLog('Antes do upload!');
-          FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-          SaveLog('Passou do upload!');
-          DeleteFile(DirArquivosFTP + search_rec.Name);
-        end;
-      until FindNext(search_rec) <> 0;
+      try
+        repeat
+          if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
+            SaveLog('Antes do upload!');
+            FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+            SaveLog('Passou do upload!');
+            DeleteFile(DirArquivosFTP + search_rec.Name);
+          end;
+        until FindNext(search_rec) <> 0;
 
-      FindClose(search_rec);
+      finally
+        FindClose(search_rec);
+      end;
     end;
   except
     on E : Exception do begin
@@ -125,14 +128,16 @@ begin
     FFTP.ChangeDir('receb');
 
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-      repeat
-        if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
-          FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-          DeleteFile(DirArquivosFTP + search_rec.Name);
-        end;
-      until FindNext(search_rec) <> 0;
-
-      FindClose(search_rec);
+      try
+        repeat
+          if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
+            FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+            DeleteFile(DirArquivosFTP + search_rec.Name);
+          end;
+        until FindNext(search_rec) <> 0;
+      finally
+        FindClose(search_rec);
+      end;
     end;
   except
     on E : Exception do begin
@@ -150,16 +155,18 @@ begin
     FFTP.ChangeDir('prod');
     FFTP.ChangeDir('homolog');
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
-      repeat
-        if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
-          FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-          SaveLog('Passou do upload!');
-          DeleteFile(DirArquivosFTP + search_rec.Name);
-          SaveLog('Deletar arquivo!');
-        end;
-      until FindNext(search_rec) <> 0;
-
-      FindClose(search_rec);
+      try
+        repeat
+          if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
+            FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
+            SaveLog('Passou do upload!');
+            DeleteFile(DirArquivosFTP + search_rec.Name);
+            SaveLog('Deletar arquivo!');
+          end;
+        until FindNext(search_rec) <> 0;
+      finally
+        FindClose(search_rec);
+      end;
     end;
   except
     on E : Exception do begin
