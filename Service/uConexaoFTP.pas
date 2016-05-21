@@ -41,6 +41,7 @@ begin
         FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
       end;
     end;
+    FFTP.ChangeDirUp;
   except
     on E : Exception do begin
       SaveLog('Erro ao buscar arquivos de Confirmação de NF de Compra! ' + E.Message);
@@ -63,6 +64,7 @@ begin
         FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
       end;
     end;
+    FFTP.ChangeDirUp;
   except
     on E : Exception do begin
       SaveLog('Erro ao buscar MDD: ' + E.Message);
@@ -111,6 +113,8 @@ begin
         FindClose(search_rec);
       end;
     end;
+    FFTP.ChangeDirUp;
+    FFTP.ChangeDirUp;
   except
     on E : Exception do begin
       SaveLog('Erro ao Enviar Notas Fiscais! ' + E.Message);
@@ -139,6 +143,8 @@ begin
         FindClose(search_rec);
       end;
     end;
+    FFTP.ChangeDirUp;
+    FFTP.ChangeDirUp;
   except
     on E : Exception do begin
       SaveLog('Erro ao Enviar Pedidos! ' + E.Message);
@@ -153,7 +159,7 @@ begin
   SaveLog('Enviando arquivo de Produtos!');
   try
     FFTP.ChangeDir('prod');
-    FFTP.ChangeDir('homolog');
+    FFTP.ChangeDir('receb');
     if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
       try
         repeat
@@ -168,6 +174,8 @@ begin
         FindClose(search_rec);
       end;
     end;
+    FFTP.ChangeDirUp;
+    FFTP.ChangeDirUp;
   except
     on E : Exception do begin
       SaveLog('Erro ao enviar produtos! ' + E.Message);

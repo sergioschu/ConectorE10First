@@ -66,7 +66,6 @@ end;
 function TfrmPrincipal.BuscaCONF: Boolean;
 var
   search_rec  : TSearchRec;
-  FTP         : TConexaoFTP;
   Lista       : TStringList;
   CONF        : TStringList;
   I,
@@ -80,16 +79,6 @@ var
   NOTAATUAL   : TNOTAENTRADA;
   Achou       : Boolean;
 begin
-  SaveLog('antes da conexao com FTP');
-  FTP   := TConexaoFTP.Create;
-  try
-    FTP.BuscaCONF;
-  finally
-    FreeAndNil(FTP);
-  end;
-
-  SaveLog('Passou da conexao com FTP');
-
   if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
     SaveLog('Achou pelo menos 1!');
     SetLength(NOTAENTRADA, 0);
@@ -199,7 +188,6 @@ end;
 function TfrmPrincipal.BuscaMDD: Boolean;
 var
   search_rec  : TSearchRec;
-  FTP         : TConexaoFTP;
   Lista       : TStringList;
   MDD         : TStringList;
   I,
@@ -214,16 +202,6 @@ var
   PEDIDOATUAL : TPEDIDOS;
   Arquivo     : String;
 begin
-  SaveLog('antes da conexao com FTP');
-  FTP   := TConexaoFTP.Create;
-  try
-    FTP.BuscaMDD;
-  finally
-    FreeAndNil(FTP);
-  end;
-
-  SaveLog('Passou da conexao com FTP');
-
   if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
     SaveLog('Existe arquivo na pasta local, arquivo: ' + search_rec.Name);
     try
@@ -308,9 +286,11 @@ begin
                         end;
 
                         if Deletar then begin
-                          P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
-                          P.STATUS.Value        := 3;
-                          P.DATA_RECEBIDO.Value := Now;
+                          P.ID.Value                := TPEDIDO(P.Itens[0]).ID.Value;
+                          P.STATUS.Value            := 3;
+                          P.DATA_RECEBIDO.Value     := Now;
+                          P.VOLUMES_DOCUMENTO.Value := PEDIDOS[I].VOLUMES;
+
                           P.Update;
                         end;
                       end else begin
@@ -441,7 +421,6 @@ var
   J,
   AFTP    : Integer;
   Lista   : TStringList;
-  FTP     : TConexaoFTP;
 begin
   Con   := TFWConnection.Create;
   NF    := TNOTAFISCAL.Create(Con);
@@ -490,13 +469,6 @@ begin
       end;
 
       Con.Commit;
-
-      FTP := TConexaoFTP.Create;
-      try
-        FTP.EnviarNotasFiscais;
-      finally
-        FreeAndNil(FTP);
-      end;
     except
       on E : Exception do begin
         Con.Rollback;
@@ -522,9 +494,7 @@ var
   Lista   : TStringList;
   I,
   J       : Integer;
-  FTP     : TConexaoFTP;
 begin
-
   Con    := TFWConnection.Create;
   P      := TPEDIDO.Create(Con);
   PI     := TPEDIDOITENS.Create(Con);
@@ -594,19 +564,11 @@ begin
     Freeandnil(Con);
     FreeAndNil(Lista);
   end;
-
-  FTP     := TConexaoFTP.Create;
-  try
-    FTP.EnviarPedidos;
-  finally
-    FreeAndNil(FTP);
-  end;
 end;
 
 function TfrmPrincipal.EnviaProdutos: Boolean;
 var
   Con     : TFWConnection;
-  FTP     : TConexaoFTP;
   PR      : TPRODUTO;
   I,
   AFTP,
@@ -614,7 +576,6 @@ var
   Lista   : TStringList;
   Teste   : Boolean;
 begin
-
   Con := TFWConnection.Create;
   PR  := TPRODUTO.Create(Con);
 
@@ -678,16 +639,6 @@ begin
         end;
       end;
       Con.Commit;
-
-      SaveLog('antes da conexao');
-
-      FTP := TConexaoFTP.Create;
-      try
-        FTP.EnviarProdutos;
-      finally
-        FreeAndNil(FTP);
-      end;
-      SaveLog('depois da conexao');
 
     except
       on E : Exception do begin
@@ -775,6 +726,8 @@ begin
 end;
 
 procedure TfrmPrincipal.Timer1Timer(Sender: TObject);
+var
+  ConexaoFTP : TConexaoFTP;
 begin
   SaveLog('Início do Execute do Timmer');
   try
@@ -783,20 +736,38 @@ begin
       EnviaProdutos;
       SaveLog('Enviar NFs');
       EnviaNotasFiscais;
-      SaveLog('Buscar CONF');
-      BuscaCONF;
       SaveLog('Enviar Pedidos');
       EnviaPedidos;
+
+      SaveLog('Conectar com FTP');
+      ConexaoFTP := TConexaoFTP.Create;
+      try
+        SaveLog('Enviar Produtos para o FTP!');
+        ConexaoFTP.EnviarProdutos;
+        SaveLog('Enviar Notas Fiscais de Entrada para o FTP!');
+        ConexaoFTP.EnviarNotasFiscais;
+        SaveLog('Enviar Pedidos para o FTP!');
+        ConexaoFTP.EnviarPedidos;
+        SaveLog('Buscar Confirmação de NFs - CONF para o FTP!');
+        ConexaoFTP.BuscaCONF;
+        SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');
+        ConexaoFTP.BuscaMDD;
+        SaveLog('Limpar conexao FTP');
+      finally
+        FreeAndNil(ConexaoFTP);
+      end;
+
+      SaveLog('Buscar CONF');
+      BuscaCONF;
       SaveLog('Buscar MDD');
       BuscaMDD;
-      SaveLog('Antes do ProcessRequest');
+      SaveLog('Buscou arquivos!');
     except
      on E : Exception do
        SaveLog('Ocorreu algum erro na execução do processo no Timmer! Erro: ' + E.Message);
     end;
-    SaveLog('Sleep');
   finally
-    IniciarPararLeitura;
+//    IniciarPararLeitura;
     SaveLog('Final do Execute do Timmer');
   end;
 end;
