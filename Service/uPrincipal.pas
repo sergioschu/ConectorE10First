@@ -73,6 +73,7 @@ var
   NOTAENTRADA : array of TNOTAENTRADA;
   NOTAATUAL   : TNOTAENTRADA;
   Achou       : Boolean;
+  Arquivo     : string;
 begin
   if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
     SaveLog('Achou pelo menos 1!');
@@ -154,7 +155,12 @@ begin
               end;
 
               if Deletar then
-                DeleteFile(DirArquivosFTP + search_rec.Name);
+                DeleteFile(DirArquivosFTP + search_rec.Name)
+              else begin
+                Arquivo := DirArquivosFTP + search_rec.Name;
+                if CopyFile(PWidechar(Arquivo), PWidechar(DirArquivosFTP + 'Erros\' + search_rec.Name), false) then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
+              end;
 
               FWC.Commit;
 
