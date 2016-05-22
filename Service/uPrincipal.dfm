@@ -1,7 +1,9 @@
 object ServiceConectorE10: TServiceConectorE10
   OldCreateOrder = False
   DisplayName = 'ConectorE10FirstService'
+  BeforeInstall = ServiceBeforeInstall
   AfterInstall = ServiceAfterInstall
+  BeforeUninstall = ServiceBeforeUninstall
   AfterUninstall = ServiceAfterUninstall
   OnContinue = ServiceContinue
   OnExecute = ServiceExecute

@@ -3,7 +3,7 @@ unit uPrincipal;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.SvcMgr, Vcl.Dialogs,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.SvcMgr,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, uFWConnection,
   IdExplicitTLSClientServerBase, IdFTP, Vcl.ExtCtrls, FireDAC.UI.Intf,
   FireDAC.VCLUI.Wait, FireDAC.Stan.Intf, FireDAC.Comp.UI, System.Win.ComObj;
@@ -21,6 +21,8 @@ type
     procedure ServiceAfterUninstall(Sender: TService);
     procedure ServiceContinue(Sender: TService; var Continued: Boolean);
     procedure Timer1Timer(Sender: TObject);
+    procedure ServiceBeforeInstall(Sender: TService);
+    procedure ServiceBeforeUninstall(Sender: TService);
   private
     { Private declarations }
   public
@@ -59,12 +61,11 @@ end;
 function TServiceConectorE10.BuscaCONF: Boolean;
 var
   search_rec  : TSearchRec;
-  FTP         : TConexaoFTP;
   Lista       : TStringList;
   CONF        : TStringList;
   I,
   J           : Integer;
-  CON         : TFWConnection;
+  FWC         : TFWConnection;
   PR          : TPRODUTO;
   NF          : TNOTAFISCAL;
   NI          : TNOTAFISCALITENS;
@@ -73,126 +74,115 @@ var
   NOTAATUAL   : TNOTAENTRADA;
   Achou       : Boolean;
 begin
-  SaveLog('antes da conexao com FTP');
-  FTP   := TConexaoFTP.Create;
-  try
-    FTP.BuscaCONF;
-  finally
-    FreeAndNil(FTP);
-  end;
+  if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
+    SaveLog('Achou pelo menos 1!');
+    SetLength(NOTAENTRADA, 0);
+    try
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('CONF', search_rec.Name) > 0) then begin
+          Deletar := True;
 
-  SaveLog('Passou da conexao com FTP');
+          Lista   := TStringList.Create;
+          CONF    := TStringList.Create;
 
-  CON    := TFWConnection.Create;
-  NF     := TNOTAFISCAL.Create(CON);
-  NI     := TNOTAFISCALITENS.Create(CON);
-  PR     := TPRODUTO.Create(CON);
-  try
-    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
-      SaveLog('Achou pelo menos 1!');
-      SetLength(NOTAENTRADA, 0);
-      try
-        try
-          repeat
-            if (search_rec.Attr <> faDirectory) and (Pos('CONF', search_rec.Name) > 0) then begin
-              Deletar                    := True;
-              Lista                      := TStringList.Create;
-              CONF                       := TStringList.Create;
-              try
-                CON.StartTransaction;
-                try
-                  Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
-                  for I := 0 to Pred(Lista.Count) do begin
-                    CONF.Delimiter       := ';';
-                    CONF.StrictDelimiter := True;
-                    CONF.DelimitedText   := Lista[I];
-                    if CONF.Count = 11 then begin
-                      SaveLog('arquivo valido!');
-                      Achou := False;
-                      for J := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
-                        if (IntToStr(NOTAENTRADA[J].DOCUMENTO) = CONF[0]) and (IntToStr(NOTAENTRADA[J].SERIE) = CONF[1]) then begin
-                          Achou := True;
-                          NOTAATUAL.DOCUMENTO   := NOTAENTRADA[J].DOCUMENTO;
-                          NOTAATUAL.SERIE       := NOTAENTRADA[J].SERIE;
-                          NOTAATUAL.ID          := NOTAENTRADA[J].ID;
-                          Break;
-                        end;
+          FWC     := TFWConnection.Create;
+          NF      := TNOTAFISCAL.Create(FWC);
+          NI      := TNOTAFISCALITENS.Create(FWC);
+          PR      := TPRODUTO.Create(FWC);
+
+          try
+            FWC.StartTransaction;
+            try
+
+              Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+
+              for I := 0 to Pred(Lista.Count) do begin
+                if Length(Trim(Lista[I])) > 0 then begin
+                  CONF.Delimiter       := ';';
+                  CONF.StrictDelimiter := True;
+                  CONF.DelimitedText   := Lista[I];
+                  if CONF.Count = 11 then begin
+                    SaveLog('arquivo valido!');
+                    Achou := False;
+                    for J := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
+                      if (IntToStr(NOTAENTRADA[J].DOCUMENTO) = CONF[0]) and (IntToStr(NOTAENTRADA[J].SERIE) = CONF[1]) then begin
+                        Achou := True;
+                        NOTAATUAL.DOCUMENTO   := NOTAENTRADA[J].DOCUMENTO;
+                        NOTAATUAL.SERIE       := NOTAENTRADA[J].SERIE;
+                        NOTAATUAL.ID          := NOTAENTRADA[J].ID;
+                        Break;
                       end;
-
-                      if not Achou then begin
-                        NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and status <= 1');
-                        if NF.Count > 0 then begin
-                          SetLength(NOTAENTRADA, Length(NOTAENTRADA) + 1);
-                          NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO  := TNOTAFISCAL(NF.Itens[0]).DOCUMENTO.Value;
-                          NOTAENTRADA[High(NOTAENTRADA)].SERIE      := TNOTAFISCAL(NF.Itens[0]).SERIE.Value;
-                          NOTAENTRADA[High(NOTAENTRADA)].ID         := TNOTAFISCAL(NF.Itens[0]).ID.Value;
-
-                          NOTAATUAL.DOCUMENTO := NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO;
-                          NOTAATUAL.SERIE := NOTAENTRADA[High(NOTAENTRADA)].SERIE;
-                          NOTAATUAL.ID := NOTAENTRADA[High(NOTAENTRADA)].ID;
-                        end else begin
-                          SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada ou já recebida!');
-                          Deletar                        := False;
-                          Break;
-                        end;
-                      end;
-                      PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
-                      if PR.Count > 0 then begin
-                        NI.SelectList('ID_NOTAFISCAL = ' + IntToStr(NOTAATUAL.ID) + ' AND ID_PRODUTO = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                        if NI.Count > 0 then begin
-                          NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                          NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
-                          NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
-                          NI.Update;
-                        end else SaveLog('Produto ' + CONF[5] + ' não encontrado na nota!');
-                      end else SaveLog('Produto não encontrado!');
                     end;
-                  end;
-                  for I := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
-                    NF.ID.Value                      := NOTAENTRADA[I].ID;
-                    NF.DATA_RECEBIDO.Value           := Now;
-                    NF.STATUS.Value                  := 2;
-                    NF.Update;
-                  end;
-                  if Deletar then
-                    DeleteFile(DirArquivosFTP + search_rec.Name);
-                  CON.Commit;
-                except
-                  on E : Exception do begin
-                    CON.Rollback;
-                    SaveLog('Erro ao bucar CONF: ' + E.Message);
+
+                    if not Achou then begin
+                      NF.SelectList('documento = ' + CONF[0] + ' and serie = ' + CONF[1] + ' and status <= 1');
+                      if NF.Count > 0 then begin
+                        SetLength(NOTAENTRADA, Length(NOTAENTRADA) + 1);
+                        NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO  := TNOTAFISCAL(NF.Itens[0]).DOCUMENTO.Value;
+                        NOTAENTRADA[High(NOTAENTRADA)].SERIE      := TNOTAFISCAL(NF.Itens[0]).SERIE.Value;
+                        NOTAENTRADA[High(NOTAENTRADA)].ID         := TNOTAFISCAL(NF.Itens[0]).ID.Value;
+
+                        NOTAATUAL.DOCUMENTO := NOTAENTRADA[High(NOTAENTRADA)].DOCUMENTO;
+                        NOTAATUAL.SERIE := NOTAENTRADA[High(NOTAENTRADA)].SERIE;
+                        NOTAATUAL.ID := NOTAENTRADA[High(NOTAENTRADA)].ID;
+                      end else begin
+                        SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada ou já recebida!');
+                        Deletar                        := False;
+                        Break;
+                      end;
+                    end;
+
+                    PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
+                    if PR.Count > 0 then begin
+                      NI.SelectList('ID_NOTAFISCAL = ' + IntToStr(NOTAATUAL.ID) + ' AND ID_PRODUTO = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                      if NI.Count > 0 then begin
+                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
+                        NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
+                        NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
+                        NI.Update;
+                      end else SaveLog('Produto ' + CONF[5] + ' não encontrado na nota!');
+                    end else SaveLog('Produto não encontrado!');
                   end;
                 end;
-              finally
-                FreeAndNil(CONF);
-                FreeAndNil(Lista);
+              end;
+
+              for I := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
+                NF.ID.Value                      := NOTAENTRADA[I].ID;
+                NF.DATA_RECEBIDO.Value           := Now;
+                NF.STATUS.Value                  := 2;
+                NF.Update;
+              end;
+
+              if Deletar then
+                DeleteFile(DirArquivosFTP + search_rec.Name);
+
+              FWC.Commit;
+
+            except
+              on E : Exception do begin
+                FWC.Rollback;
+                SaveLog('Erro ao bucar CONF: ' + E.Message);
               end;
             end;
-          until FindNext(search_rec) <> 0;
-          CON.Commit;
-        except
-          on E : Exception do begin
-            CON.Rollback;
-            SaveLog('Erro ao bucar CONF: ' + E.Message);
+          finally
+            FreeAndNil(CONF);
+            FreeAndNil(Lista);
+            FreeAndNil(NF);
+            FreeAndNil(NI);
+            FreeAndNil(PR);
+            FreeAndNil(FWC);
           end;
         end;
-      finally
-        FindClose(search_rec);
-      end;
+      until FindNext(search_rec) <> 0;
+    finally
+      FindClose(search_rec);
     end;
-
-  finally
-    FreeAndNil(PR);
-    FreeAndNil(NI);
-    FreeAndNil(NF);
-    FreeAndNil(CON);
   end;
 end;
 
 function TServiceConectorE10.BuscaMDD: Boolean;
 var
   search_rec  : TSearchRec;
-  FTP         : TConexaoFTP;
   Lista       : TStringList;
   MDD         : TStringList;
   I,
@@ -207,69 +197,68 @@ var
   PEDIDOATUAL : TPEDIDOS;
   Arquivo     : String;
 begin
-  SaveLog('antes da conexao com FTP');
-  FTP   := TConexaoFTP.Create;
-  try
-    FTP.BuscaMDD;
-  finally
-    FreeAndNil(FTP);
-  end;
-
-  SaveLog('Passou da conexao com FTP');
-
-  try
-    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
-      SaveLog('Existe arquivo na pasta local, arquivo: ' + search_rec.Name);
-      try
-        repeat
-          if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
-            SaveLog('Arquivo é um MDD');
-            Lista   := TStringList.Create;
-            MDD     := TStringList.Create;
-            SetLength(PEDIDOS, 0);
-            Deletar := True;
+  if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
+    SaveLog('Existe arquivo na pasta local, arquivo: ' + search_rec.Name);
+    try
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('MDD', search_rec.Name) > 0) then begin
+          SaveLog('Arquivo é um MDD');
+          Lista   := TStringList.Create;
+          MDD     := TStringList.Create;
+          SetLength(PEDIDOS, 0);
+          Deletar := True;
+          try
             try
               MDD.Delimiter       := ';';
               MDD.StrictDelimiter := True;
               SaveLog('Antes de Carregar o Arquivo!');
+
               Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+
               SaveLog('Depois de Carregar o Arquivo!');
               if Lista.Count > 0 then begin
                 SaveLog('Arquivo não esta Vazio!');
                 for I := 0 to Pred(Lista.Count) do begin
-                  SaveLog('Antes do Delimit');
-                  MDD.DelimitedText   := Lista[I];
-                  SaveLog('Depois do Delimit');
-                  if MDD.Count = 7 then begin
-                    SaveLog('MDD Válido!');
-                    for J := 0 to Pred(Length(PEDIDOS)) do begin
-                      if PEDIDOS[J].PEDIDO = MDD[2] then begin
-                        SetLength(PEDIDOS[J].PRODUTOS, Length(PEDIDOS[J].PRODUTOS) + 1);
-                        PEDIDOS[J].PRODUTOS[High(PEDIDOS[J].PRODUTOS)] := MDD[2];
-                        Achou       := True;
-                        SaveLog('Inserindo Itens no Pedido');
-                        Break;
-                      end;
-                    end;
-                    if not Achou then begin
-                      SaveLog('Não Achou, Vamos incluir');
-                      SetLength(PEDIDOS, Length(PEDIDOS) + 1);
-                      SaveLog('Aumentou o tamanho do array');
-                      PEDIDOS[High(PEDIDOS)].PEDIDO      := MDD[0];
-                      PEDIDOS[High(PEDIDOS)].VOLUMES     := StrToIntDef(MDD[6], 1);
-                      SaveLog('atribuiu os valores');
+                  if Length(Trim(Lista[I])) > 0 then begin
 
-                      SetLength(PEDIDOS[High(PEDIDOS)].PRODUTOS, 1);
-                      SaveLog('aumentou array de itens');
-                      PEDIDOS[High(PEDIDOS)].PRODUTOS[0] := MDD[2];
-                      SaveLog('Inseriu um Pedido no Array');
-                    end;
-                  end else SaveLog('Linha com tamanho inválido!');
+                    SaveLog('Antes do Delimit');
+                    MDD.DelimitedText   := Lista[I];
+
+                    SaveLog('Depois do Delimit');
+                    if MDD.Count = 7 then begin
+                      SaveLog('MDD Válido!');
+                      for J := 0 to Pred(Length(PEDIDOS)) do begin
+                        if PEDIDOS[J].PEDIDO = MDD[2] then begin
+                          SetLength(PEDIDOS[J].PRODUTOS, Length(PEDIDOS[J].PRODUTOS) + 1);
+                          PEDIDOS[J].PRODUTOS[High(PEDIDOS[J].PRODUTOS)] := MDD[2];
+                          Achou       := True;
+                          SaveLog('Inserindo Itens no Pedido');
+                          Break;
+                        end;
+                      end;
+                      if not Achou then begin
+                        SaveLog('Não Achou, Vamos incluir');
+                        SetLength(PEDIDOS, Length(PEDIDOS) + 1);
+                        SaveLog('Aumentou o tamanho do array');
+                        PEDIDOS[High(PEDIDOS)].PEDIDO      := MDD[0];
+                        PEDIDOS[High(PEDIDOS)].VOLUMES     := StrToIntDef(MDD[6], 1);
+                        SaveLog('atribuiu os valores');
+
+                        SetLength(PEDIDOS[High(PEDIDOS)].PRODUTOS, 1);
+                        SaveLog('aumentou array de itens');
+                        PEDIDOS[High(PEDIDOS)].PRODUTOS[0] := MDD[2];
+                        SaveLog('Inseriu um Pedido no Array');
+                      end;
+                    end else
+                      SaveLog('Linha com tamanho inválido!');
+                  end;
                 end;
+
                 CON    := TFWConnection.Create;
                 P      := TPEDIDO.Create(CON);
                 PR     := TPRODUTO.Create(CON);
                 PI     := TPEDIDOITENS.Create(CON);
+
                 try
                   SaveLog('Percorrendo Array');
                   CON.StartTransaction;
@@ -290,10 +279,13 @@ begin
                             Deletar := False;
                           end;
                         end;
+
                         if Deletar then begin
-                          P.ID.Value            := TPEDIDO(P.Itens[0]).ID.Value;
-                          P.STATUS.Value        := 3;
-                          P.DATA_RECEBIDO.Value := Now;
+                          P.ID.Value                := TPEDIDO(P.Itens[0]).ID.Value;
+                          P.STATUS.Value            := 3;
+                          P.DATA_RECEBIDO.Value     := Now;
+                          P.VOLUMES_DOCUMENTO.Value := PEDIDOS[I].VOLUMES;
+
                           P.Update;
                         end;
                       end else begin
@@ -301,7 +293,9 @@ begin
                         Deletar := False;
                       end;
                     end;
+
                     CON.Commit;
+
                   except
                     on E : Exception do begin
                       CON.Rollback;
@@ -314,6 +308,7 @@ begin
                   FreeAndNil(PI);
                   FreeAndNil(CON);
                 end;
+
                 if Deletar then
                   DeleteFile(DirArquivosFTP + search_rec.Name)
                 else begin
@@ -321,20 +316,22 @@ begin
                   if CopyFile(PWidechar(Arquivo), PWidechar(DirArquivosFTP + 'Erros\' + search_rec.Name), false) then
                     DeleteFile(DirArquivosFTP + search_rec.Name);
                 end;
-              end else SaveLog('Arquivo Vazio!');
-            finally
-              FreeAndNil(Lista);
-              FreeAndNil(MDD);
+              end else
+                SaveLog('Arquivo Vazio!');
+            except
+              on E : Exception do
+                SaveLog('Ocorreu algum erro ao tratar arquivos locais, Erro: ' + E.Message);
             end;
-          end else SaveLog('Arquivo não é um MDD!');
-        until (FindNext(search_rec) <> 0);
-      finally
-        FindClose(search_rec);
-      end;
+          finally
+            FreeAndNil(Lista);
+            FreeAndNil(MDD);
+          end;
+        end else
+          SaveLog('Arquivo não é um MDD!');
+      until (FindNext(search_rec) <> 0);
+    finally
+      FindClose(search_rec);
     end;
-  except
-    on E : Exception do
-      SaveLog('Ocorreu algum erro ao verificar arquivos locais, Erro: ' + E.Message);
   end;
 end;
 
@@ -364,7 +361,6 @@ var
   J,
   AFTP    : Integer;
   Lista   : TStringList;
-  FTP     : TConexaoFTP;
 begin
   Con   := TFWConnection.Create;
   NF    := TNOTAFISCAL.Create(Con);
@@ -387,7 +383,7 @@ begin
                 Lista.Add(TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.asString + ';' +
                   TNOTAFISCAL(NF.Itens[I]).SERIE.asString + ';' +
                   TNOTAFISCAL(NF.Itens[I]).CNPJCPF.asString + ';' +
-                  FormataData(TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value) + ';' +
+                  FormatDateTime('yyyymmdd', TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value) + ';' +
                   TNOTAFISCAL(NF.Itens[I]).CFOP.asString + ';' +
                   IntToStr(J + 1) + ';' +
                   TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
@@ -413,13 +409,6 @@ begin
       end;
 
       Con.Commit;
-
-      FTP := TConexaoFTP.Create;
-      try
-        FTP.EnviarNotasFiscais;
-      finally
-        FreeAndNil(FTP);
-      end;
     except
       on E : Exception do begin
         Con.Rollback;
@@ -444,9 +433,7 @@ var
   T       : TTRANSPORTADORA;
   Lista   : TStringList;
   I,
-  J,
-  AFTP    : Integer;
-  FTP     : TConexaoFTP;
+  J       : Integer;
 begin
   Con    := TFWConnection.Create;
   P      := TPEDIDO.Create(Con);
@@ -454,18 +441,18 @@ begin
   PR     := TPRODUTO.Create(Con);
   T      := TTRANSPORTADORA.Create(Con);
   Lista  := TStringList.Create;
+
   try
     Con.StartTransaction;
     try
       P.SelectList('status = 1');
       if P.Count > 0 then begin
         for I := 0 to Pred(P.Count) do begin
-          AFTP       := BuscaNumeroArquivo(Con, 2);
           Lista.Clear;
 
           T.SelectList('id = ' + TPEDIDO(P.Itens[I]).ID_TRANSPORTADORA.asString);
           if T.Count > 0 then begin
-            PI.SelectList('id_pedido = ' + TPEDIDO(p.Itens[i]).ID.asString);
+            PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[I]).ID.asString);
             if PI.Count > 0 then begin
               for J := 0 to Pred(PI.Count) do begin
                 PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
@@ -483,32 +470,25 @@ begin
                     TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString + ';' +
                     TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString + ';' +
                     TPEDIDO(P.Itens[I]).DEST_CEP.asString + ';' +
-                    TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';'
-                  );
+                    TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';');
                 end;
               end;
             end;
           end;
+
           P.ID.Value         := TPEDIDO(P.Itens[I]).ID.Value;
-          P.ID_ARQUIVO.Value := AFTP;
+          P.ID_ARQUIVO.Value := BuscaNumeroArquivo(Con, 2);
           P.STATUS.Value     := 2;
           P.DATA_ENVIO.Value := Now;
           P.Update;
+
           if Lista.Count > 0 then begin
             if not DirectoryExists(DirArquivosFTP) then
               ForceDirectories(DirArquivosFTP);
-            Lista.SaveToFile(DirArquivosFTP + 'SC' + IntToStr(AFTP) + '.txt');
+            Lista.SaveToFile(DirArquivosFTP + 'SC' + P.ID_ARQUIVO.asString + '.txt');
           end;
         end;
       end;
-
-      FTP     := TConexaoFTP.Create;
-      try
-        FTP.EnviarPedidos;
-      finally
-        FreeAndNil(FTP);
-      end;
-
       Con.Commit;
     except
       on E : Exception do begin
@@ -516,7 +496,6 @@ begin
         SaveLog('Erro ao Enviar Pedido : ' + E.Message);
       end;
     end;
-
   finally
     FreeAndNil(PR);
     FreeAndNil(PI);
@@ -530,7 +509,6 @@ end;
 function TServiceConectorE10.EnviaProdutos: Boolean;
 var
   Con     : TFWConnection;
-  FTP     : TConexaoFTP;
   PR      : TPRODUTO;
   I,
   AFTP,
@@ -540,6 +518,7 @@ var
 begin
   Con := TFWConnection.Create;
   PR  := TPRODUTO.Create(Con);
+
   try
     Con.StartTransaction;
     try
@@ -601,16 +580,6 @@ begin
       end;
       Con.Commit;
 
-      SaveLog('antes da conexao');
-
-      FTP := TConexaoFTP.Create;
-      try
-        FTP.EnviarProdutos;
-      finally
-        FreeAndNil(FTP);
-      end;
-      SaveLog('depois da conexao');
-
     except
       on E : Exception do begin
         Con.Rollback;
@@ -637,6 +606,20 @@ end;
 procedure TServiceConectorE10.ServiceAfterUninstall(Sender: TService);
 begin
   SaveLog('Serviço Desinstalado!');
+end;
+
+procedure TServiceConectorE10.ServiceBeforeInstall(Sender: TService);
+begin
+    CarregarConexaoBD;
+
+    CarregarConfigLocal;
+end;
+
+procedure TServiceConectorE10.ServiceBeforeUninstall(Sender: TService);
+begin
+    CarregarConexaoBD;
+
+    CarregarConfigLocal;
 end;
 
 procedure TServiceConectorE10.ServiceContinue(Sender: TService;
@@ -675,7 +658,7 @@ var
  Con : TFWConnection;
 begin
   Started := True;
-  SaveLog('Serviço iniciado!');
+//  SaveLog('Serviço iniciado!');
   try
     CarregarConexaoBD;
 
@@ -701,6 +684,8 @@ begin
 end;
 
 procedure TServiceConectorE10.Timer1Timer(Sender: TObject);
+var
+  ConexaoFTP : TConexaoFTP;
 begin
   SaveLog('Início do Execute do Timmer');
   try
@@ -709,19 +694,36 @@ begin
       EnviaProdutos;
       SaveLog('Enviar NFs');
       EnviaNotasFiscais;
-      SaveLog('Buscar CONF');
-      BuscaCONF;
       SaveLog('Enviar Pedidos');
       EnviaPedidos;
+
+      SaveLog('Conectar com FTP');
+      ConexaoFTP := TConexaoFTP.Create;
+      try
+        SaveLog('Enviar Produtos para o FTP!');
+        ConexaoFTP.EnviarProdutos;
+        SaveLog('Enviar Notas Fiscais de Entrada para o FTP!');
+        ConexaoFTP.EnviarNotasFiscais;
+        SaveLog('Enviar Pedidos para o FTP!');
+        ConexaoFTP.EnviarPedidos;
+        SaveLog('Buscar Confirmação de NFs - CONF para o FTP!');
+        ConexaoFTP.BuscaCONF;
+        SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');
+        ConexaoFTP.BuscaMDD;
+        SaveLog('Limpar conexao FTP');
+      finally
+        FreeAndNil(ConexaoFTP);
+      end;
+
+      SaveLog('Buscar CONF');
+      BuscaCONF;
       SaveLog('Buscar MDD');
       BuscaMDD;
-      SaveLog('Antes do ProcessRequest');
+      SaveLog('Buscou arquivos!');
     except
      on E : Exception do
        SaveLog('Ocorreu algum erro na execução do processo no Timmer! Erro: ' + E.Message);
     end;
-    SaveLog('Sleep');
-    Sleep(CONFIG_LOCAL.Sleep);
   finally
     SaveLog('Final do Execute do Timmer');
   end;

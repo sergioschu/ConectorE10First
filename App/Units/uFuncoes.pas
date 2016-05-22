@@ -474,26 +474,27 @@ begin
    Result := StringOfChar('0', Quant)+Result;
 end;
 procedure SaveLog(Msg: String);
-Var
-  Log : TStringList;
-  ArqLog  : String;
+var
+  ArquivoLog : TextFile;
+  Caminho : string;
 begin
-  ArqLog  := CONFIG_LOCAL.DirLog + FormatDateTime('yyyymmdd', Now) + '.txt';
-  try
-    Log := TStringList.Create;
-    try
-      if not FileExists(ArqLog) then
-        Log.SaveToFile(ArqLog);
-      Log.LoadFromFile(ArqLog);
-      Log.Add(DateTimeToStr(Now) + ' ' + Msg)
 
-    except
-      on E : Exception do
-        Log.Add('Erro.: ' + E.Message);
-    end;
+  Caminho := CONFIG_LOCAL.DirLog + FormatDateTime('yyyymmdd', Now) + '.txt';
+
+  if not DirectoryExists(CONFIG_LOCAL.DirLog) then
+    ForceDirectories(CONFIG_LOCAL.DirLog);
+
+  AssignFile(ArquivoLog, Caminho);
+
+  if FileExists(Caminho) then
+    Append(ArquivoLog)
+  else
+    Rewrite(ArquivoLog);
+
+  try
+    Writeln(ArquivoLog, DateTimeToStr(Now) + ' ' + msg)
   finally
-    Log.SaveToFile(ArqLog);
-    FreeAndNil(Log);
+    CloseFile(ArquivoLog);
   end;
 end;
 
