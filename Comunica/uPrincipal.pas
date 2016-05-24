@@ -132,21 +132,31 @@ begin
                         NOTAATUAL.ID := NOTAENTRADA[High(NOTAENTRADA)].ID;
                       end else begin
                         SaveLog('Nota Fiscal ' + CONF[0] + ' não encontrada ou já recebida!');
+                        NOTAATUAL.DOCUMENTO := -1;
+                        NOTAATUAL.SERIE     := -1;
+                        NOTAATUAL.ID        := -1;
                         Deletar                        := False;
-                        Break;
                       end;
                     end;
 
-                    PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
-                    if PR.Count > 0 then begin
-                      NI.SelectList('ID_NOTAFISCAL = ' + IntToStr(NOTAATUAL.ID) + ' AND ID_PRODUTO = ' + TPRODUTO(PR.Itens[0]).ID.asString);
-                      if NI.Count > 0 then begin
-                        NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
-                        NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
-                        NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
-                        NI.Update;
-                      end else SaveLog('Produto ' + CONF[5] + ' não encontrado na nota!');
-                    end else SaveLog('Produto não encontrado!');
+                    if NOTAATUAL.ID >= 0 then begin
+                      PR.SelectList('upper(codigoproduto) = ' + QuotedStr(UpperCase(CONF[5])));
+                      if PR.Count > 0 then begin
+                        NI.SelectList('ID_NOTAFISCAL = ' + IntToStr(NOTAATUAL.ID) + ' AND ID_PRODUTO = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                        if NI.Count > 0 then begin
+                          NI.ID.Value                := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
+                          NI.QUANTIDADEREC.Value     := StrToFloat(CONF[8]);
+                          NI.QUANTIDADEAVA.Value     := StrToFloat(CONF[9]);
+                          NI.Update;
+                        end else begin
+                         SaveLog('Produto ' + CONF[5] + ' não encontrado na nota!');
+                         Deletar                     := False;
+                        end;
+                      end else begin
+                        SaveLog('Produto não encontrado!');
+                        Deletar                      := False;
+                      end;
+                    end;
                   end;
                 end;
               end;
@@ -159,7 +169,11 @@ begin
               end;
 
               if Deletar then
-                DeleteFile(DirArquivosFTP + search_rec.Name);
+                DeleteFile(DirArquivosFTP + search_rec.Name)
+              else begin
+                if CopyFile(PwideChar(DirArquivosFTP + search_rec.Name), PwideChar(DirArquivosFTP + 'Erros\' + search_rec.Name), False) then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
+              end;
 
               FWC.Commit;
 
@@ -742,17 +756,19 @@ begin
       SaveLog('Conectar com FTP');
       ConexaoFTP := TConexaoFTP.Create;
       try
-        SaveLog('Enviar Produtos para o FTP!');
-        ConexaoFTP.EnviarProdutos;
-        SaveLog('Enviar Notas Fiscais de Entrada para o FTP!');
-        ConexaoFTP.EnviarNotasFiscais;
-        SaveLog('Enviar Pedidos para o FTP!');
-        ConexaoFTP.EnviarPedidos;
-        SaveLog('Buscar Confirmação de NFs - CONF para o FTP!');
-        ConexaoFTP.BuscaCONF;
-        SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');
-        ConexaoFTP.BuscaMDD;
-        SaveLog('Limpar conexao FTP');
+        if ConexaoFTP.Connected then begin
+          SaveLog('Enviar Produtos para o FTP!');
+          ConexaoFTP.EnviarProdutos;
+          SaveLog('Enviar Notas Fiscais de Entrada para o FTP!');
+          ConexaoFTP.EnviarNotasFiscais;
+          SaveLog('Enviar Pedidos para o FTP!');
+          ConexaoFTP.EnviarPedidos;
+          SaveLog('Buscar Confirmação de NFs - CONF para o FTP!');
+          ConexaoFTP.BuscaCONF;
+          SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');
+          ConexaoFTP.BuscaMDD;
+          SaveLog('Limpar conexao FTP');
+        end;
       finally
         FreeAndNil(ConexaoFTP);
       end;

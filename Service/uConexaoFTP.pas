@@ -190,15 +190,19 @@ begin
     FFTP.Username    := CONFIG_LOCAL.FTPUsuario;
     FFTP.Password    := CONFIG_LOCAL.FTPSenha;
     FFTP.Connect;
+    Connected        := True;
   except
-    on E : Exception do
+    on E : Exception do begin
       SaveLog('Erro ao Conectar no FTP: ' + E.Message);
+      Connected      := False;
+    end;
   end;
 end;
 
 procedure TConexaoFTP.Logout;
 begin
   FFTP.Disconnect;
+  Connected  := False;
 end;
 
 procedure TConexaoFTP.SetConnected(const Value: Boolean);
