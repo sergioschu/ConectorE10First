@@ -24,7 +24,7 @@ CREATE TABLE arquivosftp
 (
   id serial NOT NULL,
   tipo smallint NOT NULL, -- 0-Produtos...
-  dataenvio timestamp with time zone,
+  dataenvio timestamp without time zone,
   mensagem character varying(255),
   CONSTRAINT pk_arquivosftp PRIMARY KEY (id)
 )
@@ -94,10 +94,10 @@ CREATE TABLE if not exists pedido
   id_arquivo integer NOT NULL,
   id_transportadora integer NOT NULL,
   id_usuario integer NOT NULL,
-  data_importacao timestamp with time zone,
-  data_envio timestamp with time zone,
-  data_recebido timestamp with time zone,
-  data_faturado timestamp with time zone,
+  data_importacao timestamp without time zone,
+  data_envio timestamp without time zone,
+  data_recebido timestamp without time zone,
+  data_faturado timestamp without time zone,
   CONSTRAINT pk_lote PRIMARY KEY (id),
 CONSTRAINT fk_p_transportadora FOREIGN KEY (id_transportadora)
       REFERENCES transportadora (id) MATCH SIMPLE

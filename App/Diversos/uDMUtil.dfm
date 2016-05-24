@@ -4,6 +4,27 @@ object DMUtil: TDMUtil
   OnDestroy = DataModuleDestroy
   Height = 330
   Width = 495
+  object frxReport1: TfrxReport
+    Version = '5.2.3'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Padr'#227'o'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42379.957623009250000000
+    ReportOptions.LastChange = 42379.957623009250000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 352
+    Top = 24
+    Datasets = <>
+    Variables = <>
+    Style = <>
+  end  
   object frxDesigner1: TfrxDesigner
     DefaultScriptLanguage = 'PascalScript'
     DefaultFont.Charset = DEFAULT_CHARSET
