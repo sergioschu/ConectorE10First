@@ -28,6 +28,7 @@ uses
   procedure AjustaForm(Form : TForm);
   procedure CriarComandoSequenciaMenu(Menu: TMainMenu);
   procedure OrdenarGrid(Column: TColumn);
+  procedure CancelaPedido;
   function ValidaUsuario(Email, Senha : String) : Boolean;
   function MD5(Texto : String): String;
   Function Criptografa(Texto : String; Tipo : String) : String;
@@ -39,15 +40,19 @@ uses
   function FormataNumeros(Valor : String) : Double;
   procedure ExpXLS(DataSet: TDataSet; NomeArq: string);
   procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
+
 implementation
 
 Uses
+  uMensagem,
   uConstantes,
   IniFiles,
   uFWConnection,
   uBeanUsuario,
   uBeanUsuario_Permissao,
-  uDomains;
+  uDomains,
+  uBeanPedido,
+  uBeanPedido_Cancelamento;
 
 procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
 begin
@@ -254,6 +259,87 @@ begin
         end;
       end;
       Column.Title.Font.Color := clBlue;
+    end;
+  end;
+end;
+
+procedure CancelaPedido;
+Var
+  FWC : TFWConnection;
+  P   : TPEDIDO;
+  PC  : TPEDIDO_CANCELAMENTO;
+  Motivo,
+  Pedido : String;
+begin
+
+  if USUARIO.CODIGO = 0 then begin
+    DisplayMsg(MSG_WAR, 'Usuário inválido para Cancelamento, Verifique!');
+    Exit;
+  end;
+
+  DisplayMsg(MSG_INPUT_TEXT, 'Informe o Número do Pedido, ou passe o Leitor!');
+
+  if ResultMsgModal = mrOk then begin
+
+    Pedido := ResultMsgInputText;
+
+    if Length(Trim(Pedido)) > 0  then begin
+
+      FWC := TFWConnection.Create;
+      P   := TPEDIDO.Create(FWC);
+      PC  := TPEDIDO_CANCELAMENTO.Create(FWC);
+      try
+        try
+
+          P.SelectList('PEDIDO = ' + QuotedStr(Trim(Pedido)));
+          if P.Count > 0 then begin
+            if TPEDIDO(P.Itens[0]).STATUS.Value = 6 then begin
+              DisplayMsg(MSG_WAR, 'Pedido N.º ' + Trim(Pedido) + ' já encontra-se cancelado!');
+              Exit;
+            end;
+
+            repeat
+              Motivo := EmptyStr;
+              DisplayMsg(MSG_INPUT_TEXT, 'Informe o motivo do Cancelamento!' + sLineBreak + 'Motivo Obrigatório.');
+              if ResultMsgModal = mrOk then begin
+                if Length(Trim(ResultMsgInputText)) > 0  then
+                  Motivo := ResultMsgInputText;
+              end else
+                Exit;
+            until Motivo <> EmptyStr;
+
+            //Cancela o Pedido
+            P.ID.Value          := TPEDIDO(P.Itens[0]).ID.Value;
+            P.STATUS.Value      := 6;
+            P.Update;
+
+            //Insere o Cancelamento.
+            PC.ID.isNull        := True;
+            PC.ID_PEDIDO.Value  := P.ID.Value;
+            PC.ID_USUARIO.Value := USUARIO.CODIGO;
+            PC.DATA_HORA.Value  := Now;
+            PC.MOTIVO.Value     := Motivo;
+            PC.Insert;
+
+            FWC.Commit;
+
+            DisplayMsg(MSG_OK, 'Pedido N.º ' + Trim(Pedido) + ' cancelado com Sucesso!');
+
+          end else begin
+            DisplayMsg(MSG_WAR, 'Pedido N.º ' + Trim(Pedido) + ' não encontrado, Verifique!');
+          end;
+        except
+          on E : Exception do Begin
+            FWC.Rollback;
+            DisplayMsg(MSG_ERR, 'Erro ao cancelar Pedido!', '', E.Message);
+            Exit;
+          End;
+        end;
+      finally
+        FreeAndNil(PC);
+        FreeAndNil(P);
+        FreeAndNil(FWC);
+      end;
     end;
   end;
 end;

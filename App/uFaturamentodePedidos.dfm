@@ -910,7 +910,8 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           Align = alClient
           Caption = ' At'#233' '
           Layout = tlCenter
-          ExplicitTop = 26
+          ExplicitWidth = 34
+          ExplicitHeight = 19
         end
         object edDataI: TJvDateEdit
           AlignWithMargins = True
@@ -921,6 +922,7 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           Align = alLeft
           ShowNullDate = False
           TabOrder = 0
+          ExplicitHeight = 27
         end
         object edDataF: TJvDateEdit
           AlignWithMargins = True
@@ -931,8 +933,7 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           Align = alRight
           ShowNullDate = False
           TabOrder = 1
-          ExplicitLeft = 205
-          ExplicitTop = 16
+          ExplicitHeight = 27
         end
       end
       object rgStatus: TRadioGroup
@@ -950,7 +951,8 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           'MDD Recebido'
           'Pedido Impresso'
           'Pedido Faturado'
-          'Pedido Despachado')
+          'Pedido Despachado'
+          'Pedido Cancelado')
         TabOrder = 1
       end
     end

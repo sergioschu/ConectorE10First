@@ -26,6 +26,8 @@ type
     Divergncias1: TMenuItem;
     TempodeResposta1: TMenuItem;
     CdigodeRastreio1: TMenuItem;
+    CancelamentodePedidos1: TMenuItem;
+    CancelamentodePedidos2: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -40,6 +42,8 @@ type
     procedure Divergncias1Click(Sender: TObject);
     procedure TempodeResposta1Click(Sender: TObject);
     procedure CdigodeRastreio1Click(Sender: TObject);
+    procedure CancelamentodePedidos1Click(Sender: TObject);
+    procedure CancelamentodePedidos2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -66,9 +70,33 @@ uses
   uCadastroTransportadora,
   uRelDivergencias,
   uRelTempoResposta,
-  uRelCodigoRastreio;
+  uRelCodigoRastreio,
+  uRelCancelamentoPedido;
 
 {$R *.dfm}
+
+procedure TfrmPrincipal.CancelamentodePedidos1Click(Sender: TObject);
+begin
+  if CancelamentodePedidos1.Tag = 0 then begin
+    CancelamentodePedidos1.Tag := 1;
+    try
+      CancelaPedido;
+    finally
+      CancelamentodePedidos1.Tag := 0;
+    end;
+  end;
+end;
+
+procedure TfrmPrincipal.CancelamentodePedidos2Click(Sender: TObject);
+begin
+  try
+    if frmRelCancelamentoPedido = nil then
+      frmRelCancelamentoPedido := TfrmRelCancelamentoPedido.Create(Self);
+    frmRelCancelamentoPedido.ShowModal;
+  finally
+    FreeAndNil(frmRelCancelamentoPedido);
+  end;
+end;
 
 procedure TfrmPrincipal.CdigodeRastreio1Click(Sender: TObject);
 begin

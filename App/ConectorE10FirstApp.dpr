@@ -33,7 +33,9 @@ uses
   uRelDivergencias in 'uRelDivergencias.pas' {frmRelDivergencias},
   uRelTempoResposta in 'uRelTempoResposta.pas' {frmRelTempoResposta},
   uRelCodigoRastreio in 'uRelCodigoRastreio.pas' {frmRelCodigoRastreio},
-  uSeleciona in 'uSeleciona.pas' {frmSeleciona};
+  uSeleciona in 'uSeleciona.pas' {frmSeleciona},
+  uBeanPedido_Cancelamento in 'Beans\uBeanPedido_Cancelamento.pas',
+  uRelCancelamentoPedido in 'uRelCancelamentoPedido.pas' {frmRelCancelamentoPedido};
 
 {$R *.res}
 
@@ -44,6 +46,7 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
+  Application.CreateForm(TfrmRelCancelamentoPedido, frmRelCancelamentoPedido);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);

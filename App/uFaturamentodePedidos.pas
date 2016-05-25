@@ -364,6 +364,7 @@ begin
       SQL.SQL.Add('			CASE P.STATUS WHEN 3 THEN ''MDD Recebido''');
       SQL.SQL.Add('				WHEN 4 THEN ''Pedido Impresso''');
       SQL.SQL.Add('				WHEN 5 THEN ''Pedido Faturado''');
+      SQL.SQL.Add('				WHEN 6 THEN ''Pedido Cancelado''');
       SQL.SQL.Add('				ELSE ''Status não Definido'' END END AS STATUSTEXTO,');
       SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
       SQL.SQL.Add('FROM PEDIDO P');
@@ -381,6 +382,7 @@ begin
         2 : SQL.SQL.Add('AND P.STATUS = 4');
         3 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) = 0))');
         4 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) > 0))');
+        5 : SQL.SQL.Add('AND P.STATUS = 6');
       end;
 
       SQL.Connection                      := FWC.FDConnection;

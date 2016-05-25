@@ -62,6 +62,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Faturamento de Pedidos'
         OnClick = FaturamentodePedidos1Click
       end
+      object CancelamentodePedidos1: TMenuItem
+        Caption = 'Cancelamento de Pedidos'
+        OnClick = CancelamentodePedidos1Click
+      end
     end
     object Configuraes1: TMenuItem
       Caption = 'Configura'#231#245'es'
@@ -87,6 +91,10 @@ object frmPrincipal: TfrmPrincipal
       object CdigodeRastreio1: TMenuItem
         Caption = 'C'#243'digo de Rastreio'
         OnClick = CdigodeRastreio1Click
+      end
+      object CancelamentodePedidos2: TMenuItem
+        Caption = 'Cancelamento de Pedidos'
+        OnClick = CancelamentodePedidos2Click
       end
     end
     object miSair: TMenuItem

@@ -186,3 +186,19 @@ alter table pedido add volumes_documento integer;
 update pedido set volumes_documento = 1;
 
 alter table pedido add codigo_rastreio character varying(100);
+
+create table pedido_cancelamento
+(
+  id serial not null,
+  id_pedido smallint not null,
+  id_usuario integer not null,
+  data_hora timestamp without time zone,
+  motivo character varying(255),
+  constraint pk_pedido_cancelamento primary key (id),
+  constraint fk_cancelamento_pedido foreign key (id_pedido)
+      references pedido (id) match simple
+      on update cascade on delete cascade,  
+  constraint fk_cancelamento_usuario foreign key (id_usuario)
+      references usuario (id) match simple
+      on update cascade on delete restrict  
+);
