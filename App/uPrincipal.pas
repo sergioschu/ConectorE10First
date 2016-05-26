@@ -28,6 +28,7 @@ type
     CdigodeRastreio1: TMenuItem;
     CancelamentodePedidos1: TMenuItem;
     CancelamentodePedidos2: TMenuItem;
+    RetornoforadoPrazo1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -44,6 +45,7 @@ type
     procedure CdigodeRastreio1Click(Sender: TObject);
     procedure CancelamentodePedidos1Click(Sender: TObject);
     procedure CancelamentodePedidos2Click(Sender: TObject);
+    procedure RetornoforadoPrazo1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -71,7 +73,8 @@ uses
   uRelDivergencias,
   uRelTempoResposta,
   uRelCodigoRastreio,
-  uRelCancelamentoPedido;
+  uRelCancelamentoPedido,
+  uRelRetornoForadoPrazo;
 
 {$R *.dfm}
 
@@ -237,6 +240,17 @@ begin
     FrmRedefinirSenha.ShowModal;
   finally
     FreeAndNil(FrmRedefinirSenha);
+  end;
+end;
+
+procedure TfrmPrincipal.RetornoforadoPrazo1Click(Sender: TObject);
+begin
+  try
+    if frmRelRetornoForadoPrazo = nil then
+      frmRelRetornoForadoPrazo := TfrmRelRetornoForadoPrazo.Create(Self);
+    frmRelRetornoForadoPrazo.ShowModal;
+  finally
+    FreeAndNil(frmRelRetornoForadoPrazo);
   end;
 end;
 

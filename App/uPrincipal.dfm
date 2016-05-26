@@ -96,6 +96,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Cancelamento de Pedidos'
         OnClick = CancelamentodePedidos2Click
       end
+      object RetornoforadoPrazo1: TMenuItem
+        Caption = 'Retorno fora do Prazo'
+        OnClick = RetornoforadoPrazo1Click
+      end
     end
     object miSair: TMenuItem
       Caption = 'Sair'

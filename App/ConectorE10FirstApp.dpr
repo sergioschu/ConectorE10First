@@ -35,7 +35,8 @@ uses
   uRelCodigoRastreio in 'uRelCodigoRastreio.pas' {frmRelCodigoRastreio},
   uSeleciona in 'uSeleciona.pas' {frmSeleciona},
   uBeanPedido_Cancelamento in 'Beans\uBeanPedido_Cancelamento.pas',
-  uRelCancelamentoPedido in 'uRelCancelamentoPedido.pas' {frmRelCancelamentoPedido};
+  uRelCancelamentoPedido in 'uRelCancelamentoPedido.pas' {frmRelCancelamentoPedido},
+  uRelRetornoForadoPrazo in 'uRelRetornoForadoPrazo.pas' {frmRelRetornoForadoPrazo};
 
 {$R *.res}
 
@@ -46,7 +47,6 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
-  Application.CreateForm(TfrmRelCancelamentoPedido, frmRelCancelamentoPedido);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);
