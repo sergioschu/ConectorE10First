@@ -183,7 +183,6 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 677
       end
       object edTotalRegistros: TEdit
         AlignWithMargins = True
@@ -203,7 +202,6 @@ object frmNotaFiscal: TfrmNotaFiscal
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        ExplicitLeft = 3
       end
     end
     object Panel2: TPanel

@@ -119,7 +119,7 @@ Var
 begin
 
   if OpenDialog1.Execute then begin
-    if Pos(ExtractFileExt(OpenDialog1.FileName), '|.xls|.xlsx|') > 0 then begin
+    if Pos(AnsiUpperCase(ExtractFileExt(OpenDialog1.FileName)), '|.XLS|.XLSX|') > 0 then begin
       Arquivo := OpenDialog1.FileName;
 
       if not FileExists(Arquivo) then begin
