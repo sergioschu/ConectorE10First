@@ -211,7 +211,8 @@ var
   P           : TPEDIDO;
   PI          : TPEDIDOITENS;
   Deletar,
-  Achou       : Boolean;
+  Achou,
+  Atualizar   : Boolean;
   PEDIDOS     : array of TPEDIDOS;
   PEDIDOATUAL : TPEDIDOS;
   Arquivo     : String;
@@ -283,6 +284,7 @@ begin
                   CON.StartTransaction;
                   try
                     for I := Low(PEDIDOS) to High(PEDIDOS) do begin
+                      Atualizar := True;
                       P.SelectList('pedido = ' + QuotedStr(PEDIDOS[I].PEDIDO) + ' and status <= 2');
                       if P.Count > 0 then begin
                         for J := Low(PEDIDOS[I].PRODUTOS) to High(PEDIDOS[I].PRODUTOS) do begin
@@ -291,15 +293,17 @@ begin
                             PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[0]).ID.asString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
                             if PI.Count = 0 then begin
                               SaveLog('Produto não esta incluido no pedido!');
+                              Atualizar := False;
                               Deletar := False;
                             end;
                           end else begin
                             SaveLog('Produto ' + PEDIDOS[I].PRODUTOS[J] + ' não cadastrado!');
+                            Atualizar := False;
                             Deletar := False;
                           end;
                         end;
 
-                        if Deletar then begin
+                        if Atualizar then begin
                           P.ID.Value                := TPEDIDO(P.Itens[0]).ID.Value;
                           P.STATUS.Value            := 3;
                           P.DATA_RECEBIDO.Value     := Now;
