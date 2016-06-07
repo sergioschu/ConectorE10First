@@ -50,6 +50,7 @@ type
     OpenDialog1: TOpenDialog;
     edDataI: TJvDateEdit;
     edDataF: TJvDateEdit;
+    csPedidosDATARETORNO: TDateTimeField;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -366,7 +367,8 @@ begin
       SQL.SQL.Add('				WHEN 5 THEN ''Pedido Faturado''');
       SQL.SQL.Add('				WHEN 6 THEN ''Pedido Cancelado''');
       SQL.SQL.Add('				ELSE ''Status não Definido'' END END AS STATUSTEXTO,');
-      SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
+      SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO,');
+      SQL.SQL.Add(' P.DATA_RECEBIDO');
       SQL.SQL.Add('FROM PEDIDO P');
       SQL.SQL.Add('WHERE 1 = 1');
       SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
@@ -401,7 +403,9 @@ begin
           csPedidosSTATUS.Value         := SQL.Fields[5].Value;
           csPedidosSTATUSTEXTO.Value    := SQL.Fields[6].Value;
           if SQL.Fields[5].Value = 5 then //Faturado
-            csPedidosDATA_FATURADO.Value  := SQL.Fields[7].Value;
+            csPedidosDATA_FATURADO.Value:= SQL.Fields[7].Value;
+          if not SQL.Fields[8].IsNull then
+            csPedidosDATARETORNO.Value  := SQL.Fields[8].Value;
           csPedidos.Post;
 
           SQL.Next;

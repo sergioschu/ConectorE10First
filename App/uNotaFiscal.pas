@@ -49,6 +49,7 @@ type
     rgStatus: TRadioGroup;
     btExportar: TSpeedButton;
     edTotalRegistros: TEdit;
+    csNotaFiscalDATARETORNO: TDateTimeField;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btAtualizarClick(Sender: TObject);
@@ -411,7 +412,7 @@ begin
       SQL.Connection                   := CON.FDConnection;
       SQL.Close;
       SQL.SQL.Clear;
-      SQL.SQL.Add('select id, documento, dataemissao, serie, cnpjcpf, status from notafiscal');
+      SQL.SQL.Add('select id, documento, dataemissao, serie, cnpjcpf, status, data_recebido from notafiscal');
       SQL.SQL.Add('where cast(data_importacao as date) between :datai and :dataf');
       SQL.ParamByName('datai').DataType   := ftDate;
       SQL.ParamByName('dataf').DataType   := ftDate;
@@ -445,6 +446,8 @@ begin
         csNotaFiscalSERIE.Value         := SQL.Fields[3].Value;
         csNotaFiscalCNPJ.Value          := SQL.Fields[4].Value;
         csNotaFiscalSTATUSCOD.Value     := SQL.Fields[5].Value;
+        if not SQL.Fields[6].IsNull then
+          csNotaFiscalDATARETORNO.Value := SQL.Fields[6].Value;
         case csNotaFiscalSTATUSCOD.Value of
           0 : csNotaFiscalSTATUS.Value  := 'Não Enviada para o FTP';
           1 : csNotaFiscalSTATUS.Value  := 'Enviada para o FTP';

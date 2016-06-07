@@ -80,6 +80,11 @@ object frmNotaFiscal: TfrmNotaFiscal
           Expanded = False
           FieldName = 'STATUS'
           Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'DATARETORNO'
+          Visible = True
         end>
     end
     object pnFiltro: TPanel
@@ -1104,6 +1109,10 @@ object frmNotaFiscal: TfrmNotaFiscal
     end
     object csNotaFiscalSTATUSCOD: TIntegerField
       FieldName = 'STATUSCOD'
+    end
+    object csNotaFiscalDATARETORNO: TDateTimeField
+      DisplayLabel = 'Data Retorno'
+      FieldName = 'DATARETORNO'
     end
   end
   object dsNotaFiscal: TDataSource

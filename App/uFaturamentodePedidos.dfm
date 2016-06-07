@@ -93,6 +93,11 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         end
         item
           Expanded = False
+          FieldName = 'DATARETORNO'
+          Visible = True
+        end
+        item
+          Expanded = False
           FieldName = 'DATA_FATURADO'
           Title.Caption = 'Data Faturamento'
           Visible = True
@@ -998,6 +1003,10 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
     end
     object csPedidosDATA_FATURADO: TDateTimeField
       FieldName = 'DATA_FATURADO'
+    end
+    object csPedidosDATARETORNO: TDateTimeField
+      DisplayLabel = 'Data Retorno'
+      FieldName = 'DATARETORNO'
     end
   end
   object csImpressaoPedidos: TClientDataSet
