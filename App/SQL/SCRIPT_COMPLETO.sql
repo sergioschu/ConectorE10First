@@ -190,7 +190,7 @@ alter table pedido add codigo_rastreio character varying(100);
 create table pedido_cancelamento
 (
   id serial not null,
-  id_pedido smallint not null,
+  id_pedido integer not null,
   id_usuario integer not null,
   data_hora timestamp without time zone,
   motivo character varying(255),
@@ -202,3 +202,21 @@ create table pedido_cancelamento
       references usuario (id) match simple
       on update cascade on delete restrict  
 );
+
+create table pedido_notafiscal
+(
+  id serial not null,
+  id_pedido integer not null,
+  id_arquivo integer not null,
+  data_importacao timestamp without time zone,
+  data_envio timestamp without time zone,
+  numero_documento integer not null,
+  serie_documento char(3) not null,
+  status smallint default 0,
+  constraint pk_pedido_notafiscal primary key (id),
+  constraint fk_pedido_notafiscal foreign key (id_pedido)
+      references pedido (id) match simple
+      on update cascade on delete cascade,  
+  constraint fk_pedido_notafiscal_1 foreign key (id_arquivo)
+      references arquivosftp (id) match simple
+      on update cascade on delete restrict);

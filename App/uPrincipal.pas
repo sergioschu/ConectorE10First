@@ -29,6 +29,7 @@ type
     CancelamentodePedidos1: TMenuItem;
     CancelamentodePedidos2: TMenuItem;
     RetornoforadoPrazo1: TMenuItem;
+    NotasFiscaisdePedidos1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -46,6 +47,7 @@ type
     procedure CancelamentodePedidos1Click(Sender: TObject);
     procedure CancelamentodePedidos2Click(Sender: TObject);
     procedure RetornoforadoPrazo1Click(Sender: TObject);
+    procedure NotasFiscaisdePedidos1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -74,7 +76,8 @@ uses
   uRelTempoResposta,
   uRelCodigoRastreio,
   uRelCancelamentoPedido,
-  uRelRetornoForadoPrazo;
+  uRelRetornoForadoPrazo,
+  uPedidosNotaFiscal;
 
 {$R *.dfm}
 
@@ -196,6 +199,17 @@ begin
     frmNotaFiscal.ShowModal;
   finally
     FreeAndNil(frmNotaFiscal);
+  end;
+end;
+
+procedure TfrmPrincipal.NotasFiscaisdePedidos1Click(Sender: TObject);
+begin
+  try
+    if frmPedidosNotaFiscal = nil then
+      frmPedidosNotaFiscal := TfrmPedidosNotaFiscal.Create(Self);
+    frmPedidosNotaFiscal.ShowModal;
+  finally
+    FreeAndNil(frmPedidosNotaFiscal);
   end;
 end;
 

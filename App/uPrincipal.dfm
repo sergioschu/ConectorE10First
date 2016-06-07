@@ -66,6 +66,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Cancelamento de Pedidos'
         OnClick = CancelamentodePedidos1Click
       end
+      object NotasFiscaisdePedidos1: TMenuItem
+        Caption = 'Notas Fiscais de Pedidos'
+        OnClick = NotasFiscaisdePedidos1Click
+      end
     end
     object Configuraes1: TMenuItem
       Caption = 'Configura'#231#245'es'

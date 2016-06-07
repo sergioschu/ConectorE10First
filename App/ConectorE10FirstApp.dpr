@@ -36,7 +36,9 @@ uses
   uSeleciona in 'uSeleciona.pas' {frmSeleciona},
   uBeanPedido_Cancelamento in 'Beans\uBeanPedido_Cancelamento.pas',
   uRelCancelamentoPedido in 'uRelCancelamentoPedido.pas' {frmRelCancelamentoPedido},
-  uRelRetornoForadoPrazo in 'uRelRetornoForadoPrazo.pas' {frmRelRetornoForadoPrazo};
+  uRelRetornoForadoPrazo in 'uRelRetornoForadoPrazo.pas' {frmRelRetornoForadoPrazo},
+  uBeanPedido_NotaFiscal in 'Beans\uBeanPedido_NotaFiscal.pas',
+  uPedidosNotaFiscal in 'uPedidosNotaFiscal.pas' {FrmPedidosNotaFiscal};
 
 {$R *.res}
 
