@@ -26,12 +26,10 @@ type
     csPedidos: TClientDataSet;
     csPedidosID: TIntegerField;
     csPedidosPEDIDO: TStringField;
-    csPedidosDEST_NOME: TStringField;
     csPedidosSTATUSTEXTO: TStringField;
     csPedidosSELECIONAR: TBooleanField;
     csPedidosSTATUS: TIntegerField;
     csPedidosDATA_IMPORTACAO: TDateField;
-    csPedidosDATA_FATURADO: TDateTimeField;
     pnConsulta: TPanel;
     btConsultar: TSpeedButton;
     gbPeriodo: TGroupBox;
@@ -46,6 +44,8 @@ type
     pbAtualizaPedidos: TGauge;
     csPedidosID_PEDIDO: TIntegerField;
     csPedidosDATA_ENVIO: TDateTimeField;
+    csPedidosNUMERODOCUMENTO: TIntegerField;
+    csPedidosSERIEDOCUMENTO: TStringField;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -122,6 +122,7 @@ begin
     btAtualizar.Tag    := 1;
     try
       VincularNotasFiscais;
+      CarregaDados;
     finally
       btAtualizar.Tag  := 0;
     end;
@@ -182,16 +183,16 @@ begin
       SQL.SQL.Add('	PNF.ID,');
       SQL.SQL.Add(' P.ID AS ID_PEDIDO,');
       SQL.SQL.Add('	P.PEDIDO,');
+      SQL.SQL.Add('	PNF.NUMERO_DOCUMENTO,');
+      SQL.SQL.Add('	PNF.SERIE_DOCUMENTO,');
       SQL.SQL.Add('	CAST(P.DATA_IMPORTACAO AS DATE) AS DATA_IMPORTACAO,');
-      SQL.SQL.Add('	P.DEST_NOME,');
+      SQL.SQL.Add('	PNF.DATA_ENVIO,');
       SQL.SQL.Add('	P.STATUS,');
       SQL.SQL.Add('	CASE PNF.STATUS WHEN 0 THEN ''Não Enviado''');
-      SQL.SQL.Add('		ELSE ''Enviado'' END AS STATUSTEXTO,');
-      SQL.SQL.Add('	PNF.DATA_ENVIO,');
-      SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO');
+      SQL.SQL.Add('		ELSE ''Enviado'' END AS STATUSTEXTO');
       SQL.SQL.Add('FROM PEDIDO_NOTAFISCAL PNF INNER JOIN PEDIDO P ON (PNF.ID_PEDIDO = P.ID)');
       SQL.SQL.Add('WHERE 1 = 1');
-      SQL.SQL.Add('AND CAST(PNF.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
+      SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
 
       SQL.ParamByName('DATAI').DataType := ftDate;
       SQL.ParamByName('DATAF').DataType := ftDate;
@@ -214,13 +215,19 @@ begin
           csPedidosID.Value             := SQL.Fields[0].Value;
           csPedidosID_PEDIDO.Value      := SQL.Fields[1].Value;
           csPedidosPEDIDO.Value         := SQL.Fields[2].Value;
-          csPedidosDATA_IMPORTACAO.Value:= SQL.Fields[3].Value;
-          csPedidosDEST_NOME.Value      := SQL.Fields[4].Value;
-          csPedidosSTATUS.Value         := SQL.Fields[5].Value;
-          csPedidosSTATUSTEXTO.Value    := SQL.Fields[6].Value;
-          if not SQL.Fields[7].IsNull then
-            csPedidosDATA_ENVIO.Value   := SQL.Fields[7].Value;
-          csPedidosDATA_FATURADO.Value  := SQL.Fields[8].Value;
+
+          if SQL.Fields[3].AsInteger > 0 then begin
+            csPedidosNUMERODOCUMENTO.Value:= SQL.Fields[3].Value;
+            csPedidosSERIEDOCUMENTO.Value := SQL.Fields[4].Value;
+          end;
+
+          csPedidosDATA_IMPORTACAO.Value:= SQL.Fields[5].Value;
+
+          if not SQL.Fields[6].IsNull then
+            csPedidosDATA_ENVIO.Value   := SQL.Fields[6].Value;
+
+          csPedidosSTATUS.Value         := SQL.Fields[7].Value;
+          csPedidosSTATUSTEXTO.Value    := SQL.Fields[8].Value;
           csPedidos.Post;
 
           SQL.Next;
@@ -480,9 +487,9 @@ begin
           arrData                              := Excel.Range['A1', Excel.WorkSheets[1].Cells[vrow, vcol].Address].Value;
 
           SetLength(Colunas, 3);
-          Colunas[0] := 'Pedido - Nº';
-          Colunas[1] := 'Nota - Nº';
-          Colunas[2] := 'Nota - Série';
+          Colunas[0] := 'Numero do Pedido';
+          Colunas[1] := 'Nota Fiscal';
+          Colunas[2] := 'Serie da Nota';
 
           ArqValido := True;
           for I := Low(Colunas) to High(Colunas) do begin
@@ -538,22 +545,26 @@ begin
 
           Aux := EmptyStr;
           for I := Low(Pedidos_NF) to High(Pedidos_NF) do begin
-            //Consulta o pedido no BD
-            P.SelectList('STATUS = 5 AND PEDIDO = ' + QuotedStr(Pedidos_NF[I].NumeroPedido));
-            if P.Count = 1 then begin
-              Pedidos_NF[I].ID_Pedido := TPEDIDO(P.Itens[0]).ID.Value;
+            if Length(Trim(Pedidos_NF[I].NumeroPedido)) > 0 then begin
 
-              //Consulta a nf do pedido no BD
-              PNF.SelectList('ID_PEDIDO = ' + IntToStr(Pedidos_NF[I].ID_Pedido));
-              if PNF.Count = 1 then
-                Pedidos_NF[I].ID := TPEDIDO_NOTAFISCAL(PNF.Itens[0]).ID.Value;
-            end else begin
-              if Aux = EmptyStr then
-                Aux := 'Pedido Nº ' + Pedidos_NF[I].NumeroPedido + ' -> NF Nº ' + IntToStr(Pedidos_NF[I].NumeroDocumento)
-              else
-                Aux := Aux + sLineBreak + 'Pedido Nº ' + Pedidos_NF[I].NumeroPedido + ' -> NF Nº ' + IntToStr(Pedidos_NF[I].NumeroDocumento);
+              //Consulta o pedido no BD
+              P.SelectList('STATUS = 5 AND PEDIDO = ' + QuotedStr(Pedidos_NF[I].NumeroPedido));
+              if P.Count = 1 then begin
+                Pedidos_NF[I].ID_Pedido := TPEDIDO(P.Itens[0]).ID.Value;
+
+                //Consulta a nf do pedido no BD
+                PNF.SelectList('ID_PEDIDO = ' + IntToStr(Pedidos_NF[I].ID_Pedido));
+                if PNF.Count = 1 then
+                  Pedidos_NF[I].ID := TPEDIDO_NOTAFISCAL(PNF.Itens[0]).ID.Value;
+              end else begin
+                if Aux = EmptyStr then
+                  Aux := 'Pedido Nº ' + Pedidos_NF[I].NumeroPedido + ' -> NF Nº ' + IntToStr(Pedidos_NF[I].NumeroDocumento)
+                else
+                  Aux := Aux + sLineBreak + 'Pedido Nº ' + Pedidos_NF[I].NumeroPedido + ' -> NF Nº ' + IntToStr(Pedidos_NF[I].NumeroDocumento);
+              end;
             end;
 
+            Application.ProcessMessages;
             pbAtualizaPedidos.Progress := I;
           end;
 
@@ -585,6 +596,7 @@ begin
 
               end;
             end;
+            Application.ProcessMessages;
             pbAtualizaPedidos.Progress  := I;
           end;
 

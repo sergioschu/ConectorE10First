@@ -66,15 +66,26 @@ object FrmPedidosNotaFiscal: TFrmPedidosNotaFiscal
         end
         item
           Expanded = False
+          FieldName = 'NUMERODOCUMENTO'
+          Title.Caption = 'N'#250'mero Documento'
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'SERIEDOCUMENTO'
+          Title.Caption = 'S'#233'rie Documento'
+          Visible = True
+        end
+        item
+          Expanded = False
           FieldName = 'DATA_IMPORTACAO'
           Title.Caption = 'Data Importa'#231#227'o'
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'DEST_NOME'
-          Title.Caption = 'Nome Destinat'#225'rio'
-          Width = 250
+          FieldName = 'DATA_ENVIO'
+          Title.Caption = 'Data Envio'
           Visible = True
         end
         item
@@ -82,18 +93,6 @@ object FrmPedidosNotaFiscal: TFrmPedidosNotaFiscal
           FieldName = 'STATUSTEXTO'
           Title.Caption = 'Status'
           Width = 200
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DATA_FATURADO'
-          Title.Caption = 'Data Faturamento'
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DATA_ENVIO'
-          Title.Caption = 'Data Envio'
           Visible = True
         end>
     end
@@ -878,12 +877,12 @@ object FrmPedidosNotaFiscal: TFrmPedidosNotaFiscal
     object csPedidosPEDIDO: TStringField
       FieldName = 'PEDIDO'
     end
-    object csPedidosDATA_IMPORTACAO: TDateField
-      FieldName = 'DATA_IMPORTACAO'
+    object csPedidosNUMERODOCUMENTO: TIntegerField
+      FieldName = 'NUMERODOCUMENTO'
     end
-    object csPedidosDEST_NOME: TStringField
-      FieldName = 'DEST_NOME'
-      Size = 60
+    object csPedidosSERIEDOCUMENTO: TStringField
+      FieldName = 'SERIEDOCUMENTO'
+      Size = 3
     end
     object csPedidosSTATUSTEXTO: TStringField
       FieldName = 'STATUSTEXTO'
@@ -892,11 +891,11 @@ object FrmPedidosNotaFiscal: TFrmPedidosNotaFiscal
     object csPedidosSTATUS: TIntegerField
       FieldName = 'STATUS'
     end
+    object csPedidosDATA_IMPORTACAO: TDateField
+      FieldName = 'DATA_IMPORTACAO'
+    end
     object csPedidosDATA_ENVIO: TDateTimeField
       FieldName = 'DATA_ENVIO'
-    end
-    object csPedidosDATA_FATURADO: TDateTimeField
-      FieldName = 'DATA_FATURADO'
     end
   end
   object OpenDialog1: TOpenDialog
