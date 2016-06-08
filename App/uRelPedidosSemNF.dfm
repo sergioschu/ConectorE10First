@@ -1,9 +1,9 @@
-object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
+object frmRelPedidosSemNF: TfrmRelPedidosSemNF
   Left = 0
   Top = 0
-  Caption = 'Relat'#243'rio Cancelamento de Pedido'
-  ClientHeight = 280
-  ClientWidth = 369
+  Caption = 'Relat'#243'rio de Pedidos sem Nota Fiscal'
+  ClientHeight = 165
+  ClientWidth = 368
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
   object pnPrincipal: TPanel
     Left = 0
     Top = 0
-    Width = 369
-    Height = 280
+    Width = 368
+    Height = 165
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -31,11 +31,12 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitHeight = 215
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 3
-      Top = 217
-      Width = 363
+      Top = 102
+      Width = 362
       Height = 60
       Align = alBottom
       BevelOuter = bvLowered
@@ -62,6 +63,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
           Value = 100.000000000000000000
         end>
       TabOrder = 0
+      ExplicitTop = 152
       object Panel1: TPanel
         Left = 1
         Top = 1
@@ -606,7 +608,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
       object Panel2: TPanel
         Left = 181
         Top = 1
-        Width = 181
+        Width = 180
         Height = 58
         Align = alClient
         TabOrder = 1
@@ -732,9 +734,9 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
     object gbSelecionaPeriodo: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 103
-      Width = 363
-      Height = 100
+      Top = 3
+      Width = 362
+      Height = 94
       Align = alTop
       Caption = '  Data de Importa'#231#227'o '
       Font.Charset = DEFAULT_CHARSET
@@ -748,8 +750,8 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
         AlignWithMargins = True
         Left = 5
         Top = 24
-        Width = 353
-        Height = 71
+        Width = 352
+        Height = 65
         Align = alClient
         BevelOuter = bvLowered
         ColumnCollection = <
@@ -779,7 +781,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
           Left = 1
           Top = 1
           Width = 175
-          Height = 69
+          Height = 63
           Align = alClient
           TabOrder = 0
           object Label1: TLabel
@@ -787,7 +789,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
             Left = 4
             Top = 4
             Width = 167
-            Height = 28
+            Height = 22
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Inicial'
@@ -797,7 +799,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
           object edDataInicial: TJvDateEdit
             AlignWithMargins = True
             Left = 4
-            Top = 38
+            Top = 32
             Width = 167
             Height = 27
             Align = alBottom
@@ -808,16 +810,16 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
         object Panel4: TPanel
           Left = 176
           Top = 1
-          Width = 176
-          Height = 69
+          Width = 175
+          Height = 63
           Align = alClient
           TabOrder = 1
           object Label2: TLabel
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 168
-            Height = 28
+            Width = 167
+            Height = 22
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Final'
@@ -827,8 +829,8 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
           object edDataFinal: TJvDateEdit
             AlignWithMargins = True
             Left = 4
-            Top = 38
-            Width = 168
+            Top = 32
+            Width = 167
             Height = 27
             Align = alBottom
             ShowNullDate = False
@@ -836,21 +838,6 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
           end
         end
       end
-    end
-    object rgTipoData: TRadioGroup
-      Left = 0
-      Top = 0
-      Width = 369
-      Height = 100
-      Align = alTop
-      Caption = ' Tipo de Data '
-      Columns = 2
-      ItemIndex = 0
-      Items.Strings = (
-        'Importa'#231#227'o'
-        'Cancelamento')
-      TabOrder = 2
-      OnClick = rgTipoDataClick
     end
   end
 end

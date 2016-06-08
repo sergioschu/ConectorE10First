@@ -1,8 +1,8 @@
-object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
+object frmRelNotaFiscalPedido: TfrmRelNotaFiscalPedido
   Left = 0
   Top = 0
-  Caption = 'Relat'#243'rio Cancelamento de Pedido'
-  ClientHeight = 280
+  Caption = 'Relat'#243'rio Nota Fiscal de Pedidos'
+  ClientHeight = 252
   ClientWidth = 369
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -21,7 +21,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
     Left = 0
     Top = 0
     Width = 369
-    Height = 280
+    Height = 252
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -31,10 +31,11 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitHeight = 280
     object GridPanel1: TGridPanel
       AlignWithMargins = True
       Left = 3
-      Top = 217
+      Top = 189
       Width = 363
       Height = 60
       Align = alBottom
@@ -62,6 +63,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
           Value = 100.000000000000000000
         end>
       TabOrder = 0
+      ExplicitTop = 217
       object Panel1: TPanel
         Left = 1
         Top = 1
@@ -732,7 +734,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
     object gbSelecionaPeriodo: TGroupBox
       AlignWithMargins = True
       Left = 3
-      Top = 103
+      Top = 82
       Width = 363
       Height = 100
       Align = alTop
@@ -744,6 +746,7 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
       Font.Style = []
       ParentFont = False
       TabOrder = 1
+      ExplicitTop = 103
       object GridPanel2: TGridPanel
         AlignWithMargins = True
         Left = 5
@@ -837,20 +840,20 @@ object frmRelCancelamentoPedido: TfrmRelCancelamentoPedido
         end
       end
     end
-    object rgTipoData: TRadioGroup
+    object rgStatus: TRadioGroup
       Left = 0
       Top = 0
       Width = 369
-      Height = 100
+      Height = 79
       Align = alTop
-      Caption = ' Tipo de Data '
+      Caption = ' Status '
       Columns = 2
       ItemIndex = 0
       Items.Strings = (
-        'Importa'#231#227'o'
-        'Cancelamento')
+        'N'#227'o Enviados'
+        'Enviados'
+        'Ambos')
       TabOrder = 2
-      OnClick = rgTipoDataClick
     end
   end
 end

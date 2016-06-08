@@ -38,7 +38,9 @@ uses
   uRelCancelamentoPedido in 'uRelCancelamentoPedido.pas' {frmRelCancelamentoPedido},
   uRelRetornoForadoPrazo in 'uRelRetornoForadoPrazo.pas' {frmRelRetornoForadoPrazo},
   uBeanPedido_NotaFiscal in 'Beans\uBeanPedido_NotaFiscal.pas',
-  uPedidosNotaFiscal in 'uPedidosNotaFiscal.pas' {FrmPedidosNotaFiscal};
+  uPedidosNotaFiscal in 'uPedidosNotaFiscal.pas' {FrmPedidosNotaFiscal},
+  uRelNotaFiscalPedido in 'uRelNotaFiscalPedido.pas' {frmRelNotaFiscalPedido},
+  uRelPedidosSemNF in 'uRelPedidosSemNF.pas' {frmRelPedidosSemNF};
 
 {$R *.res}
 

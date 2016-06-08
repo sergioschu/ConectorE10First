@@ -30,6 +30,8 @@ type
     CancelamentodePedidos2: TMenuItem;
     RetornoforadoPrazo1: TMenuItem;
     NotasFiscaisdePedidos1: TMenuItem;
+    NotaFiscaldePedidos1: TMenuItem;
+    PedidossemNotaFiscal1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -48,6 +50,8 @@ type
     procedure CancelamentodePedidos2Click(Sender: TObject);
     procedure RetornoforadoPrazo1Click(Sender: TObject);
     procedure NotasFiscaisdePedidos1Click(Sender: TObject);
+    procedure NotaFiscaldePedidos1Click(Sender: TObject);
+    procedure PedidossemNotaFiscal1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -77,7 +81,9 @@ uses
   uRelCodigoRastreio,
   uRelCancelamentoPedido,
   uRelRetornoForadoPrazo,
-  uPedidosNotaFiscal;
+  uPedidosNotaFiscal,
+  uRelNotaFiscalPedido,
+  uRelPedidosSemNF;
 
 {$R *.dfm}
 
@@ -191,10 +197,21 @@ begin
     Close;
 end;
 
+procedure TfrmPrincipal.NotaFiscaldePedidos1Click(Sender: TObject);
+begin
+  if not Assigned(frmRelNotaFiscalPedido) then
+    frmRelNotaFiscalPedido   := TfrmRelNotaFiscalPedido.Create(self);
+  try
+    frmRelNotaFiscalPedido.ShowModal;
+  finally
+    FreeAndNil(frmRelNotaFiscalPedido);
+  end;
+end;
+
 procedure TfrmPrincipal.NotasFiscaisdeEntrada1Click(Sender: TObject);
 begin
   if not Assigned(frmNotaFiscal) then
-    frmNotaFiscal   := TfrmNotaFiscal.Create(nil);
+    frmNotaFiscal   := TfrmNotaFiscal.Create(self);
   try
     frmNotaFiscal.ShowModal;
   finally
@@ -221,6 +238,17 @@ begin
     frmManutencaoPedidos.ShowModal;
   finally
     FreeAndNil(frmManutencaoPedidos);
+  end;
+end;
+
+procedure TfrmPrincipal.PedidossemNotaFiscal1Click(Sender: TObject);
+begin
+  try
+    if frmRelPedidosSemNF = nil then
+      frmRelPedidosSemNF := TfrmRelPedidosSemNF.Create(Self);
+    frmRelPedidosSemNF.ShowModal;
+  finally
+    FreeAndNil(frmRelPedidosSemNF);
   end;
 end;
 

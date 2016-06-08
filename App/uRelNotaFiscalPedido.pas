@@ -1,4 +1,4 @@
-unit uRelCancelamentoPedido;
+unit uRelNotaFiscalPedido;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   FireDAC.Comp.Client, Data.DB, Vcl.ComCtrls, Vcl.Mask, JvExMask, JvToolEdit;
 
 type
-  TfrmRelCancelamentoPedido = class(TForm)
+  TfrmRelNotaFiscalPedido = class(TForm)
     pnPrincipal: TPanel;
     GridPanel1: TGridPanel;
     Panel1: TPanel;
@@ -21,14 +21,13 @@ type
     Panel4: TPanel;
     Label1: TLabel;
     Label2: TLabel;
-    rgTipoData: TRadioGroup;
+    rgStatus: TRadioGroup;
     edDataInicial: TJvDateEdit;
     edDataFinal: TJvDateEdit;
     procedure btSairClick(Sender: TObject);
     procedure btRelatorioClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure rgTipoDataClick(Sender: TObject);
   private
     procedure VisualizarRelatorio;
     { Private declarations }
@@ -37,7 +36,7 @@ type
   end;
 
 var
-  frmRelCancelamentoPedido: TfrmRelCancelamentoPedido;
+  frmRelNotaFiscalPedido: TfrmRelNotaFiscalPedido;
 
 implementation
 
@@ -48,7 +47,7 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmRelCancelamentoPedido.btRelatorioClick(Sender: TObject);
+procedure TfrmRelNotaFiscalPedido.btRelatorioClick(Sender: TObject);
 begin
   if btRelatorio.Tag = 0 then begin
     btRelatorio.Tag   := 1;
@@ -60,33 +59,25 @@ begin
   end;
 end;
 
-procedure TfrmRelCancelamentoPedido.btSairClick(Sender: TObject);
+procedure TfrmRelNotaFiscalPedido.btSairClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TfrmRelCancelamentoPedido.FormKeyDown(Sender: TObject; var Key: Word;
+procedure TfrmRelNotaFiscalPedido.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if Key = VK_ESCAPE then
     Close;
 end;
 
-procedure TfrmRelCancelamentoPedido.FormShow(Sender: TObject);
+procedure TfrmRelNotaFiscalPedido.FormShow(Sender: TObject);
 begin
   edDataInicial.Date  := Date;
   edDataFinal.Date    := Date;
 end;
 
-procedure TfrmRelCancelamentoPedido.rgTipoDataClick(Sender: TObject);
-begin
-  case rgTipoData.ItemIndex of
-    0 : gbSelecionaPeriodo.Caption  := ' Data de Importação ';
-    1 : gbSelecionaPeriodo.Caption  := ' Data de Cancelamento ';
-  end;
-end;
-
-procedure TfrmRelCancelamentoPedido.VisualizarRelatorio;
+procedure TfrmRelNotaFiscalPedido.VisualizarRelatorio;
 Var
   FWC : TFWConnection;
   SQL : TFDQuery;
@@ -104,19 +95,22 @@ begin
       SQL.SQL.Clear;
       SQL.SQL.Add('SELECT');
       SQL.SQL.Add('	P.PEDIDO AS NUMERO_PEDIDO,');
-      SQL.SQL.Add('	PC.DATA_HORA,');
-      SQL.SQL.Add('	U.NOME AS NOME_USUARIO,');
-      SQL.SQL.Add('	PC.MOTIVO');
-      SQL.SQL.Add('FROM PEDIDO P');
-      SQL.SQL.Add('INNER JOIN PEDIDO_CANCELAMENTO PC ON (PC.ID_PEDIDO = P.ID)');
-      SQL.SQL.Add('INNER JOIN USUARIO U ON (PC.ID_USUARIO = U.ID)');
+      SQL.SQL.Add('	PNF.NUMERO_DOCUMENTO,');
+      SQL.SQL.Add('	PNF.SERIE_DOCUMENTO,');
+      SQL.SQL.Add('	PNF.DATA_ENVIO,');
+      SQL.SQL.Add('	CASE PNF.STATUS WHEN 0 THEN ''Não Enviado''');
+      SQL.SQL.Add('		ELSE ''Enviado'' END AS STATUS');
+      SQL.SQL.Add('FROM PEDIDO_NOTAFISCAL PNF');
+      SQL.SQL.Add('INNER JOIN PEDIDO P ON (PNF.ID_PEDIDO = P.ID)');
       SQL.SQL.Add('WHERE 1 = 1');
-      case rgTipoData.ItemIndex of
-        0 : SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
-        1 : SQL.SQL.Add('AND CAST(PC.DATA_HORA AS DATE) BETWEEN :DATAI AND :DATAF');
+      SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
+
+      case rgStatus.ItemIndex of
+        0 : SQL.SQL.Add('AND PNF.STATUS = 0');
+        1 : SQL.SQL.Add('AND PNF.STATUS = 1');
       end;
 
-      SQL.SQL.Add('ORDER BY P.PEDIDO, PC.DATA_HORA');
+      SQL.SQL.Add('ORDER BY P.PEDIDO');
 
       SQL.ParamByName('DATAI').DataType := ftDate;
       SQL.ParamByName('DATAF').DataType := ftDate;
@@ -130,7 +124,7 @@ begin
       SQL.FetchAll;
 
       DMUtil.frxDBDataset1.DataSet := SQL;
-      DMUtil.ImprimirRelatorio('frPedidoCancelamento.fr3');
+      DMUtil.ImprimirRelatorio('frNotaFiscalPedido.fr3');
 
       DisplayMsgFinaliza;
 

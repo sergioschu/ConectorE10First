@@ -533,7 +533,7 @@ begin
                   Pedidos_NF[High(Pedidos_NF)].NumeroDocumento := arrData[I, J]
                 else
                   if arrData[1, J] = Colunas[2] then
-                    Pedidos_NF[High(Pedidos_NF)].NumeroSerie := arrData[I, J];
+                    Pedidos_NF[High(Pedidos_NF)].NumeroSerie := Format('%.3d', [StrToIntDef(arrData[I, J],0)]);
             end;
             pbAtualizaPedidos.Progress := I;
           end;

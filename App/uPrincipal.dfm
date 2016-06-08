@@ -104,6 +104,14 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Retorno fora do Prazo'
         OnClick = RetornoforadoPrazo1Click
       end
+      object NotaFiscaldePedidos1: TMenuItem
+        Caption = 'Nota Fiscal de Pedidos'
+        OnClick = NotaFiscaldePedidos1Click
+      end
+      object PedidossemNotaFiscal1: TMenuItem
+        Caption = 'Pedidos sem Nota Fiscal'
+        OnClick = PedidossemNotaFiscal1Click
+      end
     end
     object miSair: TMenuItem
       Caption = 'Sair'

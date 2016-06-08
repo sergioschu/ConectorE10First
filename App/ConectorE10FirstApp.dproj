@@ -166,6 +166,14 @@
             <Form>FrmPedidosNotaFiscal</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="uRelNotaFiscalPedido.pas">
+            <Form>frmRelNotaFiscalPedido</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="uRelPedidosSemNF.pas">
+            <Form>frmRelPedidosSemNF</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
