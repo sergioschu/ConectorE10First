@@ -26,6 +26,7 @@ type
     procedure CarregarConexaoBD;
     procedure CarregarConfigLocal;
     function EnviaPedidos : Boolean;
+    function EnviaPedidosFaturados : Boolean;
     function EnviaProdutos : Boolean;
     function EnviaNotasFiscais : Boolean;
     function BuscaMDD : Boolean;
@@ -46,6 +47,7 @@ uses
   uBeanArquivosFTP,
   uBeanNotafiscal,
   uBeanNotafiscalItens,
+  uBeanPedido_Notafiscal,
   uConstantes,
   uDados;
 {$R *.dfm}
@@ -548,7 +550,7 @@ begin
                     TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString + ';' +
                     TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString + ';' +
                     TPEDIDO(P.Itens[I]).DEST_CEP.asString + ';' +
-                    TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';');
+                    TPEDIDO(P.Itens[I]).DEST_MUNICIPIO.asString + ';;;I');
                 end;
               end;
             end;
@@ -578,6 +580,95 @@ begin
     FreeAndNil(PR);
     FreeAndNil(PI);
     FreeAndNil(P);
+    freeAndNil(T);
+    Freeandnil(Con);
+    FreeAndNil(Lista);
+  end;
+end;
+
+function TfrmPrincipal.EnviaPedidosFaturados: Boolean;
+var
+  Con     : TFWConnection;
+  P       : TPEDIDO;
+  PI      : TPEDIDOITENS;
+  PR      : TPRODUTO;
+  T       : TTRANSPORTADORA;
+  PN      : TPEDIDO_NOTAFISCAL;
+  Lista   : TStringList;
+  I,
+  J       : Integer;
+begin
+  Con    := TFWConnection.Create;
+  P      := TPEDIDO.Create(Con);
+  PN     := TPEDIDO_NOTAFISCAL.Create(Con);
+  PI     := TPEDIDOITENS.Create(Con);
+  PR     := TPRODUTO.Create(Con);
+  T      := TTRANSPORTADORA.Create(Con);
+  Lista  := TStringList.Create;
+
+  try
+    Con.StartTransaction;
+    try
+      PN.SelectList('status = 0');
+      if PN.Count > 0 then begin
+        for I := 0 to Pred(PN.Count) do begin
+          Lista.Clear;
+          P.SelectList('id = ' + TPEDIDO_NOTAFISCAL(PN.Itens[I]).ID_PEDIDO.asSQL);
+          if P.Count > 0 then begin
+            T.SelectList('id = ' + TPEDIDO(P.Itens[0]).ID_TRANSPORTADORA.asString);
+            if T.Count > 0 then begin
+              PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[0]).ID.asString);
+              if PI.Count > 0 then begin
+                for J := 0 to Pred(PI.Count) do begin
+                  PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
+                  if PR.Count > 0 then begin
+                    Lista.Add(TTRANSPORTADORA(T.Itens[0]).CNPJ.asString + ';' +
+                      TPEDIDO(P.Itens[0]).PEDIDO.asString + ';' +
+                      TPEDIDO(P.Itens[0]).VIAGEM.asString + ';' +
+                      TPEDIDO(P.Itens[0]).SEQUENCIA.asString + ';' +
+                      TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString + ';' +
+                      TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString + ';' +
+                      TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString + ';' +
+                      TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString + ';' +
+                      TPEDIDO(P.Itens[0]).DEST_CNPJ.asString + ';' +
+                      TPEDIDO(P.Itens[0]).DEST_NOME.asString + ';' +
+                      TPEDIDO(P.Itens[0]).DEST_ENDERECO.asString + ';' +
+                      TPEDIDO(P.Itens[0]).DEST_COMPLEMENTO.asString + ';' +
+                      TPEDIDO(P.Itens[0]).DEST_CEP.asString + ';' +
+                      TPEDIDO(P.Itens[0]).DEST_MUNICIPIO.asString + ';' +
+                      TPEDIDO_NOTAFISCAL(PN.Itens[I]).NUMERO_DOCUMENTO.asString + ';' +
+                      TPEDIDO_NOTAFISCAL(PN.Itens[I]).SERIE_DOCUMENTO.asString + ';A');
+                  end;
+                end;
+              end;
+            end;
+          end;
+
+          PN.ID.Value         := TPEDIDO_NOTAFISCAL(PN.Itens[I]).ID.Value;
+          PN.ID_ARQUIVO.Value := BuscaNumeroArquivo(Con, 2);
+          PN.STATUS.Value     := 1;
+          PN.DATA_ENVIO.Value := Now;
+          PN.Update;
+
+          if Lista.Count > 0 then begin
+            if not DirectoryExists(DirArquivosFTP) then
+              ForceDirectories(DirArquivosFTP);
+            Lista.SaveToFile(DirArquivosFTP + 'SC' + PN.ID_ARQUIVO.asString + '.txt');
+          end;
+        end;
+      end;
+      Con.Commit;
+    except
+      on E : Exception do begin
+        Con.Rollback;
+        SaveLog('Erro ao Enviar Pedido : ' + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(PR);
+    FreeAndNil(PI);
+    FreeAndNil(P);
+    FreeAndNil(PN);
     freeAndNil(T);
     Freeandnil(Con);
     FreeAndNil(Lista);
@@ -756,6 +847,8 @@ begin
       EnviaNotasFiscais;
       SaveLog('Enviar Pedidos');
       EnviaPedidos;
+      SaveLog('Enviar Pedidos Faturados');
+      EnviaPedidosFaturados;
 
       SaveLog('Conectar com FTP');
       ConexaoFTP := TConexaoFTP.Create;

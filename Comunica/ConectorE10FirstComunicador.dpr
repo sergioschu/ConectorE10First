@@ -17,7 +17,10 @@ uses
   uBeanPedidoItens in '..\App\Beans\uBeanPedidoItens.pas',
   uBeanProduto in '..\App\Beans\uBeanProduto.pas',
   uConstantes in '..\App\Units\uConstantes.pas',
-  uBeanTransportadoras in '..\App\Beans\uBeanTransportadoras.pas';
+  uBeanTransportadoras in '..\App\Beans\uBeanTransportadoras.pas',
+  uBeanPedido_NotaFiscal in '..\App\Beans\uBeanPedido_NotaFiscal.pas',
+  uMensagem in '..\App\Diversos\uMensagem.pas' {frmMensagem},
+  uBeanPedido_Cancelamento in '..\App\Beans\uBeanPedido_Cancelamento.pas';
 
 {$R *.res}
 
