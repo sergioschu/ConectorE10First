@@ -36,6 +36,7 @@ type
     FTPUsuario : string;
     FTPSenha : string;
     Sleep : Integer;
+    DIR_ARQ_XML : String;
   end;
 
   TITEM = record

@@ -21,6 +21,7 @@ type
     procedure BuscaCONF;
     procedure EnviarPedidos;
     procedure EnviarNotasFiscais;
+    procedure EnviarXML;
     destructor Destroy; override;
   End;
 implementation
@@ -78,6 +79,7 @@ begin
   FFTP              := TIdFTP.Create(nil);
   FFTP.Passive      := True;
   FFTP.TransferType := ftBinary;
+  FFTP.ListenTimeout:= 60000;
   SaveLog('Antes do Login!');
   Login;
   SaveLog('Depois do Login!');
@@ -98,7 +100,7 @@ begin
   try
     FFTP.ChangeDir('armz');
     FFTP.ChangeDir('receb');
-    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('ARMZ', search_rec.Name) > 0) then begin
@@ -131,7 +133,7 @@ begin
     FFTP.ChangeDir('sc');
     FFTP.ChangeDir('receb');
 
-    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
@@ -160,7 +162,7 @@ begin
   try
     FFTP.ChangeDir('prod');
     FFTP.ChangeDir('receb');
-    if FindFirst(DirArquivosFTP + '*.*', faAnyFile, search_rec) = 0 then begin
+    if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
       try
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
@@ -179,6 +181,38 @@ begin
   except
     on E : Exception do begin
       SaveLog('Erro ao enviar produtos! ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TConexaoFTP.EnviarXML;
+var
+  SR : TSearchRec;
+begin
+  SaveLog('Enviando XML!');
+  try
+    FFTP.ChangeDir('Nfe');
+    if FindFirst(DirArquivosFTP + '*.xml', faAnyFile, SR) = 0 then begin
+      try
+        repeat
+          if (SR.Attr <> faDirectory) then begin
+            if (Pos('-nfe.xml', SR.Name) > 0) then begin
+              FFTP.Put(DirArquivosFTP + SR.Name, SR.Name);
+              SaveLog('Passou do upload!');
+              DeleteFile(DirArquivosFTP + SR.Name);
+              SaveLog('Deletar arquivo!');
+            end else
+              SaveLog('Não tem -nfe.xml');
+          end;
+        until FindNext(SR) <> 0;
+      finally
+        FindClose(SR);
+      end;
+    end;
+    FFTP.ChangeDirUp;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao enviar XML! ' + E.Message);
     end;
   end;
 end;

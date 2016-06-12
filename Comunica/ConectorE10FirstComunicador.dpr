@@ -20,7 +20,9 @@ uses
   uBeanTransportadoras in '..\App\Beans\uBeanTransportadoras.pas',
   uBeanPedido_NotaFiscal in '..\App\Beans\uBeanPedido_NotaFiscal.pas',
   uMensagem in '..\App\Diversos\uMensagem.pas' {frmMensagem},
-  uBeanPedido_Cancelamento in '..\App\Beans\uBeanPedido_Cancelamento.pas';
+  uBeanPedido_Cancelamento in '..\App\Beans\uBeanPedido_Cancelamento.pas',
+  uDMUtil in '..\App\Diversos\uDMUtil.pas' {DMUtil: TDataModule},
+  uSeleciona in '..\App\uSeleciona.pas' {frmSeleciona};
 
 {$R *.res}
 
@@ -30,6 +32,7 @@ begin
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
   Application.Run;
 end.

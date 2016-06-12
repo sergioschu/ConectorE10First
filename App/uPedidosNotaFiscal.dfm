@@ -848,7 +848,8 @@ object FrmPedidosNotaFiscal: TFrmPedidosNotaFiscal
         Items.Strings = (
           'Todos'
           'Pedidos N'#227'o Enviados'
-          'Pedidos Enviados')
+          'Pedidos Enviados'
+          'XML Enviado')
         TabOrder = 1
       end
     end

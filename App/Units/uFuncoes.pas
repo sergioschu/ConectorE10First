@@ -87,6 +87,7 @@ begin
     CONFIG_LOCAL.FTPUsuario     := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
     CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
     CONFIG_LOCAL.Sleep          := ArqINI.ReadInteger('CONFIGURACOES', 'FTP_SLEEP', 0);
+    CONFIG_LOCAL.DIR_ARQ_XML    := ArqINI.ReadString('CONFIGURACOES', 'DIR_ARQ_XML', '\\192.168.1.51\simsem_sc\XML_Gerados\');
   finally
     FreeAndNil(ArqINI);
   end;

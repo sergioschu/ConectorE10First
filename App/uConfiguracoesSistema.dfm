@@ -4,8 +4,8 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'Configura'#231#245'es do Sistema'
-  ClientHeight = 544
-  ClientWidth = 885
+  ClientHeight = 584
+  ClientWidth = 889
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,16 +21,18 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
   object pnBotoesVisualizacao: TPanel
     AlignWithMargins = True
     Left = 3
-    Top = 481
-    Width = 879
+    Top = 521
+    Width = 883
     Height = 60
     Align = alBottom
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
+    ExplicitTop = 481
+    ExplicitWidth = 879
     object btSair: TSpeedButton
       AlignWithMargins = True
-      Left = 751
+      Left = 755
       Top = 4
       Width = 124
       Height = 52
@@ -265,7 +267,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 879
+    Width = 883
     Height = 42
     Align = alTop
     BevelOuter = bvNone
@@ -279,28 +281,33 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 879
   end
   object TabControl1: TTabControl
     AlignWithMargins = True
     Left = 3
     Top = 51
-    Width = 879
-    Height = 424
+    Width = 883
+    Height = 464
     Align = alClient
     TabHeight = 30
     TabOrder = 2
     Tabs.Strings = (
       'Configura'#231#245'es Locais')
     TabIndex = 0
+    ExplicitWidth = 879
+    ExplicitHeight = 424
     object pnConfiguracoesLocais: TPanel
       AlignWithMargins = True
       Left = 7
       Top = 39
-      Width = 865
-      Height = 378
+      Width = 869
+      Height = 418
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitWidth = 865
+      ExplicitHeight = 378
       object Label1: TLabel
         Left = 3
         Top = 197
@@ -434,6 +441,19 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         Width = 130
         Height = 19
         Caption = 'Diret'#243'rio dos Logs'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label3: TLabel
+        Left = 3
+        Top = 346
+        Width = 194
+        Height = 19
+        Caption = 'Diret'#243'rio dos Arquivos XML'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -704,6 +724,23 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         NumbersOnly = True
         ParentFont = False
         TabOrder = 11
+      end
+      object edDirArquivosXML: TButtonedEdit
+        Left = 3
+        Top = 367
+        Width = 372
+        Height = 27
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        RightButton.ImageIndex = 0
+        RightButton.Visible = True
+        TabOrder = 12
+        Text = 'Diret'#243'rio dos Arquivos XML'
+        OnRightButtonClick = edDirArquivosXMLRightButtonClick
       end
     end
   end

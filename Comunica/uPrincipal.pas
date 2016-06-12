@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, uFWConnection, System.IniFiles,
-  Vcl.ExtCtrls, Vcl.Buttons, Vcl.ImgList;
+  Vcl.ExtCtrls, Vcl.Buttons, Vcl.ImgList, System.DateUtils;
 
 type
   TfrmPrincipal = class(TForm)
@@ -27,10 +27,12 @@ type
     procedure CarregarConfigLocal;
     function EnviaPedidos : Boolean;
     function EnviaPedidosFaturados : Boolean;
+    function EnviaXML : Boolean;
     function EnviaProdutos : Boolean;
     function EnviaNotasFiscais : Boolean;
     function BuscaMDD : Boolean;
     function BuscaCONF : Boolean;
+    function CopiarXML(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
     Procedure IniciarPararLeitura;
   end;
 
@@ -38,7 +40,9 @@ var
   frmPrincipal: TfrmPrincipal;
 
 implementation
+
 uses
+  uFuncoes,
   uConexaoFTP,
   uBeanproduto,
   uBeanPedido,
@@ -761,6 +765,139 @@ begin
     FreeAndNil(Con);
   end;
 end;
+function TfrmPrincipal.CopiarXML(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
+Var
+  FWC         : TFWConnection;
+  PNF         : TPEDIDO_NOTAFISCAL;
+  NomeArqXML,
+  DirArqXML   : String;
+  I           : Integer;
+  Ano,
+  Mes,
+  Dia         : Word;
+  SR          : TSearchRec;
+begin
+
+  Result      := False;
+  NomeArqXML  := StrZero(Serie, 3);
+  NomeArqXML  := NomeArqXML + StrZero(IntToStr(Documento), 9);
+
+  for I := 0 to 9 do begin
+
+    DecodeDate(Data, Ano, Mes, Dia);
+
+    DirArqXML := CONFIG_LOCAL.DIR_ARQ_XML + IntToStr(Ano) + '\' + StrZero(IntToStr(Mes),2) + '\' + StrZero(IntToStr(Dia),2) + '\';
+
+    if DirectoryExists(DirArqXML) then begin
+
+      if FindFirst(DirArqXML + '*.xml', faAnyFile, SR) = 0 then begin
+        try
+          repeat
+            if (SR.Attr <> faDirectory) then begin
+              if (Pos('-nfe.xml', AnsiLowerCase(SR.Name)) > 0) then begin //pois tem arquivos de processamento
+                if (Pos(NomeArqXML, SR.Name) > 0) then begin
+
+                  //Copiando o XML
+                  SaveLog('Copiando XML, Origem.: ' + DirArqXML + SR.Name + ' Destino.: ' + DirArquivosFTP + SR.Name);
+                  CopyFile(PWideChar(DirArqXML + SR.Name), PWideChar(DirArquivosFTP + SR.Name), True);
+                  SaveLog('XML Copiado com Sucesso!');
+
+                  FWC := TFWConnection.Create;
+                  PNF := TPEDIDO_NOTAFISCAL.Create(FWC);
+                  try
+                    try
+                      PNF.ID.Value              := ID;
+                      PNF.STATUS.Value          := 2;//XML Enviado
+                      PNF.NOMEARQUIVOXML.Value  := SR.Name;
+                      PNF.Update;
+
+                      FWC.Commit;
+
+                      SaveLog('Nome do XML Salvo com Sucesso no BD!');
+
+                      Result := True;
+                      Break;//Concluiu com sucesso para o For
+                    except
+                      on E : Exception do begin
+                        FWC.Rollback;
+                        SaveLog('Erro ao Salvar Nome do Arquivo XML para ID.: ' + IntToStr(ID) + ' ' + E.Message);
+                      end;
+                    end;
+                  finally
+                    FreeAndNil(PNF);
+                    FreeAndNil(FWC);
+                  end;
+                end;
+              end;
+            end;
+          until FindNext(SR) <> 0;
+        finally
+          FindClose(SR);
+        end;
+      end;
+    end;
+
+    if Result then
+      Break;
+    Data := IncDay(Data, -1);
+  end;
+end;
+
+function TfrmPrincipal.EnviaXML: Boolean;
+type
+  TArArqXML = record
+    ID  : Integer;
+    DATA_IMPORTACAO : TDate;
+    NUMERO_DOCUMENTO : Integer;
+    SERIE_DOCUMENTO : string;
+  end;
+var
+  Con     : TFWConnection;
+  PNF     : TPEDIDO_NOTAFISCAL;
+  I       : Integer;
+  ArArqXML: array of TArArqXML;
+begin
+
+  Con := TFWConnection.Create;
+  PNF := TPEDIDO_NOTAFISCAL.Create(Con);
+
+  SetLength(ArArqXML, 0);
+  try
+    try
+      SaveLog('Consultando Notas');
+      PNF.SelectList('status = 1');
+
+      if PNF.Count > 0 then begin
+        for I := 0 to PNF.Count -1 do begin
+          SetLength(ArArqXML, Length(ArArqXML) + 1);
+          ArArqXML[High(ArArqXML)].ID               := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).ID.Value;
+          ArArqXML[High(ArArqXML)].DATA_IMPORTACAO  := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).DATA_IMPORTACAO.Value;
+          ArArqXML[High(ArArqXML)].NUMERO_DOCUMENTO := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).NUMERO_DOCUMENTO.Value;
+          ArArqXML[High(ArArqXML)].SERIE_DOCUMENTO  := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).SERIE_DOCUMENTO.Value;
+        end;
+      end;
+
+    except
+      on E : Exception do begin
+        Con.Rollback;
+        SaveLog('Erro ao Carregar array de XML : ' + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(PNF);
+    FreeAndNil(Con);
+  end;
+
+  SaveLog('Iniciando Copia de Arquivos');
+
+  SaveLog('Encontrou ' + IntToStr(Length(ArArqXML)) + ' Notas para eviar o XML');
+  for I := Low(ArArqXML) to High(ArArqXML) do begin
+    if not CopiarXML(ArArqXML[I].DATA_IMPORTACAO, ArArqXML[I].NUMERO_DOCUMENTO, ArArqXML[I].SERIE_DOCUMENTO, ArArqXML[I].ID) then
+      SaveLog('Não Encontrado XML para Doc.: ' + IntToStr(ArArqXML[I].NUMERO_DOCUMENTO) + ' Serie.: ' + ArArqXML[I].SERIE_DOCUMENTO);
+    Application.ProcessMessages;
+  end;
+
+end;
 
 procedure TfrmPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -796,16 +933,16 @@ end;
 
 procedure TfrmPrincipal.IniciarPararLeitura;
 begin
-  Timer1.Enabled := not Timer1.Enabled;
-
-  if Timer1.Enabled then begin
+  if btIniciar.Caption = 'Iniciar Leitura' then begin
     btIniciar.Glyph := nil;
     ImageList1.GetBitmap(1, btIniciar.Glyph);
     btIniciar.Caption := 'Parar Leitura';
+    Timer1.Enabled    := True;
   end else begin
     btIniciar.Glyph := nil;
     ImageList1.GetBitmap(0, btIniciar.Glyph);
     btIniciar.Caption := 'Iniciar Leitura';
+    Timer1.Enabled    := False;
   end;
 end;
 
@@ -838,6 +975,7 @@ procedure TfrmPrincipal.Timer1Timer(Sender: TObject);
 var
   ConexaoFTP : TConexaoFTP;
 begin
+  Timer1.Enabled := False;
   SaveLog('Início do Execute do Timmer');
   try
     try
@@ -849,6 +987,8 @@ begin
       EnviaPedidos;
       SaveLog('Enviar Pedidos Faturados');
       EnviaPedidosFaturados;
+      SaveLog('Enviar XML');
+      EnviaXML;
 
       SaveLog('Conectar com FTP');
       ConexaoFTP := TConexaoFTP.Create;
@@ -860,6 +1000,8 @@ begin
           ConexaoFTP.EnviarNotasFiscais;
           SaveLog('Enviar Pedidos para o FTP!');
           ConexaoFTP.EnviarPedidos;
+          SaveLog('Enviar XML para o FTP!');
+          ConexaoFTP.EnviarXML;
           SaveLog('Buscar Confirmação de NFs - CONF para o FTP!');
           ConexaoFTP.BuscaCONF;
           SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');
@@ -882,6 +1024,7 @@ begin
   finally
 //    IniciarPararLeitura;
     SaveLog('Final do Execute do Timmer');
+    Timer1.Enabled := True;
   end;
 end;
 

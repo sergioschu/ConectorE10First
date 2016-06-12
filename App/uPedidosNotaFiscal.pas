@@ -202,6 +202,7 @@ begin
       case rgStatus.ItemIndex of
         1 : SQL.SQL.Add('AND PNF.STATUS = 0');
         2 : SQL.SQL.Add('AND PNF.STATUS = 1');
+        3 : SQL.SQL.Add('AND PNF.STATUS = 2');
       end;
 
       SQL.Connection                      := FWC.FDConnection;

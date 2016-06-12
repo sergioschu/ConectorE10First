@@ -220,3 +220,5 @@ create table pedido_notafiscal
   constraint fk_pedido_notafiscal_1 foreign key (id_arquivo)
       references arquivosftp (id) match simple
       on update cascade on delete restrict);
+
+alter table pedido_notafiscal add nomearquivoxml character varying(100);

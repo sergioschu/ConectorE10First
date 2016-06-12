@@ -30,12 +30,15 @@ type
     edSenhaFTP: TLabeledEdit;
     edUsuarioFTP: TLabeledEdit;
     edSleepFTP: TLabeledEdit;
+    edDirArquivosXML: TButtonedEdit;
+    Label3: TLabel;
     procedure btSairClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure edDiretorioRelatorioRightButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btSalvarClick(Sender: TObject);
     procedure btConnectionClick(Sender: TObject);
+    procedure edDirArquivosXMLRightButtonClick(Sender: TObject);
   private
     procedure CarregaConfiguracoes;
     procedure SalvaConfiguracoes;
@@ -80,6 +83,15 @@ begin
           Exit;
       end;
 
+      //Se não tem Acrescenta a Barra no Final
+      if edDirArquivosXML.Text[Length(edDirArquivosXML.Text)] <> '\' then
+        edDirArquivosXML.Text := edDirArquivosXML.Text + '\';
+
+      if not DirectoryExists(edDirArquivosXML.Text) then begin
+        DisplayMsg(MSG_WAR, 'Diretório de Arquivos XML não Encontrado, Verifique!');
+        Exit;
+      end;
+
       SalvaConfiguracoes;
 
       DisplayMsg(MSG_CONF, 'Para aplicar as modificações é necessário Reiniciar a Aplicação!' + sLineBreak + 'Deseja Fechar Agora?');
@@ -107,6 +119,21 @@ begin
   edUsuarioFTP.Text         := CONFIG_LOCAL.FTPUsuario;
   edSenhaFTP.Text           := CONFIG_LOCAL.FTPSenha;
   edSleepFTP.Text           := IntToStr(CONFIG_LOCAL.Sleep);
+  edDirArquivosXML.Text     := CONFIG_LOCAL.DIR_ARQ_XML;
+end;
+
+procedure TfrmConfiguracoesSistema.edDirArquivosXMLRightButtonClick(
+  Sender: TObject);
+var
+  Pasta : String;
+begin
+  SelectDirectory('Selecione um Diretório!', '', Pasta);
+
+  if (Trim(Pasta) <> '') then begin
+    if (Pasta[Length(Pasta)] <> '\') then
+      Pasta := Pasta + '\';
+    edDirArquivosXML.Text := Pasta;
+  end;
 end;
 
 procedure TfrmConfiguracoesSistema.edDiretorioRelatorioRightButtonClick(
@@ -147,6 +174,7 @@ begin
     ArqINI.WriteString('CONFIGURACOES','FTP_USUARIO', edUsuarioFTP.Text);
     ArqINI.WriteString('CONFIGURACOES','FTP_SENHA', edSenhaFTP.Text);
     ArqINI.WriteInteger('CONFIGURACOES','FTP_SLEEP', StrToInt(edSleepFTP.Text));
+    ArqINI.WriteString('CONFIGURACOES','DIR_ARQ_XML', edDirArquivosXML.Text);
 
     ArqINI.WriteString('CONEXAOBD', 'Database', edDataBase.Text);
     ArqINI.WriteString('CONEXAOBD', 'Server', edServer.Text);
