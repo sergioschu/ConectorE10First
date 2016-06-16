@@ -21,7 +21,7 @@ type
     procedure BuscaCONF;
     procedure EnviarPedidos;
     procedure EnviarNotasFiscais;
-    procedure EnviarXML;
+    procedure EnviarPDF;
     destructor Destroy; override;
   End;
 implementation
@@ -185,24 +185,24 @@ begin
   end;
 end;
 
-procedure TConexaoFTP.EnviarXML;
+procedure TConexaoFTP.EnviarPDF;
 var
   SR : TSearchRec;
 begin
-  SaveLog('Enviando XML!');
+  SaveLog('Enviando PDF!');
   try
-    FFTP.ChangeDir('Nfe');
-    if FindFirst(DirArquivosFTP + '*.xml', faAnyFile, SR) = 0 then begin
+    FFTP.ChangeDir('PDF');
+    if FindFirst(DirArquivosFTP + '*.pdf', faAnyFile, SR) = 0 then begin
       try
         repeat
           if (SR.Attr <> faDirectory) then begin
-            if (Pos('-nfe.xml', SR.Name) > 0) then begin
+            if (Pos('-nfe.pdf', SR.Name) > 0) then begin
               FFTP.Put(DirArquivosFTP + SR.Name, SR.Name);
               SaveLog('Passou do upload!');
               DeleteFile(DirArquivosFTP + SR.Name);
               SaveLog('Deletar arquivo!');
             end else
-              SaveLog('Não tem -nfe.xml');
+              SaveLog('Não tem -nfe.pdf');
           end;
         until FindNext(SR) <> 0;
       finally
@@ -212,7 +212,7 @@ begin
     FFTP.ChangeDirUp;
   except
     on E : Exception do begin
-      SaveLog('Erro ao enviar XML! ' + E.Message);
+      SaveLog('Erro ao enviar PDF! ' + E.Message);
     end;
   end;
 end;

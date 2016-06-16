@@ -28,8 +28,6 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitTop = 481
-    ExplicitWidth = 879
     object btSair: TSpeedButton
       AlignWithMargins = True
       Left = 755
@@ -281,7 +279,6 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 879
   end
   object TabControl1: TTabControl
     AlignWithMargins = True
@@ -295,8 +292,6 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
     Tabs.Strings = (
       'Configura'#231#245'es Locais')
     TabIndex = 0
-    ExplicitWidth = 879
-    ExplicitHeight = 424
     object pnConfiguracoesLocais: TPanel
       AlignWithMargins = True
       Left = 7
@@ -306,8 +301,6 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 865
-      ExplicitHeight = 378
       object Label1: TLabel
         Left = 3
         Top = 197
@@ -451,9 +444,9 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
       object Label3: TLabel
         Left = 3
         Top = 346
-        Width = 194
+        Width = 193
         Height = 19
-        Caption = 'Diret'#243'rio dos Arquivos XML'
+        Caption = 'Diret'#243'rio dos Arquivos PDF'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -725,7 +718,7 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         ParentFont = False
         TabOrder = 11
       end
-      object edDirArquivosXML: TButtonedEdit
+      object edDirArquivosPDF: TButtonedEdit
         Left = 3
         Top = 367
         Width = 372
@@ -739,8 +732,8 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         RightButton.ImageIndex = 0
         RightButton.Visible = True
         TabOrder = 12
-        Text = 'Diret'#243'rio dos Arquivos XML'
-        OnRightButtonClick = edDirArquivosXMLRightButtonClick
+        Text = 'Diret'#243'rio dos Arquivos PDF'
+        OnRightButtonClick = edDirArquivosPDFRightButtonClick
       end
     end
   end

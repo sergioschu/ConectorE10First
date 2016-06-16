@@ -30,7 +30,7 @@ type
     edSenhaFTP: TLabeledEdit;
     edUsuarioFTP: TLabeledEdit;
     edSleepFTP: TLabeledEdit;
-    edDirArquivosXML: TButtonedEdit;
+    edDirArquivosPDF: TButtonedEdit;
     Label3: TLabel;
     procedure btSairClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -38,7 +38,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure btSalvarClick(Sender: TObject);
     procedure btConnectionClick(Sender: TObject);
-    procedure edDirArquivosXMLRightButtonClick(Sender: TObject);
+    procedure edDirArquivosPDFRightButtonClick(Sender: TObject);
   private
     procedure CarregaConfiguracoes;
     procedure SalvaConfiguracoes;
@@ -84,11 +84,11 @@ begin
       end;
 
       //Se não tem Acrescenta a Barra no Final
-      if edDirArquivosXML.Text[Length(edDirArquivosXML.Text)] <> '\' then
-        edDirArquivosXML.Text := edDirArquivosXML.Text + '\';
+      if edDirArquivosPDF.Text[Length(edDirArquivosPDF.Text)] <> '\' then
+        edDirArquivosPDF.Text := edDirArquivosPDF.Text + '\';
 
-      if not DirectoryExists(edDirArquivosXML.Text) then begin
-        DisplayMsg(MSG_WAR, 'Diretório de Arquivos XML não Encontrado, Verifique!');
+      if not DirectoryExists(edDirArquivosPDF.Text) then begin
+        DisplayMsg(MSG_WAR, 'Diretório de Arquivos PDF não Encontrado, Verifique!');
         Exit;
       end;
 
@@ -119,10 +119,10 @@ begin
   edUsuarioFTP.Text         := CONFIG_LOCAL.FTPUsuario;
   edSenhaFTP.Text           := CONFIG_LOCAL.FTPSenha;
   edSleepFTP.Text           := IntToStr(CONFIG_LOCAL.Sleep);
-  edDirArquivosXML.Text     := CONFIG_LOCAL.DIR_ARQ_XML;
+  edDirArquivosPDF.Text     := CONFIG_LOCAL.DIR_ARQ_PDF;
 end;
 
-procedure TfrmConfiguracoesSistema.edDirArquivosXMLRightButtonClick(
+procedure TfrmConfiguracoesSistema.edDirArquivosPDFRightButtonClick(
   Sender: TObject);
 var
   Pasta : String;
@@ -132,7 +132,7 @@ begin
   if (Trim(Pasta) <> '') then begin
     if (Pasta[Length(Pasta)] <> '\') then
       Pasta := Pasta + '\';
-    edDirArquivosXML.Text := Pasta;
+    edDirArquivosPDF.Text := Pasta;
   end;
 end;
 
@@ -174,7 +174,7 @@ begin
     ArqINI.WriteString('CONFIGURACOES','FTP_USUARIO', edUsuarioFTP.Text);
     ArqINI.WriteString('CONFIGURACOES','FTP_SENHA', edSenhaFTP.Text);
     ArqINI.WriteInteger('CONFIGURACOES','FTP_SLEEP', StrToInt(edSleepFTP.Text));
-    ArqINI.WriteString('CONFIGURACOES','DIR_ARQ_XML', edDirArquivosXML.Text);
+    ArqINI.WriteString('CONFIGURACOES','DIR_ARQ_PDF', edDirArquivosPDF.Text);
 
     ArqINI.WriteString('CONEXAOBD', 'Database', edDataBase.Text);
     ArqINI.WriteString('CONEXAOBD', 'Server', edServer.Text);

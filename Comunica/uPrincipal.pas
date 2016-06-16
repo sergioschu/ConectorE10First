@@ -27,12 +27,12 @@ type
     procedure CarregarConfigLocal;
     function EnviaPedidos : Boolean;
     function EnviaPedidosFaturados : Boolean;
-    function EnviaXML : Boolean;
+    function EnviaPDF : Boolean;
     function EnviaProdutos : Boolean;
     function EnviaNotasFiscais : Boolean;
     function BuscaMDD : Boolean;
     function BuscaCONF : Boolean;
-    function CopiarXML(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
+    function CopiarPDF(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
     Procedure IniciarPararLeitura;
   end;
 
@@ -765,87 +765,74 @@ begin
     FreeAndNil(Con);
   end;
 end;
-function TfrmPrincipal.CopiarXML(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
+function TfrmPrincipal.CopiarPDF(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
 Var
   FWC         : TFWConnection;
   PNF         : TPEDIDO_NOTAFISCAL;
-  NomeArqXML,
-  DirArqXML   : String;
+  NomeArqPDF,
+  DirArqPDF   : String;
   I           : Integer;
-  Ano,
-  Mes,
-  Dia         : Word;
   SR          : TSearchRec;
 begin
 
   Result      := False;
-  NomeArqXML  := StrZero(Serie, 3);
-  NomeArqXML  := NomeArqXML + StrZero(IntToStr(Documento), 9);
+  NomeArqPDF  := StrZero(Serie, 3);
+  NomeArqPDF  := NomeArqPDF + StrZero(IntToStr(Documento), 9);
+  DirArqPDF   := CONFIG_LOCAL.DIR_ARQ_PDF;
 
-  for I := 0 to 9 do begin
+  if DirectoryExists(DirArqPDF) then begin
 
-    DecodeDate(Data, Ano, Mes, Dia);
+    if FindFirst(DirArqPDF + '*.pdf', faAnyFile, SR) = 0 then begin
+      try
+        repeat
+          if (SR.Attr <> faDirectory) then begin
+            if (Pos('-nfe.pdf', AnsiLowerCase(SR.Name)) > 0) then begin //pois tem arquivos de processamento
+              if (Pos(NomeArqPDF, SR.Name) > 0) then begin
 
-    DirArqXML := CONFIG_LOCAL.DIR_ARQ_XML + IntToStr(Ano) + '\' + StrZero(IntToStr(Mes),2) + '\' + StrZero(IntToStr(Dia),2) + '\';
+                //Copiando o PDF
+                SaveLog('Copiando PDF, Origem.: ' + DirArqPDF + SR.Name + ' Destino.: ' + DirArquivosFTP + SR.Name);
+                CopyFile(PWideChar(DirArqPDF + SR.Name), PWideChar(DirArquivosFTP + SR.Name), True);
+                SaveLog('PDF Copiado com Sucesso!');
 
-    if DirectoryExists(DirArqXML) then begin
-
-      if FindFirst(DirArqXML + '*.xml', faAnyFile, SR) = 0 then begin
-        try
-          repeat
-            if (SR.Attr <> faDirectory) then begin
-              if (Pos('-nfe.xml', AnsiLowerCase(SR.Name)) > 0) then begin //pois tem arquivos de processamento
-                if (Pos(NomeArqXML, SR.Name) > 0) then begin
-
-                  //Copiando o XML
-                  SaveLog('Copiando XML, Origem.: ' + DirArqXML + SR.Name + ' Destino.: ' + DirArquivosFTP + SR.Name);
-                  CopyFile(PWideChar(DirArqXML + SR.Name), PWideChar(DirArquivosFTP + SR.Name), True);
-                  SaveLog('XML Copiado com Sucesso!');
-
-                  FWC := TFWConnection.Create;
-                  PNF := TPEDIDO_NOTAFISCAL.Create(FWC);
+                FWC := TFWConnection.Create;
+                PNF := TPEDIDO_NOTAFISCAL.Create(FWC);
+                try
                   try
-                    try
-                      PNF.ID.Value              := ID;
-                      PNF.STATUS.Value          := 2;//XML Enviado
-                      PNF.NOMEARQUIVOXML.Value  := SR.Name;
-                      PNF.Update;
+                    PNF.ID.Value              := ID;
+                    PNF.STATUS.Value          := 2;//PDF Enviado
+                    PNF.NOMEARQUIVOPDF.Value  := SR.Name;
+                    PNF.Update;
 
-                      FWC.Commit;
+                    FWC.Commit;
 
-                      SaveLog('Nome do XML Salvo com Sucesso no BD!');
+                    SaveLog('Nome do PDF Salvo com Sucesso no BD!');
 
-                      Result := True;
-                      Break;//Concluiu com sucesso para o For
-                    except
-                      on E : Exception do begin
-                        FWC.Rollback;
-                        SaveLog('Erro ao Salvar Nome do Arquivo XML para ID.: ' + IntToStr(ID) + ' ' + E.Message);
-                      end;
+                    Result := True;
+                    Break;//Concluiu com sucesso para o For
+                  except
+                    on E : Exception do begin
+                      FWC.Rollback;
+                      SaveLog('Erro ao Salvar Nome do Arquivo PDF para ID.: ' + IntToStr(ID) + ' ' + E.Message);
                     end;
-                  finally
-                    FreeAndNil(PNF);
-                    FreeAndNil(FWC);
                   end;
+                finally
+                  FreeAndNil(PNF);
+                  FreeAndNil(FWC);
                 end;
               end;
             end;
-          until FindNext(SR) <> 0;
-        finally
-          FindClose(SR);
-        end;
+          end;
+        until FindNext(SR) <> 0;
+      finally
+        FindClose(SR);
       end;
     end;
-
-    if Result then
-      Break;
-    Data := IncDay(Data, -1);
   end;
 end;
 
-function TfrmPrincipal.EnviaXML: Boolean;
+function TfrmPrincipal.EnviaPDF: Boolean;
 type
-  TArArqXML = record
+  TArArqPDF = record
     ID  : Integer;
     DATA_IMPORTACAO : TDate;
     NUMERO_DOCUMENTO : Integer;
@@ -855,13 +842,13 @@ var
   Con     : TFWConnection;
   PNF     : TPEDIDO_NOTAFISCAL;
   I       : Integer;
-  ArArqXML: array of TArArqXML;
+  ArArqPDF: array of TArArqPDF;
 begin
 
   Con := TFWConnection.Create;
   PNF := TPEDIDO_NOTAFISCAL.Create(Con);
 
-  SetLength(ArArqXML, 0);
+  SetLength(ArArqPDF, 0);
   try
     try
       SaveLog('Consultando Notas');
@@ -869,18 +856,18 @@ begin
 
       if PNF.Count > 0 then begin
         for I := 0 to PNF.Count -1 do begin
-          SetLength(ArArqXML, Length(ArArqXML) + 1);
-          ArArqXML[High(ArArqXML)].ID               := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).ID.Value;
-          ArArqXML[High(ArArqXML)].DATA_IMPORTACAO  := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).DATA_IMPORTACAO.Value;
-          ArArqXML[High(ArArqXML)].NUMERO_DOCUMENTO := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).NUMERO_DOCUMENTO.Value;
-          ArArqXML[High(ArArqXML)].SERIE_DOCUMENTO  := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).SERIE_DOCUMENTO.Value;
+          SetLength(ArArqPDF, Length(ArArqPDF) + 1);
+          ArArqPDF[High(ArArqPDF)].ID               := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).ID.Value;
+          ArArqPDF[High(ArArqPDF)].DATA_IMPORTACAO  := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).DATA_IMPORTACAO.Value;
+          ArArqPDF[High(ArArqPDF)].NUMERO_DOCUMENTO := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).NUMERO_DOCUMENTO.Value;
+          ArArqPDF[High(ArArqPDF)].SERIE_DOCUMENTO  := TPEDIDO_NOTAFISCAL(PNF.Itens[I]).SERIE_DOCUMENTO.Value;
         end;
       end;
 
     except
       on E : Exception do begin
         Con.Rollback;
-        SaveLog('Erro ao Carregar array de XML : ' + E.Message);
+        SaveLog('Erro ao Carregar array de PDF : ' + E.Message);
       end;
     end;
   finally
@@ -890,10 +877,10 @@ begin
 
   SaveLog('Iniciando Copia de Arquivos');
 
-  SaveLog('Encontrou ' + IntToStr(Length(ArArqXML)) + ' Notas para eviar o XML');
-  for I := Low(ArArqXML) to High(ArArqXML) do begin
-    if not CopiarXML(ArArqXML[I].DATA_IMPORTACAO, ArArqXML[I].NUMERO_DOCUMENTO, ArArqXML[I].SERIE_DOCUMENTO, ArArqXML[I].ID) then
-      SaveLog('Não Encontrado XML para Doc.: ' + IntToStr(ArArqXML[I].NUMERO_DOCUMENTO) + ' Serie.: ' + ArArqXML[I].SERIE_DOCUMENTO);
+  SaveLog('Encontrou ' + IntToStr(Length(ArArqPDF)) + ' Notas para eviar o PDF');
+  for I := Low(ArArqPDF) to High(ArArqPDF) do begin
+    if not CopiarPDF(ArArqPDF[I].DATA_IMPORTACAO, ArArqPDF[I].NUMERO_DOCUMENTO, ArArqPDF[I].SERIE_DOCUMENTO, ArArqPDF[I].ID) then
+      SaveLog('Não Encontrado PDF para Doc.: ' + IntToStr(ArArqPDF[I].NUMERO_DOCUMENTO) + ' Serie.: ' + ArArqPDF[I].SERIE_DOCUMENTO);
     Application.ProcessMessages;
   end;
 
@@ -987,8 +974,8 @@ begin
       EnviaPedidos;
       SaveLog('Enviar Pedidos Faturados');
       EnviaPedidosFaturados;
-      SaveLog('Enviar XML');
-      EnviaXML;
+      SaveLog('Enviar PDF');
+      EnviaPDF;
 
       SaveLog('Conectar com FTP');
       ConexaoFTP := TConexaoFTP.Create;
@@ -1000,8 +987,8 @@ begin
           ConexaoFTP.EnviarNotasFiscais;
           SaveLog('Enviar Pedidos para o FTP!');
           ConexaoFTP.EnviarPedidos;
-          SaveLog('Enviar XML para o FTP!');
-          ConexaoFTP.EnviarXML;
+          SaveLog('Enviar PDF para o FTP!');
+          ConexaoFTP.EnviarPDF;
           SaveLog('Buscar Confirmação de NFs - CONF para o FTP!');
           ConexaoFTP.BuscaCONF;
           SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');

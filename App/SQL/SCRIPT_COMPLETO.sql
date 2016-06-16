@@ -222,3 +222,7 @@ create table pedido_notafiscal
       on update cascade on delete restrict);
 
 alter table pedido_notafiscal add nomearquivoxml character varying(100);
+
+alter table pedido_notafiscal add nomearquivopdf character varying(100);
+
+alter table pedido_notafiscal drop column nomearquivoxml;

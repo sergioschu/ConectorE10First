@@ -17,7 +17,7 @@ type
     FSTATUS: TFieldInteger;
     FNUMERO_DOCUMENTO: TFieldInteger;
     FID_ARQUIVO: TFieldInteger;
-    FNOMEARQUIVOXML: TFieldString;
+    FNOMEARQUIVOPDF: TFieldString;
     procedure SetDATA_ENVIO(const Value: TFieldDateTime);
     procedure SetDATA_IMPORTACAO(const Value: TFieldDateTime);
     procedure SetID(const Value: TFieldInteger);
@@ -26,7 +26,7 @@ type
     procedure SetNUMERO_DOCUMENTO(const Value: TFieldInteger);
     procedure SetSERIE_DOCUMENTO(const Value: TFieldString);
     procedure SetSTATUS(const Value: TFieldInteger);
-    procedure SetNOMEARQUIVOXML(const Value: TFieldString);
+    procedure SetNOMEARQUIVOPDF(const Value: TFieldString);
   protected
     procedure InitInstance; override;
   published
@@ -38,7 +38,7 @@ type
     property NUMERO_DOCUMENTO : TFieldInteger   read FNUMERO_DOCUMENTO write SetNUMERO_DOCUMENTO;
     property SERIE_DOCUMENTO  : TFieldString    read FSERIE_DOCUMENTO write SetSERIE_DOCUMENTO;
     property STATUS           : TFieldInteger   read FSTATUS write SetSTATUS;
-    property NOMEARQUIVOXML   : TFieldString read FNOMEARQUIVOXML write SetNOMEARQUIVOXML;
+    property NOMEARQUIVOPDF   : TFieldString    read FNOMEARQUIVOPDF write SetNOMEARQUIVOPDF;
   End;
 
 implementation
@@ -56,7 +56,7 @@ begin
   SERIE_DOCUMENTO.isNotNull   := True;
 
   SERIE_DOCUMENTO.Size        := 3;
-  NOMEARQUIVOXML.Size         := 100;
+  NOMEARQUIVOPDF.Size         := 100;
 end;
 
 procedure TPEDIDO_NOTAFISCAL.SetDATA_ENVIO(const Value: TFieldDateTime);
@@ -84,9 +84,9 @@ begin
   FID_PEDIDO := Value;
 end;
 
-procedure TPEDIDO_NOTAFISCAL.SetNOMEARQUIVOXML(const Value: TFieldString);
+procedure TPEDIDO_NOTAFISCAL.SetNOMEARQUIVOPDF(const Value: TFieldString);
 begin
-  FNOMEARQUIVOXML := Value;
+  FNOMEARQUIVOPDF := Value;
 end;
 
 procedure TPEDIDO_NOTAFISCAL.SetNUMERO_DOCUMENTO(const Value: TFieldInteger);

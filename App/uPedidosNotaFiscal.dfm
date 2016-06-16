@@ -849,7 +849,7 @@ object FrmPedidosNotaFiscal: TFrmPedidosNotaFiscal
           'Todos'
           'Pedidos N'#227'o Enviados'
           'Pedidos Enviados'
-          'XML Enviado')
+          'PDF Enviado')
         TabOrder = 1
       end
     end
