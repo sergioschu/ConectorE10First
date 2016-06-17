@@ -40,12 +40,13 @@ type
     OpenDialog1: TOpenDialog;
     edDataI: TJvDateEdit;
     edDataF: TJvDateEdit;
-    btReenviar: TSpeedButton;
+    btReenviarSC: TSpeedButton;
     pbAtualizaPedidos: TGauge;
     csPedidosID_PEDIDO: TIntegerField;
     csPedidosDATA_ENVIO: TDateTimeField;
     csPedidosNUMERODOCUMENTO: TIntegerField;
     csPedidosSERIEDOCUMENTO: TStringField;
+    btReenviarPDF: TSpeedButton;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -60,13 +61,15 @@ type
     procedure btExportarClick(Sender: TObject);
     procedure gdPedidosTitleClick(Column: TColumn);
     procedure btPesquisarClick(Sender: TObject);
-    procedure btReenviarClick(Sender: TObject);
+    procedure btReenviarSCClick(Sender: TObject);
+    procedure btReenviarPDFClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
     procedure MarcarDesmarcarTodos;
     procedure VincularNotasFiscais;
-    procedure Reenviar;
+    procedure ReenviarSC;
+    procedure ReenviarPDF;
     { Private declarations }
   public
     { Public declarations }
@@ -147,17 +150,32 @@ begin
   end;
 end;
 
-procedure TFrmPedidosNotaFiscal.btReenviarClick(Sender: TObject);
+procedure TFrmPedidosNotaFiscal.btReenviarSCClick(Sender: TObject);
 begin
-  if btReenviar.Tag = 0 then begin
-    btReenviar.Tag   := 1;
+  if btReenviarSC.Tag = 0 then begin
+    btReenviarSC.Tag   := 1;
     try
       if not csPedidos.IsEmpty then begin
-        Reenviar;
+        ReenviarSC;
         CarregaDados;
       end;
     finally
-      btReenviar.Tag := 0;
+      btReenviarSC.Tag := 0;
+    end;
+  end;
+end;
+
+procedure TFrmPedidosNotaFiscal.btReenviarPDFClick(Sender: TObject);
+begin
+  if btReenviarPDF.Tag = 0 then begin
+    btReenviarPDF.Tag   := 1;
+    try
+      if not csPedidos.IsEmpty then begin
+        ReenviarPDF;
+        CarregaDados;
+      end;
+    finally
+      btReenviarPDF.Tag := 0;
     end;
   end;
 end;
@@ -378,7 +396,52 @@ begin
   end;
 end;
 
-procedure TFrmPedidosNotaFiscal.Reenviar;
+procedure TFrmPedidosNotaFiscal.ReenviarPDF;
+var
+  FWC : TFWConnection;
+  PNF : TPEDIDO_NOTAFISCAL;
+begin
+
+  csPedidos.DisableControls;
+
+  FWC  := TFWConnection.Create;
+  PNF  := TPEDIDO_NOTAFISCAL.Create(FWC);
+
+  DisplayMsg(MSG_WAIT, 'Atualizando pedidos!');
+
+  try
+    try
+      csPedidos.First;
+      while not csPedidos.Eof do begin
+        if csPedidosSELECIONAR.Value then begin
+          PNF.SelectList('id = ' + csPedidosID.AsString + ' and status = 2');
+          if PNF.Count = 1 then begin
+            PNF.ID.Value           := TPEDIDO_NOTAFISCAL(PNF.Itens[0]).ID.Value;
+            PNF.STATUS.Value       := 1;
+            PNF.Update;
+          end;
+        end;
+        csPedidos.Next;
+      end;
+      FWC.Commit;
+
+      DisplayMsgFinaliza;
+
+    except
+      on E : Exception do begin
+        FWC.Rollback;
+        DisplayMsg(MSG_WAR, 'Erro ao atualizar pedidos!');
+        Exit;
+      end;
+    end;
+  finally
+    csPedidos.EnableControls;
+    FreeAndNil(PNF);
+    FreeAndNil(FWC);
+  end;
+end;
+
+procedure TFrmPedidosNotaFiscal.ReenviarSC;
 var
   FWC : TFWConnection;
   PNF : TPEDIDO_NOTAFISCAL;
