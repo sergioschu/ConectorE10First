@@ -113,6 +113,18 @@ begin
                   CONF.StrictDelimiter := True;
                   CONF.DelimitedText   := Lista[I];
                   if CONF.Count = 11 then begin
+
+                    //Add by Sergio 16.06.16
+                    if StrToFloatDef(CONF[8], -1) < 0 then begin
+                      SaveLog('QUANTIDADE FISICA PRODUTO em ' + search_rec.Name + ' Inválida! ' + Lista[I]);
+                      Exit;
+                    end;
+
+                    if StrToFloatDef(CONF[9], -1) < 0 then begin
+                      SaveLog('QUANTIDADE AVARIADA PRODUTO em ' + search_rec.Name + ' Inválida! ' + Lista[I]);
+                      Exit;
+                    end;
+
                     SaveLog('arquivo valido!');
                     Achou := False;
                     for J := Low(NOTAENTRADA) to High(NOTAENTRADA) do begin
@@ -345,8 +357,12 @@ begin
                   if CopyFile(PWidechar(Arquivo), PWidechar(DirArquivosFTP + 'Erros\' + search_rec.Name), false) then
                     DeleteFile(DirArquivosFTP + search_rec.Name);
                 end;
-              end else
-                SaveLog('Arquivo Vazio!');
+              end else begin
+                SaveLog('Arquivo ' + search_rec.Name + ' Vazio, Copiado para pasta Erros e Apagado!');
+                Arquivo := DirArquivosFTP + search_rec.Name;
+                if CopyFile(PWidechar(Arquivo), PWidechar(DirArquivosFTP + 'Erros\' + search_rec.Name), false) then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
+              end;
             except
               on E : Exception do
                 SaveLog('Ocorreu algum erro ao tratar arquivos locais, Erro: ' + E.Message);
