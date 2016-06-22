@@ -468,6 +468,10 @@ Var
 begin
   if not csPedidos.IsEmpty then begin
 
+    DisplayMsg(MSG_CONF, 'Deseja Realmente descancelar os pedidos Selecionados?');
+    if ResultMsgModal <> mrYes then
+      Exit;
+
     FWC := TFWConnection.Create;
     PED := TPEDIDO.Create(FWC);
     try

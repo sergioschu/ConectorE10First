@@ -26,8 +26,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
     Height = 509
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 800
-    ExplicitHeight = 513
     object gdPedidos: TDBGrid
       AlignWithMargins = True
       Left = 4
@@ -121,7 +119,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
-      ExplicitWidth = 798
       object btPesquisar: TSpeedButton
         AlignWithMargins = True
         Left = 769
@@ -206,7 +203,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 580
       end
       object edTotalRegistros: TEdit
         AlignWithMargins = True
@@ -226,7 +222,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        ExplicitLeft = 589
       end
     end
     object Panel2: TPanel
@@ -247,7 +242,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
       ParentBackground = False
       ParentFont = False
       TabOrder = 2
-      ExplicitWidth = 792
     end
     object GridPanel1: TGridPanel
       AlignWithMargins = True
@@ -279,8 +273,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           Value = 100.000000000000000000
         end>
       TabOrder = 3
-      ExplicitTop = 449
-      ExplicitWidth = 792
       object Panel1: TPanel
         AlignWithMargins = True
         Left = 4
@@ -290,7 +282,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 389
         object btFaturar: TSpeedButton
           AlignWithMargins = True
           Left = 323
@@ -747,8 +738,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 399
-        ExplicitWidth = 389
         object btFechar: TSpeedButton
           AlignWithMargins = True
           Left = 323
@@ -948,7 +937,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
       ParentBackground = False
       ParentFont = False
       TabOrder = 4
-      ExplicitWidth = 798
       object btConsultar: TSpeedButton
         AlignWithMargins = True
         Left = 769
@@ -1082,7 +1070,6 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
           'Pedido Despachado'
           'Pedido Cancelado')
         TabOrder = 1
-        ExplicitWidth = 378
       end
     end
   end
