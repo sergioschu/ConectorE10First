@@ -51,6 +51,7 @@ type
     edDataI: TJvDateEdit;
     edDataF: TJvDateEdit;
     csPedidosDATARETORNO: TDateTimeField;
+    btDescancelar: TSpeedButton;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btFecharClick(Sender: TObject);
     procedure csPedidosFilterRecord(DataSet: TDataSet; var Accept: Boolean);
@@ -67,6 +68,7 @@ type
     procedure gdPedidosTitleClick(Column: TColumn);
     procedure btPesquisarClick(Sender: TObject);
     procedure btRastreioClick(Sender: TObject);
+    procedure btDescancelarClick(Sender: TObject);
   private
     procedure CarregaDados;
     procedure Filtrar;
@@ -74,6 +76,7 @@ type
     procedure ImprimirPedidos;
     procedure MarcarDesmarcarTodos;
     procedure AtualizarCodigoRastreio;
+    procedure DescancelarPedidos;
     { Private declarations }
   public
     { Public declarations }
@@ -262,6 +265,18 @@ begin
   end;
 end;
 
+procedure TFrmFaturamentodePedidos.btDescancelarClick(Sender: TObject);
+begin
+  if btDescancelar.Tag = 0 then begin
+    btDescancelar.Tag    := 1;
+    try
+      DescancelarPedidos;
+    finally
+      btDescancelar.Tag  := 0;
+    end;
+  end;
+end;
+
 procedure TFrmFaturamentodePedidos.btExportarClick(Sender: TObject);
 Var
   Arq : string;
@@ -379,7 +394,7 @@ begin
       SQL.ParamByName('DATAF').Value    := edDataF.Date;
 
       case rgStatus.ItemIndex of
-        0 : SQL.SQL.Add('AND P.STATUS IN (3,4,5)');
+        0 : SQL.SQL.Add('AND P.STATUS IN (3,4,5,6)');
         1 : SQL.SQL.Add('AND P.STATUS = 3');
         2 : SQL.SQL.Add('AND P.STATUS = 4');
         3 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) = 0))');
@@ -441,6 +456,54 @@ begin
       Accept  := Pos(AnsiUpperCase(edPesquisa.Text), AnsiUpperCase(csPedidos.Fields[I].AsString)) > 0;
     if Accept then
       Break;
+  end;
+end;
+
+procedure TFrmFaturamentodePedidos.DescancelarPedidos;
+Var
+  FWC     : TFWConnection;
+  PED     : TPEDIDO;
+  AtualizouPedido : Boolean;
+  I       : Integer;
+begin
+  if not csPedidos.IsEmpty then begin
+
+    FWC := TFWConnection.Create;
+    PED := TPEDIDO.Create(FWC);
+    try
+      try
+        csPedidos.DisableControls;
+        AtualizouPedido := False;
+
+        csPedidos.First;
+        while not csPedidos.Eof do begin
+          if csPedidosSELECIONAR.Value then begin
+            if csPedidosSTATUS.Value = 6 then begin
+              PED.ID.Value          := csPedidosID.Value;
+              PED.STATUS.Value      := 5;
+              PED.Update;
+              AtualizouPedido := True;
+            end;
+          end;
+          csPedidos.Next;
+        end;
+
+        if AtualizouPedido then begin
+          FWC.Commit;
+          CarregaDados;
+        end;
+      except
+        on E : Exception do begin
+          FWC.Rollback;
+          DisplayMsg(MSG_ERR, 'Erro ao Descancelar Pedidos!', '', E.Message);
+          Exit;
+        end;
+      end;
+    finally
+      FreeAndNil(PED);
+      FreeAndNil(FWC);
+      csPedidos.EnableControls;
+    end;
   end;
 end;
 
