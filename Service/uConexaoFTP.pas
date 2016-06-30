@@ -107,7 +107,7 @@ begin
             SaveLog('Antes do upload!');
             FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
             SaveLog('Passou do upload!');
-            DeleteFile(DirArquivosFTP + search_rec.Name);
+            SalvarArquivo(DirArquivosFTP + search_rec.Name);
           end;
         until FindNext(search_rec) <> 0;
 
@@ -138,7 +138,7 @@ begin
         repeat
           if (search_rec.Attr <> faDirectory) and (Pos('SC', search_rec.Name) > 0) then begin
             FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
-            DeleteFile(DirArquivosFTP + search_rec.Name);
+            SalvarArquivo(DirArquivosFTP + search_rec.Name);
           end;
         until FindNext(search_rec) <> 0;
       finally
@@ -168,7 +168,7 @@ begin
           if (search_rec.Attr <> faDirectory) and (Pos('PROD', search_rec.Name) > 0) then begin
             FFTP.Put(DirArquivosFTP + search_rec.Name, search_rec.Name);
             SaveLog('Passou do upload!');
-            DeleteFile(DirArquivosFTP + search_rec.Name);
+            SalvarArquivo(DirArquivosFTP + search_rec.Name);
             SaveLog('Deletar arquivo!');
           end;
         until FindNext(search_rec) <> 0;

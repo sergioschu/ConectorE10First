@@ -53,7 +53,8 @@ uses
   uBeanNotafiscalItens,
   uBeanPedido_Notafiscal,
   uConstantes,
-  uDados;
+  uDados,
+  uFuncoes;
 {$R *.dfm}
 
 { TfrmPrincipal }
@@ -187,7 +188,7 @@ begin
               end;
 
               if Deletar then
-                DeleteFile(DirArquivosFTP + search_rec.Name)
+                SalvarArquivo(DirArquivosFTP + search_rec.Name)
               else begin
                 if CopyFile(PwideChar(DirArquivosFTP + search_rec.Name), PwideChar(DirArquivosFTP + 'Erros\' + search_rec.Name), False) then
                   DeleteFile(DirArquivosFTP + search_rec.Name);
@@ -228,6 +229,7 @@ var
   PR          : TPRODUTO;
   P           : TPEDIDO;
   PI          : TPEDIDOITENS;
+  T           : TTRANSPORTADORA;
   Deletar,
   Achou,
   Atualizar   : Boolean;
@@ -296,6 +298,7 @@ begin
                 P      := TPEDIDO.Create(CON);
                 PR     := TPRODUTO.Create(CON);
                 PI     := TPEDIDOITENS.Create(CON);
+                T      := TTRANSPORTADORA.Create(CON);
 
                 try
                   SaveLog('Percorrendo Array');
@@ -325,8 +328,13 @@ begin
                           P.ID.Value                := TPEDIDO(P.Itens[0]).ID.Value;
                           P.STATUS.Value            := 3;
                           P.DATA_RECEBIDO.Value     := Now;
-                          P.VOLUMES_DOCUMENTO.Value := PEDIDOS[I].VOLUMES;
-
+                          T.SelectList('ID = ' + TPEDIDO(P.Itens[0]).ID_TRANSPORTADORA.asString);
+                          if T.Count > 0 then begin
+                            if ( AnsiUpperCase(TTRANSPORTADORA(T.Itens[0]).NOME.Value) = 'TEX COURIER S.A.') then
+                              P.VOLUMES_DOCUMENTO.Value := 1
+                            else
+                              P.VOLUMES_DOCUMENTO.Value := PEDIDOS[I].VOLUMES;
+                          end;
                           P.Update;
                         end;
                       end else begin
@@ -351,7 +359,7 @@ begin
                 end;
 
                 if Deletar then
-                  DeleteFile(DirArquivosFTP + search_rec.Name)
+                  SalvarArquivo(DirArquivosFTP + search_rec.Name)
                 else begin
                   Arquivo := DirArquivosFTP + search_rec.Name;
                   if CopyFile(PWidechar(Arquivo), PWidechar(DirArquivosFTP + 'Erros\' + search_rec.Name), false) then

@@ -40,6 +40,7 @@ uses
   function FormataNumeros(Valor : String) : Double;
   procedure ExpXLS(DataSet: TDataSet; NomeArq: string);
   procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
+  procedure SalvarArquivo(FileName: String);
 
 implementation
 
@@ -53,6 +54,26 @@ Uses
   uDomains,
   uBeanPedido,
   uBeanPedido_Cancelamento;
+
+procedure SalvarArquivo(FileName: String);
+var
+  Diretorio : string;
+begin
+  if Pos('SC', FileName) > 0 then
+    Diretorio := DirArquivosFTP + 'SC\' + FormatDateTime('yyyymmdd', Now) + '\'
+  else if Pos('CONF', FileName) > 0 then
+    Diretorio := DirArquivosFTP + 'CONF\' + FormatDateTime('yyyymmdd', Now) + '\'
+  else if Pos('MDD', FileName) > 0 then
+    Diretorio := DirArquivosFTP + 'MDD\' + FormatDateTime('yyyymmdd', Now) + '\'
+  else if Pos('ARMZ', FileName) > 0 then
+    Diretorio := DirArquivosFTP + 'ARMZ\' + FormatDateTime('yyyymmdd', Now) + '\'
+  else if Pos('PROD', FileName) > 0 then
+    Diretorio := DirArquivosFTP + 'PROD\' + FormatDateTime('yyyymmdd', Now) + '\';
+
+  if not DirectoryExists(Diretorio) then
+    ForceDirectories(Diretorio);
+  MoveFile(PwideChar(FileName), PwideChar(Diretorio + ExtractFileName(FileName)));
+end;
 
 procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
 begin
