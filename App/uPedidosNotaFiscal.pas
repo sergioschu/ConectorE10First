@@ -493,6 +493,7 @@ type
   TPedidos_NF = record
     ID              : Integer;
     ID_Pedido       : Integer;
+    Status_Pedido   : Integer;
     NumeroPedido    : String;
     NumeroDocumento : Integer;
     NumeroSerie     : string;
@@ -510,7 +511,8 @@ Var
   vcol,
   I,
   J,
-  Contador      : Integer;
+  ContadorNF,
+  ContadorFT    : Integer;
   ArqValido     : Boolean;
   AchouColuna   : Boolean;
   Pedidos_NF    : array of TPedidos_NF;
@@ -612,9 +614,10 @@ begin
             if Length(Trim(Pedidos_NF[I].NumeroPedido)) > 0 then begin
 
               //Consulta o pedido no BD
-              P.SelectList('STATUS = 5 AND PEDIDO = ' + QuotedStr(Pedidos_NF[I].NumeroPedido));
+              P.SelectList('STATUS IN (3,4,5) AND PEDIDO = ' + QuotedStr(Pedidos_NF[I].NumeroPedido));
               if P.Count = 1 then begin
-                Pedidos_NF[I].ID_Pedido := TPEDIDO(P.Itens[0]).ID.Value;
+                Pedidos_NF[I].ID_Pedido     := TPEDIDO(P.Itens[0]).ID.Value;
+                Pedidos_NF[I].Status_Pedido := TPEDIDO(P.Itens[0]).STATUS.Value;
 
                 //Consulta a nf do pedido no BD
                 PNF.SelectList('ID_PEDIDO = ' + IntToStr(Pedidos_NF[I].ID_Pedido));
@@ -641,7 +644,8 @@ begin
 
           pbAtualizaPedidos.Progress  := 0;
           pbAtualizaPedidos.MaxValue  := High(Pedidos_NF);
-          Contador                    := 0;
+          ContadorNF                  := 0;
+          ContadorFT                  := 0;
 
           //Começa a Gravação dos Dados no BD
           for I := Low(Pedidos_NF) to High(Pedidos_NF) do begin
@@ -656,18 +660,29 @@ begin
                 PNF.STATUS.Value          := 0;
                 PNF.Insert;
 
-                Contador  := Contador + 1;
+                ContadorNF  := ContadorNF + 1;
 
               end;
+
+              //Faturar automaticamente os pedidos ao Vincular NF
+              if Pedidos_NF[I].Status_Pedido in [3,4] then begin
+                P.ClearFields;
+                P.ID.Value            := Pedidos_NF[I].ID_Pedido;
+                P.DATA_FATURADO.Value := Now;
+                P.STATUS.Value        := 5;//FATURADO
+                P.Update;
+                ContadorFT  := ContadorFT + 1;
+              end;
+
             end;
             Application.ProcessMessages;
             pbAtualizaPedidos.Progress  := I;
           end;
 
-          if Contador > 0 then begin
+          if ((ContadorNF > 0) OR (ContadorFT > 0)) then begin
             FWC.Commit;
 
-            DisplayMsg(MSG_OK, IntToStr(Contador) + ' Notas Fiscais Vínculadas com Sucesso!');
+            DisplayMsg(MSG_OK, IntToStr(ContadorNF) + ' Notas Fiscais Vínculadas' + sLineBreak + 'e' + sLineBreak + IntToStr(ContadorFT) + ' Pedidos Faturados');
           end else
             DisplayMsg(MSG_WAR, 'Não Houve Atualização, Verifique!');
 

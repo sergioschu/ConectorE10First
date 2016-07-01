@@ -1064,11 +1064,11 @@ object FrmFaturamentodePedidos: TFrmFaturamentodePedidos
         ItemIndex = 1
         Items.Strings = (
           'Todos'
-          'MDD Recebido'
-          'Pedido Impresso'
-          'Pedido Faturado'
-          'Pedido Despachado'
-          'Pedido Cancelado')
+          '3 - MDD Recebido'
+          '4 - Pedido Impresso'
+          '5 - Pedido Faturado'
+          '5 - Pedido Despachado'
+          '6 - Pedido Cancelado')
         TabOrder = 1
       end
     end

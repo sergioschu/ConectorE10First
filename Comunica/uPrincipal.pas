@@ -355,6 +355,7 @@ begin
                   FreeAndNil(P);
                   FreeAndNil(PR);
                   FreeAndNil(PI);
+                  FreeAndNil(T);
                   FreeAndNil(CON);
                 end;
 

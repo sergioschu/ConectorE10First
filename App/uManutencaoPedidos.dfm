@@ -975,9 +975,9 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
         ItemIndex = 1
         Items.Strings = (
           'Todos'
-          'Sem Transportadora'
-          'Com Transportadora'
-          'Enviados')
+          '0 - Sem Transportadora'
+          '1 - Com Transportadora'
+          '2 - Enviados')
         TabOrder = 1
       end
     end
@@ -1039,7 +1039,7 @@ object FrmManutencaoPedidos: TFrmManutencaoPedidos
     Left = 440
     Top = 328
     Bitmap = {
-      494C010102000C00E80010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000C00EC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

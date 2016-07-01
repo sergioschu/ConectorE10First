@@ -1060,10 +1060,10 @@ object frmNotaFiscal: TfrmNotaFiscal
         ItemIndex = 0
         Items.Strings = (
           'Todas'
-          'N'#227'o Enviadas'
-          'Enviadas'
-          'Recebidas'
-          'Conferidas')
+          '0 - N'#227'o Enviadas'
+          '1 - Enviadas'
+          '2 - Recebidas'
+          '3 - Conferidas')
         TabOrder = 1
       end
     end
