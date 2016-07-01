@@ -127,7 +127,7 @@ begin
         DisplayMsg(MSG_WAR, 'Arquivo selecionado não existe! Verifique!');
         Exit;
       end;
-
+      CopyFile(PWideChar(Arquivo),PWideChar(DirArquivosExcel + 'Arquivo_NF_' + FormatDateTime('yyyymmdd_hhnnss', Now) + ExtractFileName(Arquivo)), False);
       // Cria Excel- OLE Object
       Excel                      := CreateOleObject('Excel.Application');
       FWC                        := TFWConnection.Create;
@@ -228,6 +228,11 @@ begin
                 NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].UNITARIO    := arrData[I, NFI.VALORUNITARIO.excelIndice];
                 NOTAS[High(NOTAS)].ITENS[High(NOTAS[High(NOTAS)].ITENS)].TOTAL       := arrData[I, NFI.VALORTOTAL.excelIndice];
                 NOTAS[High(NOTAS)].VALOR                                             := arrData[I, NFI.VALORTOTAL.excelIndice];
+              end;
+            end else begin
+              if (Trim(arrData[I, 2]) <> EmptyStr) or (Trim(arrData[I, 3]) <> EmptyStr) or (Trim(arrData[I, 4]) <> EmptyStr) or (Trim(arrData[I, 5]) <> EmptyStr) then begin
+                DisplayMsg(MSG_WAR, 'Existem registros com a primeira coluna vazia! Linha: ' + IntToStr(I));
+                Exit;
               end;
             end;
 

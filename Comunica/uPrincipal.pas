@@ -53,8 +53,7 @@ uses
   uBeanNotafiscalItens,
   uBeanPedido_Notafiscal,
   uConstantes,
-  uDados,
-  uFuncoes;
+  uDados;
 {$R *.dfm}
 
 { TfrmPrincipal }
