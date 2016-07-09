@@ -203,7 +203,7 @@ begin
             if not (Trim(arrData[I, 1]) = EmptyStr) then begin
               for J := Low(NOTAS) to High(NOTAS) do begin
 
-                if (NOTAS[J].DOCUMENTO = arrData[I, NF.DOCUMENTO.excelIndice]) and (NOTAS[High(NOTAS)].SERIE = StrToIntDef(arrData[I, NF.SERIE.excelIndice], 0)) and (NOTAS[High(NOTAS)].CNPJ = arrData[I, NF.CNPJCPF.excelIndice]) then begin
+                if (NOTAS[J].DOCUMENTO = arrData[I, NF.DOCUMENTO.excelIndice]) and (NOTAS[J].SERIE = StrToIntDef(arrData[I, NF.SERIE.excelIndice], 0)) and (NOTAS[J].CNPJ = arrData[I, NF.CNPJCPF.excelIndice]) then begin
                   Achou                                                            := True;
                   SetLength(NOTAS[J].ITENS, Length(NOTAS[J].ITENS) + 1);
                   NOTAS[J].ITENS[High(NOTAS[J].ITENS)].SEQUENCIA                   := Length(NOTAS[J].ITENS);
