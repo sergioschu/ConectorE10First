@@ -16,6 +16,22 @@ object frmPrincipal: TfrmPrincipal
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object lbmensagem: TLabel
+    Left = 0
+    Top = 271
+    Width = 559
+    Height = 33
+    Align = alBottom
+    Alignment = taCenter
+    Caption = 'Timer Parado'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clRed
+    Font.Height = -27
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ExplicitWidth = 183
+  end
   object Panel1: TPanel
     Left = 0
     Top = 304
@@ -148,7 +164,7 @@ object frmPrincipal: TfrmPrincipal
     Left = 256
     Top = 120
     Bitmap = {
-      494C010102000800500010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101020008005C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

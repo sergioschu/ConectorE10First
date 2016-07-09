@@ -32,6 +32,7 @@ type
     NotasFiscaisdePedidos1: TMenuItem;
     NotaFiscaldePedidos1: TMenuItem;
     PedidossemNotaFiscal1: TMenuItem;
+    PedidoEmbarque1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -52,6 +53,7 @@ type
     procedure NotasFiscaisdePedidos1Click(Sender: TObject);
     procedure NotaFiscaldePedidos1Click(Sender: TObject);
     procedure PedidossemNotaFiscal1Click(Sender: TObject);
+    procedure PedidoEmbarque1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -83,7 +85,8 @@ uses
   uRelRetornoForadoPrazo,
   uPedidosNotaFiscal,
   uRelNotaFiscalPedido,
-  uRelPedidosSemNF;
+  uRelPedidosSemNF,
+  uRelPedidoEmbarque;
 
 {$R *.dfm}
 
@@ -227,6 +230,17 @@ begin
     frmPedidosNotaFiscal.ShowModal;
   finally
     FreeAndNil(frmPedidosNotaFiscal);
+  end;
+end;
+
+procedure TfrmPrincipal.PedidoEmbarque1Click(Sender: TObject);
+begin
+  try
+    if frmRelPedidoEmbarque = nil then
+      frmRelPedidoEmbarque := TfrmRelPedidoEmbarque.Create(Self);
+    frmRelPedidoEmbarque.ShowModal;
+  finally
+    FreeAndNil(frmRelPedidoEmbarque);
   end;
 end;
 

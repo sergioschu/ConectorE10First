@@ -226,3 +226,18 @@ alter table pedido_notafiscal add nomearquivoxml character varying(100);
 alter table pedido_notafiscal add nomearquivopdf character varying(100);
 
 alter table pedido_notafiscal drop column nomearquivoxml;
+
+create table pedido_embarque
+(
+  id serial not null,
+  id_pedido integer not null,  
+  data_inclusao timestamp without time zone,
+  data_embarque timestamp without time zone,
+  id_transportadora integer not null,
+  constraint pk_pedido_embarque primary key (id),
+  constraint fk_pedido_embarque foreign key (id_pedido)
+      references pedido (id) match simple
+      on update cascade on delete cascade,  
+  constraint fk_pedido_embarque_1 foreign key (id_transportadora)
+      references transportadora (id) match simple
+      on update cascade on delete restrict);

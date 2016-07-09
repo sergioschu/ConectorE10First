@@ -112,6 +112,10 @@ object frmPrincipal: TfrmPrincipal
         Caption = 'Pedidos sem Nota Fiscal'
         OnClick = PedidossemNotaFiscal1Click
       end
+      object PedidoEmbarque1: TMenuItem
+        Caption = 'Embarque dos Pedidos'
+        OnClick = PedidoEmbarque1Click
+      end
     end
     object miSair: TMenuItem
       Caption = 'Sair'

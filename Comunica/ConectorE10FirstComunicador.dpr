@@ -22,7 +22,8 @@ uses
   uMensagem in '..\App\Diversos\uMensagem.pas' {frmMensagem},
   uBeanPedido_Cancelamento in '..\App\Beans\uBeanPedido_Cancelamento.pas',
   uDMUtil in '..\App\Diversos\uDMUtil.pas' {DMUtil: TDataModule},
-  uSeleciona in '..\App\uSeleciona.pas' {frmSeleciona};
+  uSeleciona in '..\App\uSeleciona.pas' {frmSeleciona},
+  uBeanPedido_Embarque in '..\App\Beans\uBeanPedido_Embarque.pas';
 
 {$R *.res}
 

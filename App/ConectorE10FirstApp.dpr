@@ -40,7 +40,8 @@ uses
   uBeanPedido_NotaFiscal in 'Beans\uBeanPedido_NotaFiscal.pas',
   uPedidosNotaFiscal in 'uPedidosNotaFiscal.pas' {FrmPedidosNotaFiscal},
   uRelNotaFiscalPedido in 'uRelNotaFiscalPedido.pas' {frmRelNotaFiscalPedido},
-  uRelPedidosSemNF in 'uRelPedidosSemNF.pas' {frmRelPedidosSemNF};
+  uRelPedidosSemNF in 'uRelPedidosSemNF.pas' {frmRelPedidosSemNF},
+  uRelPedidoEmbarque in 'uRelPedidoEmbarque.pas' {frmRelPedidoEmbarque};
 
 {$R *.res}
 

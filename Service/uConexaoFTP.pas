@@ -19,6 +19,7 @@ type
     procedure EnviarProdutos;
     procedure BuscaMDD;
     procedure BuscaCONF;
+    procedure BuscaEMB;
     procedure EnviarPedidos;
     procedure EnviarNotasFiscais;
     procedure EnviarPDF;
@@ -48,6 +49,30 @@ begin
       SaveLog('Erro ao buscar arquivos de Confirmação de NF de Compra! ' + E.Message);
     end;
   end;
+end;
+
+procedure TConexaoFTP.BuscaEMB;
+var
+  I : Integer;
+begin
+  SaveLog('Dentro do BuscaEMB');
+  try
+    FFTP.ChangeDir('emb');
+    FFTP.List;
+    for I := 0 to Pred(FFTP.DirectoryListing.Count) do begin
+      if FFTP.DirectoryListing.Items[I].ItemType = ditFile then begin
+        if not FileExists(DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName) then
+          FFTP.Get(FFTP.DirectoryListing.Items[I].FileName, DirArquivosFTP + FFTP.DirectoryListing.Items[I].FileName);
+        FFTP.Delete(FFTP.DirectoryListing.Items[I].FileName);
+      end;
+    end;
+    FFTP.ChangeDirUp;
+  except
+    on E : Exception do begin
+      SaveLog('Erro ao buscar EMB: ' + E.Message);
+    end;
+  end;
+
 end;
 
 procedure TConexaoFTP.BuscaMDD;

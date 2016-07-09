@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, uFWConnection, System.IniFiles,
-  Vcl.ExtCtrls, Vcl.Buttons, Vcl.ImgList, System.DateUtils;
+  Vcl.ExtCtrls, Vcl.Buttons, Vcl.ImgList, System.DateUtils, System.StrUtils;
 
 type
   TfrmPrincipal = class(TForm)
@@ -13,6 +13,7 @@ type
     btIniciar: TBitBtn;
     Timer1: TTimer;
     ImageList1: TImageList;
+    lbmensagem: TLabel;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btIniciarClick(Sender: TObject);
@@ -22,7 +23,6 @@ type
   public
     { Public declarations }
     function BuscaNumeroArquivo(Con : TFWConnection; Tipo : Integer) : Integer;
-    procedure SaveLog(Texto : String);
     procedure CarregarConexaoBD;
     procedure CarregarConfigLocal;
     function EnviaPedidos : Boolean;
@@ -32,6 +32,7 @@ type
     function EnviaNotasFiscais : Boolean;
     function BuscaMDD : Boolean;
     function BuscaCONF : Boolean;
+    function BuscaEMB : Boolean;
     function CopiarPDF(Data : TDate; Documento : Integer; Serie : String; ID : Integer) : Boolean;
     Procedure IniciarPararLeitura;
   end;
@@ -53,7 +54,7 @@ uses
   uBeanNotafiscalItens,
   uBeanPedido_Notafiscal,
   uConstantes,
-  uDados;
+  uDados, uBeanPedido_Embarque;
 {$R *.dfm}
 
 { TfrmPrincipal }
@@ -207,6 +208,129 @@ begin
             FreeAndNil(NF);
             FreeAndNil(NI);
             FreeAndNil(PR);
+            FreeAndNil(FWC);
+          end;
+        end;
+      until FindNext(search_rec) <> 0;
+    finally
+      FindClose(search_rec);
+    end;
+  end;
+end;
+
+function TfrmPrincipal.BuscaEMB: Boolean;
+var
+  search_rec  : TSearchRec;
+  Lista       : TStringList;
+  EMB         : TStringList;
+  I,
+  J           : Integer;
+  FWC         : TFWConnection;
+  PED         : TPEDIDO;
+  T           : TTRANSPORTADORA;
+  PEMB        : TPEDIDO_EMBARQUE;
+  EMBARQUE    : ARRAY OF TEMBARQUE;
+begin
+
+  if FindFirst(DirArquivosFTP + '*.txt', faAnyFile, search_rec) = 0 then begin
+    SaveLog('Achou pelo menos 1!');
+    try
+      repeat
+        if (search_rec.Attr <> faDirectory) and (Pos('emb', search_rec.Name) > 0) then begin
+
+          Lista   := TStringList.Create;
+          EMB     := TStringList.Create;
+          FWC     := TFWConnection.Create;
+          PED     := TPEDIDO.Create(FWC);
+          T       := TTRANSPORTADORA.Create(FWC);
+          PEMB    := TPEDIDO_EMBARQUE.Create(FWC);
+
+          try
+            FWC.StartTransaction;
+            try
+
+              SetLength(EMBARQUE, 0);
+
+              Lista.LoadFromFile(DirArquivosFTP + search_rec.Name);
+
+              for I := 0 to Pred(Lista.Count) do begin
+                if Length(Trim(Lista[I])) > 0 then begin
+
+                  EMB.Delimiter       := ';';
+                  EMB.StrictDelimiter := True;
+                  EMB.DelimitedText   := Lista[I];
+
+                  if EMB.Count = 4 then begin
+
+                    SetLength(EMBARQUE, Length(EMBARQUE) + 1);
+                    EMBARQUE[High(EMBARQUE)].ID_PEDIDO            := 0;
+                    EMBARQUE[High(EMBARQUE)].ID_TRANSPORTADORA    := 0;
+                    EMBARQUE[High(EMBARQUE)].NOME_TRANSPORTADORA  := EMB[0];
+                    EMBARQUE[High(EMBARQUE)].CNPJ_TRANSPORTADORA  := RightStr(SoNumeros(EMB[1]),14);//Pegar ùltimos 14 Digitos
+                    EMBARQUE[High(EMBARQUE)].PEDIDO               := EMB[2];
+                    EMBARQUE[High(EMBARQUE)].DH_EMBARQUE          := StrFirstToDateTime(EMB[3]);
+
+                    PED.SelectList('PEDIDO = ' + QuotedStr(EMBARQUE[High(EMBARQUE)].PEDIDO));
+                    if PED.Count > 0 then
+                      EMBARQUE[High(EMBARQUE)].ID_PEDIDO := TPEDIDO(PED.Itens[0]).ID.Value;
+
+                  end else
+                    SaveLog('Estrutura para arquivo de embarque Inválido, Encontrou ' + IntToStr(EMB.Count) + ' Colunas');
+                end;
+              end;
+
+              for I := Low(EMBARQUE) to High(EMBARQUE) do begin
+                if EMBARQUE[I].ID_PEDIDO > 0 then begin
+
+                  //Apenas Víncula o Embarque caso ainda não esteja
+                  PEMB.SelectList('ID_PEDIDO = ' + IntToStr(EMBARQUE[I].ID_PEDIDO));
+                  if PEMB.Count = 0 then begin
+
+                    T.SelectList('CNPJ = ' + QuotedStr(EMBARQUE[I].CNPJ_TRANSPORTADORA));
+                    if T.Count > 0 then
+                      EMBARQUE[I].ID_TRANSPORTADORA := TTRANSPORTADORA(T.Itens[0]).ID.Value;
+
+                    //caso nao tenha encontrado a transportador vai inserir
+                    if EMBARQUE[I].ID_TRANSPORTADORA = 0 then begin
+                      T.ID.isNull   := True;
+                      T.CNPJ.Value  := EMBARQUE[I].CNPJ_TRANSPORTADORA;
+                      T.NOME.Value  := EMBARQUE[I].NOME_TRANSPORTADORA;
+                      T.Insert;
+
+                      EMBARQUE[I].ID_TRANSPORTADORA := T.ID.Value;
+                      SaveLog('Transportadora com CNPJ: ' + EMBARQUE[I].CNPJ_TRANSPORTADORA + ' e Nome: ' + EMBARQUE[I].NOME_TRANSPORTADORA + ' Inserido!');
+                    end;
+
+                    PEMB.ID.isNull              := True;
+                    PEMB.ID_PEDIDO.Value        := EMBARQUE[I].ID_PEDIDO;
+                    PEMB.DATA_INCLUSAO.Value    := Now;
+                    PEMB.DATA_EMBARQUE.Value    := EMBARQUE[I].DH_EMBARQUE;
+                    PEMB.ID_TRANSPORTADORA.Value:= EMBARQUE[I].ID_TRANSPORTADORA;
+                    PEMB.Insert;
+                  end;
+
+                end else
+                  SaveLog('Pedido Nº ' + EMBARQUE[I].PEDIDO + ' não encontrado para Vincular o Embarque');
+              end;
+
+              FWC.Commit;
+
+              DeleteFile(DirArquivosFTP + search_rec.Name);
+
+            except
+              on E : Exception do begin
+                FWC.Rollback;
+                SaveLog('Erro ao Interpretar Embarque, Arquivo: ' + search_rec.Name + ' ' + E.Message);
+                if CopyFile(PwideChar(DirArquivosFTP + search_rec.Name), PwideChar(DirArquivosFTP + 'Erros\' + search_rec.Name), False) then
+                  DeleteFile(DirArquivosFTP + search_rec.Name);
+              end;
+            end;
+          finally
+            FreeAndNil(EMB);
+            FreeAndNil(Lista);
+            FreeAndNil(PED);
+            FreeAndNil(T);
+            FreeAndNil(PEMB);
             FreeAndNil(FWC);
           end;
         end;
@@ -957,36 +1081,13 @@ begin
   end;
 end;
 
-procedure TfrmPrincipal.SaveLog(Texto: String);
-var
-  ArquivoLog : TextFile;
-  Caminho : string;
-begin
-
-  Caminho := CONFIG_LOCAL.DirLog + FormatDateTime('yyyymmdd', Now) + '.txt';
-
-  if not DirectoryExists(CONFIG_LOCAL.DirLog) then
-    ForceDirectories(CONFIG_LOCAL.DirLog);
-
-  AssignFile(ArquivoLog, Caminho);
-
-  if FileExists(Caminho) then
-    Append(ArquivoLog)
-  else
-    Rewrite(ArquivoLog);
-
-  try
-    Writeln(ArquivoLog, DateTimeToStr(Now) + ' ' + Texto)
-  finally
-    CloseFile(ArquivoLog);
-  end;
-end;
-
 procedure TfrmPrincipal.Timer1Timer(Sender: TObject);
 var
   ConexaoFTP : TConexaoFTP;
 begin
   Timer1.Enabled := False;
+  lbmensagem.Caption  := 'Timer Rodando...';
+  Application.ProcessMessages;
   SaveLog('Início do Execute do Timmer');
   try
     try
@@ -1017,6 +1118,8 @@ begin
           ConexaoFTP.BuscaCONF;
           SaveLog('Buscar Confirmação de Mercadorias - MDD para o FTP!');
           ConexaoFTP.BuscaMDD;
+          SaveLog('Buscar Embarques');
+          ConexaoFTP.BuscaEMB;
           SaveLog('Limpar conexao FTP');
         end;
       finally
@@ -1027,14 +1130,17 @@ begin
       BuscaCONF;
       SaveLog('Buscar MDD');
       BuscaMDD;
+      SaveLog('Buscar EMB');
+      BuscaEMB;
       SaveLog('Buscou arquivos!');
     except
      on E : Exception do
        SaveLog('Ocorreu algum erro na execução do processo no Timmer! Erro: ' + E.Message);
     end;
   finally
-//    IniciarPararLeitura;
     SaveLog('Final do Execute do Timmer');
+    lbmensagem.Caption  := 'Timer Parado';
+    Application.ProcessMessages;
     Timer1.Enabled := True;
   end;
 end;

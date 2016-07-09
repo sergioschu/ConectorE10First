@@ -41,6 +41,7 @@ uses
   procedure ExpXLS(DataSet: TDataSet; NomeArq: string);
   procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
   procedure SalvarArquivo(FileName: String);
+  function StrFirstToDateTime(Str : String) : TDateTime;
 
 implementation
 
@@ -73,6 +74,23 @@ begin
   if not DirectoryExists(Diretorio) then
     ForceDirectories(Diretorio);
   MoveFile(PwideChar(FileName), PwideChar(Diretorio + ExtractFileName(FileName)));
+end;
+
+function StrFirstToDateTime(Str : String) : TDateTime;
+var
+  MySettings: TFormatSettings;
+begin
+  try
+    GetLocaleFormatSettings(GetUserDefaultLCID, MySettings);
+    MySettings.DateSeparator := '-';
+    MySettings.TimeSeparator := ':';
+    MySettings.ShortDateFormat := 'yyyy-mm-dd';
+    MySettings.ShortTimeFormat := 'hh:nn:ss.zzz';
+
+    Result := StrToDateTimeDef(Str, Now, MySettings);
+  except
+    SaveLog('Erro na Função StrFirstToDateTime Texto = ' + Str);
+  end;
 end;
 
 procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);

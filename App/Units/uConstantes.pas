@@ -84,6 +84,16 @@ type
     VOLUMES : Integer;
     PRODUTOS : array of String;
   end;
+
+  TEMBARQUE = record
+    PEDIDO : String;
+    ID_PEDIDO : Integer;
+    ID_TRANSPORTADORA : Integer;
+    CNPJ_TRANSPORTADORA : string;
+    NOME_TRANSPORTADORA : string;
+    DH_EMBARQUE : TDateTime;
+  end;
+
 Const
   DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
   DirArquivosFTP : string = 'C:\ConectorE10First\arquivosFTP\';
