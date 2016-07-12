@@ -245,7 +245,7 @@ end;
 procedure TConexaoFTP.Login;
 begin
   try
-    FFTP.Host        := 'ftp.firstlog.com.br';
+    FFTP.Host        := CONFIG_LOCAL.FTPDir;
     FFTP.Username    := CONFIG_LOCAL.FTPUsuario;
     FFTP.Password    := CONFIG_LOCAL.FTPSenha;
     FFTP.Connect;

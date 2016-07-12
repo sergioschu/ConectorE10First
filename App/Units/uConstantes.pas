@@ -33,6 +33,7 @@ type
   TCONFIGURACOESLOCAIS = record
     DirRelatorios : string;
     DirLog : String;
+    FTPDir : string;
     FTPUsuario : string;
     FTPSenha : string;
     Sleep : Integer;
@@ -95,19 +96,19 @@ type
   end;
 
 Const
-  DirArqConf: String = 'C:\ConectorE10First\Conector.ini';
-  DirArquivosFTP : string = 'C:\ConectorE10First\arquivosFTP\';
-  DirInstall: String = 'C:\ConectorE10First\';
-  DirArquivosExcel: String = 'C:\ConectorE10First\Arquivos\';
   Alfabeto: String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 Var
-  LOGIN       : TDADOSLOGIN;
-  CONEXAO     : TDADOSCONEXAO;
-  USUARIO     : TDADOSUSUARIO;
-  CONFIG_LOCAL: TCONFIGURACOESLOCAIS;
-  MENUS       : array of TMENU;
-  DESIGNREL   : Boolean;
+  LOGIN           : TDADOSLOGIN;
+  CONEXAO         : TDADOSCONEXAO;
+  USUARIO         : TDADOSUSUARIO;
+  CONFIG_LOCAL    : TCONFIGURACOESLOCAIS;
+  MENUS           : array of TMENU;
+  DESIGNREL       : Boolean;
+  DirArqConf      : String;
+  DirArquivosFTP  : String;
+  DirInstall      : String;
+  DirArquivosExcel: String;
 
 implementation
 

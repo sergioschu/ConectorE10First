@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.ExtCtrls, Vcl.ComCtrls,
-  System.IniFiles, Vcl.StdCtrls, Vcl.FileCtrl;
+  System.IniFiles, Vcl.StdCtrls, Vcl.FileCtrl, Vcl.ImgList;
 
 type
   TfrmConfiguracoesSistema = class(TForm)
@@ -32,13 +32,14 @@ type
     edSleepFTP: TLabeledEdit;
     edDirArquivosPDF: TButtonedEdit;
     Label3: TLabel;
+    edDirFTP: TLabeledEdit;
+    ImageList1: TImageList;
     procedure btSairClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure edDiretorioRelatorioRightButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btSalvarClick(Sender: TObject);
     procedure btConnectionClick(Sender: TObject);
-    procedure edDirArquivosPDFRightButtonClick(Sender: TObject);
   private
     procedure CarregaConfiguracoes;
     procedure SalvaConfiguracoes;
@@ -116,24 +117,11 @@ begin
   edPorta.Text              := CONEXAO.Port;
   edDiretorioRelatorio.Text := CONFIG_LOCAL.DirRelatorios;
   edDiretorioLogs.Text      := CONFIG_LOCAL.DirLog;
+  edDirFTP.Text             := CONFIG_LOCAL.FTPDir;
   edUsuarioFTP.Text         := CONFIG_LOCAL.FTPUsuario;
   edSenhaFTP.Text           := CONFIG_LOCAL.FTPSenha;
   edSleepFTP.Text           := IntToStr(CONFIG_LOCAL.Sleep);
   edDirArquivosPDF.Text     := CONFIG_LOCAL.DIR_ARQ_PDF;
-end;
-
-procedure TfrmConfiguracoesSistema.edDirArquivosPDFRightButtonClick(
-  Sender: TObject);
-var
-  Pasta : String;
-begin
-  SelectDirectory('Selecione um Diretório!', '', Pasta);
-
-  if (Trim(Pasta) <> '') then begin
-    if (Pasta[Length(Pasta)] <> '\') then
-      Pasta := Pasta + '\';
-    edDirArquivosPDF.Text := Pasta;
-  end;
 end;
 
 procedure TfrmConfiguracoesSistema.edDiretorioRelatorioRightButtonClick(
@@ -146,7 +134,7 @@ begin
   if (Trim(Pasta) <> '') then begin
     if (Pasta[Length(Pasta)] <> '\') then
       Pasta := Pasta + '\';
-    edDiretorioRelatorio.Text := Pasta;
+    TButtonedEdit(Sender).Text := Pasta;
   end;
 end;
 
@@ -171,6 +159,7 @@ begin
 
     ArqINI.WriteString('CONFIGURACOES', 'DIR_RELATORIOS', edDiretorioRelatorio.Text);
     ArqINI.WriteString('CONFIGURACOES','DIR_LOGS', edDiretorioLogs.Text);
+    ArqINI.WriteString('CONFIGURACOES','FTP_DIR', edDirFTP.Text);
     ArqINI.WriteString('CONFIGURACOES','FTP_USUARIO', edUsuarioFTP.Text);
     ArqINI.WriteString('CONFIGURACOES','FTP_SENHA', edSenhaFTP.Text);
     ArqINI.WriteInteger('CONFIGURACOES','FTP_SLEEP', StrToInt(edSleepFTP.Text));

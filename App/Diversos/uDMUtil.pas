@@ -45,6 +45,14 @@ Uses
 procedure TDMUtil.DataModuleCreate(Sender: TObject);
 begin
 
+  DirInstall        := GetCurrentDir;
+  if DirInstall[Length(DirInstall)] <> '\' then
+    DirInstall := DirInstall + '\';
+
+  DirArqConf        := DirInstall + 'Conector.ini';
+  DirArquivosFTP    := DirInstall + 'ArquivosFTP\';
+  DirArquivosExcel  := DirInstall + 'Arquivos\';
+
   if not DirectoryExists(DirInstall) then
     CreateDir(DirInstall);
 
