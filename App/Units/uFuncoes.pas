@@ -128,6 +128,8 @@ begin
     CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
     CONFIG_LOCAL.Sleep          := ArqINI.ReadInteger('CONFIGURACOES', 'FTP_SLEEP', 0);
     CONFIG_LOCAL.DIR_ARQ_PDF    := ArqINI.ReadString('CONFIGURACOES', 'DIR_ARQ_PDF', 'C:\ConectorE10First\PDF_Gerados\');
+    CONFIG_LOCAL.NOME           := ArqINI.ReadString('EMPRESA', 'RAZAOSOCIAL', 'SIMSEN & BOROSKE LTDA');
+    CONFIG_LOCAL.APELIDO        := ArqINI.ReadString('EMPRESA', 'APELIDO', 'Estrela 10');
   finally
     FreeAndNil(ArqINI);
   end;

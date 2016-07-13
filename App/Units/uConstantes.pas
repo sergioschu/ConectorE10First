@@ -38,6 +38,8 @@ type
     FTPSenha : string;
     Sleep : Integer;
     DIR_ARQ_PDF : String;
+    NOME : string;
+    APELIDO : string;
   end;
 
   TITEM = record

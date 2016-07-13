@@ -86,7 +86,13 @@ begin
 
   frxReport1.LoadFromFile(Arquivo);
 
-  frxReport1.Variables['Usuario'] := QuotedStr(USUARIO.NOME);
+  frxReport1.Variables['Usuario']     := QuotedStr(USUARIO.NOME);
+  frxReport1.Variables['razaosocial'] := QuotedStr(CONFIG_LOCAL.NOME);
+  frxReport1.Variables['fantasia']    := QuotedStr(CONFIG_LOCAL.APELIDO);
+  frxReport1.Variables['Logo']        := QuotedStr('vazio');
+
+  if FileExists(GetCurrentDir + '\logo.jpg') then
+    frxReport1.Variables['Logo'] := QuotedStr(GetCurrentDir + '\logo.jpg');
 
   for I := 0 to Pred(RelParams.Count) do begin
     FrxReport1.Variables[Copy(RelParams.Strings[I], 0, Pos('=',RelParams.Strings[I]) -1)] := QuotedStr(Copy(RelParams.Strings[I], Pos('=',RelParams.Strings[I]) + 1, Length(RelParams.Strings[I]) - Pos('=',RelParams.Strings[I]) + 1));

@@ -34,6 +34,8 @@ type
     Label3: TLabel;
     edDirFTP: TLabeledEdit;
     ImageList1: TImageList;
+    edRazaoSocial: TLabeledEdit;
+    edApelido: TLabeledEdit;
     procedure btSairClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure edDiretorioRelatorioRightButtonClick(Sender: TObject);
@@ -122,6 +124,8 @@ begin
   edSenhaFTP.Text           := CONFIG_LOCAL.FTPSenha;
   edSleepFTP.Text           := IntToStr(CONFIG_LOCAL.Sleep);
   edDirArquivosPDF.Text     := CONFIG_LOCAL.DIR_ARQ_PDF;
+  edRazaoSocial.Text        := CONFIG_LOCAL.NOME;
+  edApelido.Text            := CONFIG_LOCAL.APELIDO;
 end;
 
 procedure TfrmConfiguracoesSistema.edDiretorioRelatorioRightButtonClick(
@@ -164,6 +168,8 @@ begin
     ArqINI.WriteString('CONFIGURACOES','FTP_SENHA', edSenhaFTP.Text);
     ArqINI.WriteInteger('CONFIGURACOES','FTP_SLEEP', StrToInt(edSleepFTP.Text));
     ArqINI.WriteString('CONFIGURACOES','DIR_ARQ_PDF', edDirArquivosPDF.Text);
+    ArqINI.WriteString('EMPRESA', 'RAZAOSOCIAL', edRazaoSocial.Text);
+    ArqINI.WriteString('EMPRESA', 'APELIDO', edApelido.Text);
 
     ArqINI.WriteString('CONEXAOBD', 'Database', edDataBase.Text);
     ArqINI.WriteString('CONEXAOBD', 'Server', edServer.Text);
