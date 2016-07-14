@@ -374,7 +374,7 @@ begin
       SQL.SQL.Add('	P.DEST_NOME,');
       SQL.SQL.Add('	P.DEST_MUNICIPIO,');
       SQL.SQL.Add('	P.STATUS,');
-      SQL.SQL.Add('	CASE WHEN ((P.STATUS = 5) AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) > 0))');
+      SQL.SQL.Add('	CASE WHEN ((P.STATUS = 5) AND (COALESCE(PE.ID, 0) > 0))');
       SQL.SQL.Add('		THEN ''Pedido Despachado''');
       SQL.SQL.Add('			ELSE');
       SQL.SQL.Add('			CASE P.STATUS WHEN 3 THEN ''MDD Recebido''');
@@ -385,6 +385,7 @@ begin
       SQL.SQL.Add('	CAST(COALESCE(P.DATA_FATURADO, CURRENT_DATE) AS DATE) AS DATA_FATURADO,');
       SQL.SQL.Add(' P.DATA_RECEBIDO');
       SQL.SQL.Add('FROM PEDIDO P');
+      SQL.SQL.Add('LEFT JOIN PEDIDO_EMBARQUE PE ON (PE.ID_PEDIDO = P.ID)');
       SQL.SQL.Add('WHERE 1 = 1');
       SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
 
@@ -397,8 +398,8 @@ begin
         0 : SQL.SQL.Add('AND P.STATUS IN (3,4,5,6)');
         1 : SQL.SQL.Add('AND P.STATUS = 3');
         2 : SQL.SQL.Add('AND P.STATUS = 4');
-        3 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) = 0))');
-        4 : SQL.SQL.Add('AND (P.STATUS = 5 AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) > 0))');
+        3 : SQL.SQL.Add('AND (P.STATUS = 5 AND (COALESCE(PE.ID, 0) = 0))');
+        4 : SQL.SQL.Add('AND (P.STATUS = 5 AND (COALESCE(PE.ID, 0) > 0))');
         5 : SQL.SQL.Add('AND P.STATUS = 6');
       end;
 

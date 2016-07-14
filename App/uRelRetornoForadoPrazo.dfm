@@ -788,13 +788,11 @@ object frmRelRetornoForadoPrazo: TfrmRelRetornoForadoPrazo
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 167
-            Height = 22
+            Width = 79
+            Height = 19
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Inicial'
-            ExplicitWidth = 79
-            ExplicitHeight = 19
           end
           object edDataInicial: TJvDateEdit
             AlignWithMargins = True
@@ -818,13 +816,11 @@ object frmRelRetornoForadoPrazo: TfrmRelRetornoForadoPrazo
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 167
-            Height = 22
+            Width = 70
+            Height = 19
             Align = alClient
             Alignment = taCenter
             Caption = 'Data Final'
-            ExplicitWidth = 70
-            ExplicitHeight = 19
           end
           object edDataFinal: TJvDateEdit
             AlignWithMargins = True

@@ -109,11 +109,12 @@ begin
       SQL.SQL.Add('	WHEN 4 THEN ''Pedido Impresso''');
       SQL.SQL.Add('	WHEN 6 THEN ''Pedido Cancelado''');
       SQL.SQL.Add('        ELSE');
-      SQL.SQL.Add('		CASE WHEN ((P.STATUS = 5) AND (CHARACTER_LENGTH(COALESCE(P.CODIGO_RASTREIO, '''')) > 0))');
+      SQL.SQL.Add('		CASE WHEN ((P.STATUS = 5) AND (COALESCE(PE.ID, 0) > 0))');
       SQL.SQL.Add('		THEN ''Pedido Despachado''');
       SQL.SQL.Add('		ELSE');
       SQL.SQL.Add('		''Pedido Faturado'' END END AS STATUS');
       SQL.SQL.Add('FROM PEDIDO P');
+      SQL.SQL.Add('LEFT JOIN PEDIDO_EMBARQUE PE ON (PE.ID_PEDIDO = P.ID)');
       SQL.SQL.Add('WHERE 1 = 1');
       SQL.SQL.Add('AND CAST(P.DATA_IMPORTACAO AS DATE) BETWEEN :DATAI AND :DATAF');
       SQL.SQL.Add('AND P.DATA_ENVIO IS NOT NULL');
