@@ -32,6 +32,7 @@ type
     function getToken : string;
     function CadastrarProdutos(JsonValue : TJSONValue) : Boolean;
     function NFEntrada(JsonValue : TJSONValue) : Boolean;
+    function EnviarPedidos(JsonValue : TJSONValue) : Boolean;
   published
     property Client    : TRESTClient read FClient write SetClient;
     property Request   : TRESTRequest read FRequest write SetRequest;
@@ -105,6 +106,37 @@ begin
   FreeAndNil(FRequest);
   FreeAndNil(FResponse);
   inherited;
+end;
+
+function TConexaoFirst.EnviarPedidos(JsonValue: TJSONValue): Boolean;
+var
+  Pair1,
+  Pair2 : TJSONPair;
+begin
+  Client.BaseURL    := URLPrincipal;
+  Request.Method    := rmPUT;
+  Request.Resource  := 'carga/solicitar?deposit={deposit}&token={token}';
+
+  Request.Params.Clear;
+  Request.Params.AddItem;
+  Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
+  Request.Params.ParameterByIndex(0).name         := 'deposit';
+  Request.Params.ParameterByIndex(0).Value        := ID;
+  Request.Params.AddItem;
+  Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
+  Request.Params.ParameterByIndex(1).name         := 'token';
+  Request.Params.ParameterByIndex(1).Value        := Token;
+  Request.Params.AddItem;
+  Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
+  Request.Params.ParameterByIndex(2).name         := 'pedidos';
+  Request.Params.ParameterByIndex(2).Value        := JsonValue.Value;
+
+  Result := False;
+  Request.Execute;
+
+//  ShowMessage(Response.JSONText);
+
+  Exit(Response.StatusCode = 200);
 end;
 
 procedure TConexaoFirst.SetClient(const Value: TRESTClient);

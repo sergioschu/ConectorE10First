@@ -27,6 +27,7 @@ type
     Procedure IniciarPararLeitura;
     procedure GravarProdutos;
     procedure EnviarNFEntrada;
+    procedure EnviarPedido;
   end;
 
 var
@@ -74,7 +75,8 @@ begin
 //  finally
 //    FreeAndNil(WSFirst);
 //  end;
-  EnviarNFEntrada;
+//  EnviarNFEntrada;
+  EnviarPedido;
 end;
 
 procedure TfrmPrincipal.EnviarNFEntrada;
@@ -133,6 +135,75 @@ begin
     FreeAndNil(P);
     FreeAndNil(NF);
     FreeAndNil(NI);
+    FreeAndNil(FW);
+    FreeAndNil(ConexaoFirst);
+  end;
+end;
+
+procedure TfrmPrincipal.EnviarPedido;
+var
+  FW         : TFWConnection;
+  P          : TPEDIDO;
+  PI         : TPEDIDOITENS;
+  T          : TTRANSPORTADORA;
+  PR         : TPRODUTO;
+  I          : Integer;
+  JSONArray  : TJSONArray;
+  JSONObject,
+  jso        : TJSONObject;
+  ConexaoFirst: TConexaoFirst;
+  J: Integer;
+begin
+  FW := TFWConnection.Create;
+  P  := TPEDIDO.Create(FW);
+  PI := TPEDIDOITENS.Create(FW);
+  PR := TPRODUTO.Create(FW);
+  T  := TTRANSPORTADORA.Create(FW);
+  JSONObject := TJSONObject.Create;
+  JSONArray  := TJSONArray.Create;
+  ConexaoFirst := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
+  try
+    ConexaoFirst.getToken;
+    P.SelectList('status = 1');
+    if P.Count > 0 then begin
+      for I := 0 to Pred(P.Count) do begin
+        PI.SelectList('id_pedido = ' + TPEDIDO(P.Itens[I]).ID.asString);
+        for J := 0 to Pred(PI.Count) do begin
+          PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
+          T.SelectList('id = ' + TPEDIDO(P.Itens[I]).ID_TRANSPORTADORA.asString);
+          if (PR.Count > 0) and (T.Count > 0) then begin
+            jso := TJSONObject.Create;
+
+            jso.AddPair(TJSONPair.Create('cnpj_tran', TTRANSPORTADORA(T.Itens[0]).CNPJ.asString));
+            jso.AddPair(TJSONPair.Create('pedido', TPEDIDO(P.Itens[I]).PEDIDO.asString));
+            jso.AddPair(TJSONPair.Create('num_viagem', TPEDIDO(P.Itens[I]).VIAGEM.asString));
+            jso.AddPair(TJSONPair.Create('sequencial_embarq', TPEDIDO(P.Itens[I]).SEQUENCIA.asString));
+            jso.AddPair(TJSONPair.Create('item', TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString));
+            jso.AddPair(TJSONPair.Create('unid_medida', TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString));
+            jso.AddPair(TJSONPair.Create('qtd_original_docum', TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString));
+            jso.AddPair(TJSONPair.Create('val_unit', TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString));
+            jso.AddPair(TJSONPair.Create('cnpj_cpf_destinat', TPEDIDO(P.Itens[I]).DEST_CNPJ.asString));
+            jso.AddPair(TJSONPair.Create('nom_destinat', TPEDIDO(P.Itens[I]).DEST_NOME.asString));
+            jso.AddPair(TJSONPair.Create('ende_dest', TPEDIDO(P.Itens[I]).DEST_ENDERECO.asString));
+            jso.AddPair(TJSONPair.Create('compl_endereco', TPEDIDO(P.Itens[I]).DEST_COMPLEMENTO.asString));
+            jso.AddPair(TJSONPair.Create('cep', TPEDIDO(P.Itens[I]).DEST_CEP.asString));
+
+            JSONArray.Add(jso);
+          end;
+        end;
+      end;
+
+      JSONObject.AddPair(TJSONPair.Create('', JSONArray));
+
+      ConexaoFirst.EnviarPedidos(JSONObject);
+    end;
+  finally
+    FreeAndNil(JSONArray);
+    //FreeAndNil(JSONObject);
+    FreeAndNil(P);
+    FreeAndNil(PR);
+    FreeAndNil(PI);
+    FreeAndNil(T);
     FreeAndNil(FW);
     FreeAndNil(ConexaoFirst);
   end;
