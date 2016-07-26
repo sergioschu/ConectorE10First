@@ -36,6 +36,8 @@ type
     ImageList1: TImageList;
     edRazaoSocial: TLabeledEdit;
     edApelido: TLabeledEdit;
+    edIdDeposit: TLabeledEdit;
+    edSecretKey: TLabeledEdit;
     procedure btSairClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure edDiretorioRelatorioRightButtonClick(Sender: TObject);
@@ -126,6 +128,8 @@ begin
   edDirArquivosPDF.Text     := CONFIG_LOCAL.DIR_ARQ_PDF;
   edRazaoSocial.Text        := CONFIG_LOCAL.NOME;
   edApelido.Text            := CONFIG_LOCAL.APELIDO;
+  edIdDeposit.Text          := CONFIG_LOCAL.ID_DEPOSIT_FIRST;
+  edSecretKey.Text          := CONFIG_LOCAL.SECRET_KEY_FIRST;
 end;
 
 procedure TfrmConfiguracoesSistema.edDiretorioRelatorioRightButtonClick(
@@ -166,6 +170,8 @@ begin
     ArqINI.WriteString('CONFIGURACOES','FTP_DIR', edDirFTP.Text);
     ArqINI.WriteString('CONFIGURACOES','FTP_USUARIO', edUsuarioFTP.Text);
     ArqINI.WriteString('CONFIGURACOES','FTP_SENHA', edSenhaFTP.Text);
+    ArqINI.WriteString('CONFIGURACOES','ID_DEPOSIT_FIRST', edIdDeposit.Text);
+    ArqINI.WriteString('CONFIGURACOES','SECRET_KEY_FIRST', edSecretKey.Text);
     ArqINI.WriteInteger('CONFIGURACOES','FTP_SLEEP', StrToInt(edSleepFTP.Text));
     ArqINI.WriteString('CONFIGURACOES','DIR_ARQ_PDF', edDirArquivosPDF.Text);
     ArqINI.WriteString('EMPRESA', 'RAZAOSOCIAL', edRazaoSocial.Text);

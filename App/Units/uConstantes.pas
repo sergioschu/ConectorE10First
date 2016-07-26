@@ -40,6 +40,8 @@ type
     DIR_ARQ_PDF : String;
     NOME : string;
     APELIDO : string;
+    ID_DEPOSIT_FIRST : string;
+    SECRET_KEY_FIRST : string;
   end;
 
   TITEM = record

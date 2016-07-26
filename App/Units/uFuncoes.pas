@@ -118,18 +118,20 @@ begin
   ArqINI := TIniFile.Create(DirArqConf);
   try
 
-    LOGIN.Usuario               := ArqINI.ReadString('LOGIN', 'USUARIO', '');
-    LOGIN.LembrarUsuario        := ArqINI.ReadBool('LOGIN', 'LEMBRARUSUARIO', True);
+    LOGIN.Usuario                 := ArqINI.ReadString('LOGIN', 'USUARIO', '');
+    LOGIN.LembrarUsuario          := ArqINI.ReadBool('LOGIN', 'LEMBRARUSUARIO', True);
 
-    CONFIG_LOCAL.DirRelatorios  := ArqINI.ReadString('CONFIGURACOES', 'DIR_RELATORIOS', 'C:\ConectorE10First\Relatorios\');
-    CONFIG_LOCAL.DirLog         := ArqINI.ReadString('CONFIGURACOES', 'DIR_LOGS', 'C:\ConectorE10First\Logs\');
-    CONFIG_LOCAL.FTPDir         := ArqINI.ReadString('CONFIGURACOES', 'FTP_DIR', '');
-    CONFIG_LOCAL.FTPUsuario     := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
-    CONFIG_LOCAL.FTPSenha       := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
-    CONFIG_LOCAL.Sleep          := ArqINI.ReadInteger('CONFIGURACOES', 'FTP_SLEEP', 0);
-    CONFIG_LOCAL.DIR_ARQ_PDF    := ArqINI.ReadString('CONFIGURACOES', 'DIR_ARQ_PDF', 'C:\ConectorE10First\PDF_Gerados\');
-    CONFIG_LOCAL.NOME           := ArqINI.ReadString('EMPRESA', 'RAZAOSOCIAL', 'SIMSEN & BOROSKE LTDA');
-    CONFIG_LOCAL.APELIDO        := ArqINI.ReadString('EMPRESA', 'APELIDO', 'Estrela 10');
+    CONFIG_LOCAL.DirRelatorios    := ArqINI.ReadString('CONFIGURACOES', 'DIR_RELATORIOS', 'C:\ConectorE10First\Relatorios\');
+    CONFIG_LOCAL.DirLog           := ArqINI.ReadString('CONFIGURACOES', 'DIR_LOGS', 'C:\ConectorE10First\Logs\');
+    CONFIG_LOCAL.FTPDir           := ArqINI.ReadString('CONFIGURACOES', 'FTP_DIR', '');
+    CONFIG_LOCAL.FTPUsuario       := ArqINI.ReadString('CONFIGURACOES', 'FTP_USUARIO', '');
+    CONFIG_LOCAL.FTPSenha         := ArqINI.ReadString('CONFIGURACOES', 'FTP_SENHA', '');
+    CONFIG_LOCAL.Sleep            := ArqINI.ReadInteger('CONFIGURACOES', 'FTP_SLEEP', 0);
+    CONFIG_LOCAL.DIR_ARQ_PDF      := ArqINI.ReadString('CONFIGURACOES', 'DIR_ARQ_PDF', 'C:\ConectorE10First\PDF_Gerados\');
+    CONFIG_LOCAL.NOME             := ArqINI.ReadString('EMPRESA', 'RAZAOSOCIAL', 'SIMSEN & BOROSKE LTDA');
+    CONFIG_LOCAL.APELIDO          := ArqINI.ReadString('EMPRESA', 'APELIDO', 'Estrela 10');
+    CONFIG_LOCAL.ID_DEPOSIT_FIRST := ArqINI.ReadString('CONFIGURACOES', 'ID_DEPOSIT_FIRST', '');
+    CONFIG_LOCAL.SECRET_KEY_FIRST := ArqINI.ReadString('CONFIGURACOES', 'SECRET_KEY_FIRST', '');
   finally
     FreeAndNil(ArqINI);
   end;

@@ -807,13 +807,59 @@ object frmConfiguracoesSistema: TfrmConfiguracoesSistema
         TabOrder = 15
         TextHint = 'Ex: Estrela10'
       end
+      object edIdDeposit: TLabeledEdit
+        Left = 395
+        Top = 116
+        Width = 300
+        Height = 27
+        EditLabel.Width = 86
+        EditLabel.Height = 19
+        EditLabel.Caption = 'ID App First'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -16
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = []
+        EditLabel.ParentFont = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        MaxLength = 10
+        ParentFont = False
+        TabOrder = 16
+      end
+      object edSecretKey: TLabeledEdit
+        Left = 395
+        Top = 170
+        Width = 300
+        Height = 27
+        EditLabel.Width = 218
+        EditLabel.Height = 19
+        EditLabel.Caption = 'Chave Secreta para o APP First'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -16
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = []
+        EditLabel.ParentFont = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        MaxLength = 25
+        ParentFont = False
+        TabOrder = 17
+      end
     end
   end
   object ImageList1: TImageList
-    Left = 673
-    Top = 249
+    Left = 753
+    Top = 241
     Bitmap = {
-      494C010102000800CC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000800D80010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000FEFEFE00F3F3F300CACA
