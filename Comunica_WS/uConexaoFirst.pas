@@ -68,10 +68,19 @@ begin
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
   Request.Params.ParameterByIndex(2).name         := 'produtos';
-  Request.Params.ParameterByIndex(2).Value        := JsonValue.Value;
+  Request.Params.ParameterByIndex(2).Value        := JsonValue.ToJSON;
+  Request.Params.ParameterByIndex(2).ContentType  := ctAPPLICATION_JSON;
 
   Result := False;
-  Request.Execute;
+  Request.Timeout := 60000;
+  try
+    Request.Execute;
+  except
+    on E : Exception do begin
+      ShowMessage(e.Message + sLineBreak + Response.JSONText);
+    end;
+  end;
+//  Response.JSONText;
 
   Exit(Response.StatusCode = 200);
 end;
@@ -113,9 +122,9 @@ var
   Pair1,
   Pair2 : TJSONPair;
 begin
-  Client.BaseURL    := URLPrincipal;
-  Request.Method    := rmPUT;
-  Request.Resource  := 'carga/solicitar?deposit={deposit}&token={token}';
+  Client.BaseURL      := URLPrincipal;
+  Request.Method      := rmPUT;
+  Request.Resource    := 'carga/solicitar?deposit={deposit}&token={token}';
 
   Request.Params.Clear;
   Request.Params.AddItem;
@@ -129,12 +138,20 @@ begin
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
   Request.Params.ParameterByIndex(2).name         := 'pedidos';
-  Request.Params.ParameterByIndex(2).Value        := JsonValue.Value;
+  Request.Params.ParameterByIndex(2).Value        := JsonValue.ToJSON;
+  Request.Params.ParameterByIndex(2).ContentType  := ctAPPLICATION_JSON;
 
   Result := False;
-  Request.Execute;
+  Request.Timeout := 60000;
+  try
+    Request.Execute;
+  except
+    on E : Exception do begin
+      ShowMessage(e.Message + sLineBreak + Response.JSONText);
+    end;
+  end;
 
-//  ShowMessage(Response.JSONText);
+  ShowMessage(Response.JSONValue.Value);
 
   Exit(Response.StatusCode = 200);
 end;
@@ -232,11 +249,18 @@ begin
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
   Request.Params.ParameterByIndex(2).name         := 'notas';
-  Request.Params.ParameterByIndex(2).Value        := JsonValue.Value;
+  Request.Params.ParameterByIndex(2).Value        := JsonValue.ToJSON;
+  Request.Params.ParameterByIndex(2).ContentType  := ctAPPLICATION_JSON;
 
   Result := False;
-  Request.Execute;
-
+  Request.Timeout := 60000;
+  try
+    Request.Execute;
+  except
+    on E : Exception do begin
+      ShowMessage(e.Message + sLineBreak + Response.JSONText);
+    end;
+  end;
   Exit(Response.StatusCode = 200);
 end;
 
