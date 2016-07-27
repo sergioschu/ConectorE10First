@@ -2,6 +2,9 @@ unit uConstantes;
 
 interface
 
+uses
+  uThreadIntegracaoWS;
+
 type
   TDADOSLOGIN = record
     Usuario : String;
@@ -99,6 +102,15 @@ type
     DH_EMBARQUE : TDateTime;
   end;
 
+TTOKEN_FIRST = record
+  STATUS_CODE : Integer;
+  USER_ID : Char;
+  TOKEN : String;
+  REFRESH_TOKEN : Char;
+  DH_LOGIN : TDateTime;
+  SESSION_EXPIRES : Integer;
+end;
+
 Const
   Alfabeto: String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -107,12 +119,14 @@ Var
   CONEXAO         : TDADOSCONEXAO;
   USUARIO         : TDADOSUSUARIO;
   CONFIG_LOCAL    : TCONFIGURACOESLOCAIS;
+  TOKEN_WS        : TTOKEN_FIRST;
   MENUS           : array of TMENU;
   DESIGNREL       : Boolean;
   DirArqConf      : String;
   DirArquivosFTP  : String;
   DirInstall      : String;
   DirArquivosExcel: String;
+  IntegracaoWS    : ThreadIntegracaoWS;
 
 implementation
 

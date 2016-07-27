@@ -11,15 +11,14 @@ type
   TfrmPrincipal = class(TForm)
     Panel1: TPanel;
     btIniciar: TBitBtn;
-    Timer1: TTimer;
     ImageList1: TImageList;
-    lbmensagem: TLabel;
     btTeste: TBitBtn;
+    lbmensagem: TLabel;
     procedure FormShow(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btIniciarClick(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
     procedure btTesteClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -47,7 +46,8 @@ uses
   uBeanPedido_Notafiscal,
   uConstantes,
   uConexaoFirst,
-  uBeanPedido_Embarque;
+  uBeanPedido_Embarque,
+  uThreadIntegracaoWS;
 {$R *.dfm}
 
 { TfrmPrincipal }
@@ -68,15 +68,14 @@ var
   WSFirst : TConexaoFirst;
   Token   : string;
 begin
-//  WSFirst := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
-//  try
-////    Token := WSFirst.getToken;
-//
-//  finally
-//    FreeAndNil(WSFirst);
-//  end;
-//  EnviarNFEntrada;
-  EnviarPedido;
+  WSFirst := TConexaoFirst.Create(False, CONFIG_LOCAL.ID_DEPOSIT_FIRST, CONFIG_LOCAL.SECRET_KEY_FIRST);
+  try
+    Token := WSFirst.getToken;
+  finally
+    FreeAndNil(WSFirst);
+  end;
+  EnviarNFEntrada;
+  //EnviarPedido;
 end;
 
 procedure TfrmPrincipal.EnviarNFEntrada;
@@ -96,9 +95,11 @@ begin
   NF := TNOTAFISCAL.Create(FW);
   NI := TNOTAFISCALITENS.Create(FW);
   P  := TPRODUTO.Create(FW);
-  JSONObject := TJSONObject.Create;
-  JSONArray  := TJSONArray.Create;
-  ConexaoFirst := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
+
+  JSONObject    := TJSONObject.Create;
+  JSONArray     := TJSONArray.Create;
+  ConexaoFirst  := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
+
   try
     ConexaoFirst.getToken;
     NF.SelectList('status = 0');
@@ -209,9 +210,20 @@ begin
   end;
 end;
 
-procedure TfrmPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
-  Timer1.Enabled := False;
+  IntegracaoWS := ThreadIntegracaoWS.Create(True);
+  IntegracaoWS.FreeOnTerminate := False;
+end;
+
+procedure TfrmPrincipal.FormDestroy(Sender: TObject);
+begin
+  if Assigned(IntegracaoWS) then begin
+    IntegracaoWS.Terminate;
+    if not IntegracaoWS.Suspended then
+      IntegracaoWS.WaitFor;
+    FreeAndNil(IntegracaoWS);
+  end;
 end;
 
 procedure TfrmPrincipal.FormShow(Sender: TObject);
@@ -219,7 +231,7 @@ var
  Con : TFWConnection;
 begin
   CONFIG_LOCAL.DirLog  := GetCurrentDir + '\Logs\';
-  SaveLog('Serviço iniciado!');
+
   try
 
     ImageList1.GetBitmap(0, btIniciar.Glyph);
@@ -229,15 +241,9 @@ begin
 
     CarregarConfigLocal;
 
-    CON   := TFWConnection.Create;
-    try
-      SaveLog('Conectou no Banco de dados!');
-    finally
-      FreeAndNil(CON);
-    end;
   except
     on E : Exception do
-      SaveLog('Erro ao iniciar Aplicativo: ' + E.Message);
+      SaveLog('Erro ao iniciar Comunicador WS: ' + E.Message);
   end;
 end;
 
@@ -299,35 +305,22 @@ end;
 procedure TfrmPrincipal.IniciarPararLeitura;
 begin
   if btIniciar.Caption = 'Iniciar Leitura' then begin
+    if Assigned(IntegracaoWS) then begin
+        IntegracaoWS.Resume;
+    end;
     btIniciar.Glyph := nil;
     ImageList1.GetBitmap(1, btIniciar.Glyph);
     btIniciar.Caption := 'Parar Leitura';
-    Timer1.Enabled    := True;
+
   end else begin
+    if Assigned(IntegracaoWS) then begin
+      IntegracaoWS.Suspend;
+      if not IntegracaoWS.Suspended then
+        IntegracaoWS.WaitFor;
+    end;
     btIniciar.Glyph := nil;
     ImageList1.GetBitmap(0, btIniciar.Glyph);
     btIniciar.Caption := 'Iniciar Leitura';
-    Timer1.Enabled    := False;
-  end;
-end;
-
-procedure TfrmPrincipal.Timer1Timer(Sender: TObject);
-begin
-  Timer1.Enabled := False;
-  lbmensagem.Caption  := 'Timer Rodando...';
-  Application.ProcessMessages;
-  SaveLog('Início do Execute do Timmer');
-  try
-    try
-    except
-     on E : Exception do
-       SaveLog('Ocorreu algum erro na execução do processo no Timmer! Erro: ' + E.Message);
-    end;
-  finally
-    SaveLog('Final do Execute do Timmer');
-    lbmensagem.Caption  := 'Timer Parado';
-    Application.ProcessMessages;
-    Timer1.Enabled := True;
   end;
 end;
 

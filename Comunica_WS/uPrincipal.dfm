@@ -12,7 +12,8 @@ object frmPrincipal: TfrmPrincipal
   Font.Style = []
   OldCreateOrder = False
   WindowState = wsMaximized
-  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -263,18 +264,11 @@ object frmPrincipal: TfrmPrincipal
       OnClick = btTesteClick
     end
   end
-  object Timer1: TTimer
-    Enabled = False
-    Interval = 10000
-    OnTimer = Timer1Timer
-    Left = 416
-    Top = 96
-  end
   object ImageList1: TImageList
     Left = 256
     Top = 120
     Bitmap = {
-      494C010102000800640010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000800680010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -23,7 +23,8 @@ uses
   uDMUtil in '..\App\Diversos\uDMUtil.pas' {DMUtil: TDataModule},
   uSeleciona in '..\App\uSeleciona.pas' {frmSeleciona},
   uBeanPedido_Embarque in '..\App\Beans\uBeanPedido_Embarque.pas',
-  uConexaoFirst in 'uConexaoFirst.pas';
+  uConexaoFirst in 'uConexaoFirst.pas',
+  uThreadIntegracaoWS in 'uThreadIntegracaoWS.pas';
 
 {$R *.res}
 
