@@ -26,10 +26,11 @@ type
     procedure SetToken(const Value: string);
   public
     constructor Create(); overload;
-    constructor Create(Producao : Boolean; ID_Empresa : String; Secret_Key : String); overload;
+    constructor Create(Producao : Boolean); overload;
     destructor Destroy; override;
 
     function getToken : string;
+    procedure Refresh;
     function CadastrarProdutos(JsonValue : TJSONValue) : Boolean;
     function NFEntrada(JsonValue : TJSONValue) : Boolean;
     function EnviarPedidos(JsonValue : TJSONValue) : Boolean;
@@ -44,7 +45,9 @@ type
 end;
 
 implementation
-
+uses
+  uConstantes,
+  uFuncoes;
 { TConexaoFirst }
 
 function TConexaoFirst.CadastrarProdutos(JsonValue: TJSONValue): Boolean;
@@ -94,18 +97,25 @@ begin
 
   Request.Client    := Client;
   Request.Response  := Response;
+
+  if CONFIG_LOCAL.ID_DEPOSIT_FIRST <> EmptyStr then
+    ID := CONFIG_LOCAL.ID_DEPOSIT_FIRST;
+  if CONFIG_LOCAL.SECRET_KEY_FIRST <> EmptyStr then
+    Key_Secret := CONFIG_LOCAL.SECRET_KEY_FIRST;
+  if TOKEN_WS.TOKEN <> EmptyStr then begin
+    if TOKEN_WS.DH_LOGIN + TOKEN_WS.SESSION_EXPIRES <= Now then
+      Refresh;
+    Token := TOKEN_WS.TOKEN;
+  end else
+    getToken;
 end;
 
-constructor TConexaoFirst.Create(Producao: Boolean; ID_Empresa: String; Secret_Key : String);
+constructor TConexaoFirst.Create(Producao: Boolean);
 begin
   if Producao then
     URLPrincipal := 'http://api.firstlog.com.br/'
   else
     URLPrincipal := 'http://apiteste.firstlog.com.br/';
-  if ID_Empresa <> EmptyStr then
-    ID := ID_Empresa;
-  if Secret_Key <> EmptyStr then
-    Key_Secret := Secret_Key;
   Create;
 end;
 
@@ -195,6 +205,7 @@ function TConexaoFirst.getToken: string;
 var
   Pair1,
   Pair2 : TJSONPair;
+  J: Integer;
 begin
   Client.BaseURL    := URLPrincipal + 'auth';
   Request.Method    := rmPOST;
@@ -217,11 +228,14 @@ begin
     for Pair1 in TJSONObject(Response.JSONValue) do begin
       if Pair1.JsonString.Value = 'body' then begin
         for Pair2 in TJSONObject(Pair1.JsonValue) do begin
-          if Pair2.JsonString.Value = 'token' then begin
-            Token  := Pair2.JsonValue.Value;
-            Result := Pair2.JsonValue.Value;
-            Break;
-          end;
+          if Pair2.JsonString.Value = 'token' then
+            TOKEN_WS.TOKEN          := Pair2.JsonValue.Value;
+          if Pair2.JsonString.Value = 'refresh_token' then
+            TOKEN_WS.REFRESH_TOKEN  := Pair2.JsonValue.Value;
+          if Pair2.JsonString.Value = 'time' then
+            TOKEN_WS.DH_LOGIN       := StrFirstToDateTime(Pair2.JsonValue.Value);
+          if Pair2.JsonString.Value = 'session_expires' then
+            TOKEN_WS.SESSION_EXPIRES:= StrToInt(Pair2.JsonValue.Value);
         end;
       end;
     end;
@@ -262,6 +276,54 @@ begin
     end;
   end;
   Exit(Response.StatusCode = 200);
+end;
+
+procedure TConexaoFirst.Refresh;
+var
+  Pair1,
+  Pair2 : TJSONPair;
+  J: Integer;
+  JsonValue : TJSONObject;
+begin
+  JsonValue := TJSONObject.Create;
+  try
+    JsonValue.AddPair(TJSONPair.Create('refresh_token', TOKEN_WS.REFRESH_TOKEN));
+    Client.BaseURL    := URLPrincipal + 'refresh';
+    Request.Method    := rmPOST;
+    Request.Resource  := '{id_deposit}';
+
+    Request.Params.Clear;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(0).name         := 'id_deposit';
+    Request.Params.ParameterByIndex(0).Value        := ID;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(1).Kind         := pkREQUESTBODY;
+    Request.Params.ParameterByIndex(1).name         := 'refresh';
+    Request.Params.ParameterByIndex(1).Value        := JsonValue.ToJSON;
+    Request.Params.ParameterByIndex(1).ContentType  := ctAPPLICATION_JSON;
+
+    Request.Execute;
+
+    if Response.StatusCode = 200 then begin
+      for Pair1 in TJSONObject(Response.JSONValue) do begin
+        if Pair1.JsonString.Value = 'body' then begin
+          for Pair2 in TJSONObject(Pair1.JsonValue) do begin
+            if Pair2.JsonString.Value = 'token' then
+              TOKEN_WS.TOKEN          := Pair2.JsonValue.Value;
+            if Pair2.JsonString.Value = 'refresh_token' then
+              TOKEN_WS.REFRESH_TOKEN  := Pair2.JsonValue.Value;
+            if Pair2.JsonString.Value = 'time' then
+              TOKEN_WS.DH_LOGIN       := StrFirstToDateTime(Pair2.JsonValue.Value);
+            if Pair2.JsonString.Value = 'session_expires' then
+              TOKEN_WS.SESSION_EXPIRES:= StrToInt(Pair2.JsonValue.Value);
+          end;
+        end;
+      end;
+    end;
+  finally
+
+  end;
 end;
 
 end.

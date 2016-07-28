@@ -104,9 +104,9 @@ type
 
 TTOKEN_FIRST = record
   STATUS_CODE : Integer;
-  USER_ID : Char;
+  USER_ID : String;
   TOKEN : String;
-  REFRESH_TOKEN : Char;
+  REFRESH_TOKEN : String;
   DH_LOGIN : TDateTime;
   SESSION_EXPIRES : Integer;
 end;

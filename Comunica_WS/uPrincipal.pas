@@ -68,7 +68,7 @@ var
   WSFirst : TConexaoFirst;
   Token   : string;
 begin
-  WSFirst := TConexaoFirst.Create(False, CONFIG_LOCAL.ID_DEPOSIT_FIRST, CONFIG_LOCAL.SECRET_KEY_FIRST);
+  WSFirst := TConexaoFirst.Create(False);
   try
     Token := WSFirst.getToken;
   finally
@@ -98,7 +98,7 @@ begin
 
   JSONObject    := TJSONObject.Create;
   JSONArray     := TJSONArray.Create;
-  ConexaoFirst  := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
+  ConexaoFirst  := TConexaoFirst.Create(False);
 
   try
     ConexaoFirst.getToken;
@@ -113,7 +113,7 @@ begin
 
             jso.AddPair(TJSONPair.Create('num_nf', TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.asString));
             jso.AddPair(TJSONPair.Create('ser_nf', TNOTAFISCAL(NF.Itens[I]).SERIE.asString));
-            jso.AddPair(TJSONPair.Create('dat_emis_nf', TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.asString));
+            jso.AddPair(TJSONPair.Create('dat_emis_nf', DateTimeToStrFirst(TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value)));
             jso.AddPair(TJSONPair.Create('num_seq', TNOTAFISCALITENS(NI.Itens[J]).SEQUENCIA.asString));
             jso.AddPair(TJSONPair.Create('cod_item', TPRODUTO(P.Itens[0]).CODIGOPRODUTO.asString));
             jso.AddPair(TJSONPair.Create('qtd_declarad_nf', TNOTAFISCALITENS(NI.Itens[J]).QUANTIDADE.asString));
@@ -126,9 +126,9 @@ begin
         end;
       end;
 
-      JSONObject.AddPair(TJSONPair.Create('', JSONArray));
+//      JSONObject.AddPair(TJSONPair.Create('', JSONArray));
 
-      ConexaoFirst.NFEntrada(JSONObject);
+      ConexaoFirst.NFEntrada(JSONArray);
     end;
   finally
     FreeAndNil(JSONArray);
@@ -162,7 +162,7 @@ begin
   T  := TTRANSPORTADORA.Create(FW);
   JSONObject := TJSONObject.Create;
   JSONArray  := TJSONArray.Create;
-  ConexaoFirst := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
+  ConexaoFirst := TConexaoFirst.Create(False);
   try
     ConexaoFirst.getToken;
     P.SelectList('status = 1');
@@ -261,10 +261,10 @@ begin
   P  := TPRODUTO.Create(FW);
   JSONObject := TJSONObject.Create;
   JSONArray  := TJSONArray.Create;
-  ConexaoFirst := TConexaoFirst.Create(False, '0344391764', '2q2C5oXjhfH2xEu');
+  ConexaoFirst := TConexaoFirst.Create(False);
   try
     ConexaoFirst.getToken;
-    P.SelectList('status = 0');
+    P.SelectList('status = 0', 'codigoproduto limit 100');
     for I := 0 to Pred(P.Count) do begin
       jso := TJSONObject.Create;
 
@@ -291,9 +291,9 @@ begin
       JSONArray.Add(jso);
     end;
 
-    JSONObject.AddPair(TJSONPair.Create('', JSONArray));
+//    JSONObject.AddPair(TJSONPair.Create('', JSONArray));
 
-    ConexaoFirst.CadastrarProdutos(JSONObject);
+    ConexaoFirst.CadastrarProdutos(JSONArray);
   finally
     FreeAndNil(JSONArray);
     FreeAndNil(P);

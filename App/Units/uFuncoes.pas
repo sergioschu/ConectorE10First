@@ -42,6 +42,7 @@ uses
   procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
   procedure SalvarArquivo(FileName: String);
   function StrFirstToDateTime(Str : String) : TDateTime;
+  function DateTimeToStrFirst(Data : TDateTime) : string;
 
 implementation
 
@@ -91,6 +92,16 @@ begin
   except
     SaveLog('Erro na Função StrFirstToDateTime Texto = ' + Str);
   end;
+end;
+
+function DateTimeToStrFirst(Data : TDateTime) : string;
+var
+  FmtData,
+  FmtHora : string;
+begin
+  FmtData := FormatDateTime('yyyy-mm-dd', Data);
+  FmtHora := FormatDateTime('hh:nn:ss-zzz', Data);
+  Result  := FmtData + 'T' + FmtHora;
 end;
 
 procedure TotalizaRegistros(cds : TClientDataSet; edtQuantidade : TEdit);
