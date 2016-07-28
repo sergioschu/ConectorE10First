@@ -35,7 +35,7 @@ begin
   if TOKEN_WS.STATUS_CODE = 200 then begin//SE FOR 200 APENAS PRECISA FAZER REFRESH
 
   end else begin
-    WSFirst := TConexaoFirst.Create(False, CONFIG_LOCAL.ID_DEPOSIT_FIRST, CONFIG_LOCAL.SECRET_KEY_FIRST);
+    WSFirst := TConexaoFirst.Create(False);
     try
       TOKEN_WS.TOKEN        := WSFirst.getToken;
       TOKEN_WS.STATUS_CODE  := 200;
