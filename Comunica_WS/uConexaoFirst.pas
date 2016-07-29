@@ -55,10 +55,10 @@ var
   Pair1,
   Pair2 : TJSONPair;
 begin
+  getToken;
   Client.BaseURL    := URLPrincipal;
   Request.Method    := rmPUT;
   Request.Resource  := 'produtos/cadastrar?deposit={deposit}&token={token}';
-
   Request.Params.Clear;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
@@ -79,9 +79,9 @@ begin
   try
     Request.Execute;
   except
-    on E : Exception do begin
-      ShowMessage(e.Message + sLineBreak + Response.JSONText);
-    end;
+//    on E : Exception do begin
+//      ShowMessage(e.Message + sLineBreak + Response.JSONText);
+//    end;
   end;
 //  Response.JSONText;
 
@@ -161,7 +161,7 @@ begin
     end;
   end;
 
-  ShowMessage(Response.JSONValue.Value);
+//  ShowMessage(Response.JSONValue.Value);
 
   Exit(Response.StatusCode = 200);
 end;

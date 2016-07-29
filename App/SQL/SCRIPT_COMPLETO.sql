@@ -241,3 +241,24 @@ create table pedido_embarque
   constraint fk_pedido_embarque_1 foreign key (id_transportadora)
       references transportadora (id) match simple
       on update cascade on delete restrict);
+
+CREATE TABLE requisicoesfirst
+(
+  id serial NOT NULL,
+  datahora time without time zone,
+  cod_status integer,
+  dsc_status character varying(255),
+  tiporequisicao character varying(100),
+  CONSTRAINT pk_requisicoesfirst PRIMARY KEY (id)
+);
+
+CREATE TABLE req_itens
+(
+  id serial NOT NULL,
+  id_requisicoes bigint,
+  id_dados bigint,
+  CONSTRAINT pk_req_itens PRIMARY KEY (id),
+  CONSTRAINT fk_ri_requisicoesfirst FOREIGN KEY (id_requisicoes)
+      REFERENCES requisicoesfirst (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+);

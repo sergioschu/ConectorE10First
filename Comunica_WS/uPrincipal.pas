@@ -74,8 +74,9 @@ begin
   finally
     FreeAndNil(WSFirst);
   end;
-  EnviarNFEntrada;
-  //EnviarPedido;
+//  GravarProdutos;
+//  EnviarNFEntrada;
+  EnviarPedido;
 end;
 
 procedure TfrmPrincipal.EnviarNFEntrada;
@@ -194,9 +195,9 @@ begin
         end;
       end;
 
-      JSONObject.AddPair(TJSONPair.Create('', JSONArray));
+//      JSONObject.AddPair(TJSONPair.Create('', JSONArray));
 
-      ConexaoFirst.EnviarPedidos(JSONObject);
+      ConexaoFirst.EnviarPedidos(JSONArray);
     end;
   finally
     FreeAndNil(JSONArray);
@@ -263,37 +264,41 @@ begin
   JSONArray  := TJSONArray.Create;
   ConexaoFirst := TConexaoFirst.Create(False);
   try
-    ConexaoFirst.getToken;
-    P.SelectList('status = 0', 'codigoproduto limit 100');
-    for I := 0 to Pred(P.Count) do begin
-      jso := TJSONObject.Create;
+    repeat
+      P.SelectList('status = 0', 'codigoproduto limit 500');
+      FW.StartTransaction;
+      for I := 0 to Pred(P.Count) do begin
+        jso := TJSONObject.Create;
 
-      jso.AddPair(TJSONPair.Create('item_deposit', TPRODUTO(P.Itens[I]).CODIGOPRODUTO.asString));
-      jso.AddPair(TJSONPair.Create('den_item', TPRODUTO(P.Itens[I]).DESCRICAO.asString));
-      jso.AddPair(TJSONPair.Create('den_item_reduz', TPRODUTO(P.Itens[I]).DESCRICAOREDUZIDA.asString));
-      jso.AddPair(TJSONPair.Create('des_sku', TPRODUTO(P.Itens[I]).DESCRICAOSKU.asString));
-      jso.AddPair(TJSONPair.Create('des_reduz_sku', TPRODUTO(P.Itens[I]).DESCRICAOREDUZIDASKU.asString));
-      jso.AddPair(TJSONPair.Create('qtd_item', TPRODUTO(P.Itens[I]).QUANTIDADEPOREMBALAGEM.asString));
-      jso.AddPair(TJSONPair.Create('cod_unid_med', TPRODUTO(P.Itens[I]).UNIDADEDEMEDIDA.asString));
-      jso.AddPair(TJSONPair.Create('cod_barras', TPRODUTO(P.Itens[I]).CODIGOBARRAS.asString));
-      jso.AddPair(TJSONPair.Create('altura', TPRODUTO(P.Itens[I]).ALTURAEMBALAGEM.asString));
-      jso.AddPair(TJSONPair.Create('comprimento', TPRODUTO(P.Itens[I]).COMPRIMENTOEMBALAGEM.asString));
-      jso.AddPair(TJSONPair.Create('largura', TPRODUTO(P.Itens[I]).LARGURAEMBALAGEM.asString));
-      jso.AddPair(TJSONPair.Create('peso_bruto', TPRODUTO(P.Itens[I]).PESOEMBALAGEM.asString));
-      jso.AddPair(TJSONPair.Create('pes_unit', TPRODUTO(P.Itens[I]).PESOPRODUTO.asString));
-      jso.AddPair(TJSONPair.Create('qtd_caixa_altura', TPRODUTO(P.Itens[I]).QUANTIDADECAIXASALTURAPALET.asString));
-      jso.AddPair(TJSONPair.Create('qtd_caixa_lastro', TPRODUTO(P.Itens[I]).QUANTIDADESCAIXASLASTROPALET.asString));
-      jso.AddPair(TJSONPair.Create('item_deposit', TPRODUTO(P.Itens[I]).CODIGOPRODUTO.asString));
-      jso.AddPair(TJSONPair.Create('pct_ipi', '0'));
-      jso.AddPair(TJSONPair.Create('cod_cla_fisc', '0'));
-      jso.AddPair(TJSONPair.Create('cat_item', '1'));
+        jso.AddPair(TJSONPair.Create('item_deposit', TPRODUTO(P.Itens[I]).CODIGOPRODUTO.asString));
+        jso.AddPair(TJSONPair.Create('den_item', TPRODUTO(P.Itens[I]).DESCRICAO.asString));
+        jso.AddPair(TJSONPair.Create('den_item_reduz', TPRODUTO(P.Itens[I]).DESCRICAOREDUZIDA.asString));
+        jso.AddPair(TJSONPair.Create('des_sku', TPRODUTO(P.Itens[I]).DESCRICAOSKU.asString));
+        jso.AddPair(TJSONPair.Create('des_reduz_sku', TPRODUTO(P.Itens[I]).DESCRICAOREDUZIDASKU.asString));
+        jso.AddPair(TJSONPair.Create('qtd_item', TPRODUTO(P.Itens[I]).QUANTIDADEPOREMBALAGEM.asString));
+        jso.AddPair(TJSONPair.Create('cod_unid_med', TPRODUTO(P.Itens[I]).UNIDADEDEMEDIDA.asString));
+        jso.AddPair(TJSONPair.Create('cod_barras', TPRODUTO(P.Itens[I]).CODIGOBARRAS.asString));
+        jso.AddPair(TJSONPair.Create('altura', TPRODUTO(P.Itens[I]).ALTURAEMBALAGEM.asString));
+        jso.AddPair(TJSONPair.Create('comprimento', TPRODUTO(P.Itens[I]).COMPRIMENTOEMBALAGEM.asString));
+        jso.AddPair(TJSONPair.Create('largura', TPRODUTO(P.Itens[I]).LARGURAEMBALAGEM.asString));
+        jso.AddPair(TJSONPair.Create('peso_bruto', TPRODUTO(P.Itens[I]).PESOEMBALAGEM.asString));
+        jso.AddPair(TJSONPair.Create('pes_unit', TPRODUTO(P.Itens[I]).PESOPRODUTO.asString));
+        jso.AddPair(TJSONPair.Create('qtd_caixa_altura', TPRODUTO(P.Itens[I]).QUANTIDADECAIXASALTURAPALET.asString));
+        jso.AddPair(TJSONPair.Create('qtd_caixa_lastro', TPRODUTO(P.Itens[I]).QUANTIDADESCAIXASLASTROPALET.asString));
+        jso.AddPair(TJSONPair.Create('pct_ipi', '0'));
+        jso.AddPair(TJSONPair.Create('cod_cla_fisc', '0'));
+        jso.AddPair(TJSONPair.Create('cat_item', '1'));
 
-      JSONArray.Add(jso);
-    end;
+        JSONArray.Add(jso);
+        P.ID.Value     := TPRODUTO(P.Itens[I]).ID.Value;
+        P.STATUS.Value := 1;
+        P.Update;
+      end;
 
-//    JSONObject.AddPair(TJSONPair.Create('', JSONArray));
+      FW.Commit;
 
-    ConexaoFirst.CadastrarProdutos(JSONArray);
+      ConexaoFirst.CadastrarProdutos(JSONArray);
+    until P.Count = 0;
   finally
     FreeAndNil(JSONArray);
     FreeAndNil(P);

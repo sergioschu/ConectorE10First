@@ -24,7 +24,9 @@ uses
   uSeleciona in '..\App\uSeleciona.pas' {frmSeleciona},
   uBeanPedido_Embarque in '..\App\Beans\uBeanPedido_Embarque.pas',
   uConexaoFirst in 'uConexaoFirst.pas',
-  uThreadIntegracaoWS in 'uThreadIntegracaoWS.pas';
+  uThreadIntegracaoWS in 'uThreadIntegracaoWS.pas',
+  uBeanRequisicoesFirst in '..\App\Beans\uBeanRequisicoesFirst.pas',
+  uBeanReq_Itens in '..\App\Beans\uBeanReq_Itens.pas';
 
 {$R *.res}
 
