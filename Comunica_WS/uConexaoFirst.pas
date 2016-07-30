@@ -31,9 +31,9 @@ type
 
     function getToken : string;
     procedure Refresh;
-    function CadastrarProdutos(JsonValue : TJSONValue) : Boolean;
-    function NFEntrada(JsonValue : TJSONValue) : Boolean;
-    function EnviarPedidos(JsonValue : TJSONValue) : Boolean;
+    function CadastrarProdutos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
+    function NFEntrada(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
+    function EnviarPedidos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
   published
     property Client    : TRESTClient read FClient write SetClient;
     property Request   : TRESTRequest read FRequest write SetRequest;
@@ -50,12 +50,13 @@ uses
   uFuncoes;
 { TConexaoFirst }
 
-function TConexaoFirst.CadastrarProdutos(JsonValue: TJSONValue): Boolean;
+function TConexaoFirst.CadastrarProdutos(JsonValue: TJSONValue; out Status : Integer; out Mensagem : String): Boolean;
 var
-  Pair1,
-  Pair2 : TJSONPair;
+  Pair : TJSONPair;
 begin
-  getToken;
+  Status   := 999;
+  Mensagem := 'Montando dados da requisição!';
+
   Client.BaseURL    := URLPrincipal;
   Request.Method    := rmPUT;
   Request.Resource  := 'produtos/cadastrar?deposit={deposit}&token={token}';
@@ -79,11 +80,20 @@ begin
   try
     Request.Execute;
   except
-//    on E : Exception do begin
-//      ShowMessage(e.Message + sLineBreak + Response.JSONText);
-//    end;
+    on E : Exception do begin
+      ShowMessage(e.Message + sLineBreak + Response.JSONText);
+    end;
   end;
-//  Response.JSONText;
+  if Response.JSONText <> EmptyStr then begin
+    if Response.JSONValue is TJSONObject then begin
+      for Pair in TJSONObject(Response.JSONValue) do begin
+        if Pair.JsonString.Value = 'status' then
+          Status := TJSONNumber(Pair.JsonValue).AsInt
+        else if Pair.JsonString.Value = 'body' then
+          Mensagem := Pair.JsonValue.Value;
+      end;
+    end;
+  end;
 
   Exit(Response.StatusCode = 200);
 end;
@@ -127,11 +137,13 @@ begin
   inherited;
 end;
 
-function TConexaoFirst.EnviarPedidos(JsonValue: TJSONValue): Boolean;
+function TConexaoFirst.EnviarPedidos(JsonValue: TJSONValue; out Status : Integer; out Mensagem : String): Boolean;
 var
-  Pair1,
-  Pair2 : TJSONPair;
+  Pair : TJSONPair;
 begin
+  Status   := 999;
+  Mensagem := 'Montando dados da requisição!';
+
   Client.BaseURL      := URLPrincipal;
   Request.Method      := rmPUT;
   Request.Resource    := 'carga/solicitar?deposit={deposit}&token={token}';
@@ -161,7 +173,17 @@ begin
     end;
   end;
 
-//  ShowMessage(Response.JSONValue.Value);
+  if Response.JSONText <> EmptyStr then begin
+    if Response.JSONValue is TJSONObject then begin
+      for Pair in TJSONObject(Response.JSONValue) do begin
+        if Pair.JsonString.Value = 'status' then
+          Status := TJSONNumber(Pair.JsonValue).AsInt
+        else if Pair.JsonString.Value = 'body' then
+          Mensagem := Pair.JsonValue.Value;
+      end;
+    end;
+  end;
+
 
   Exit(Response.StatusCode = 200);
 end;
@@ -242,11 +264,13 @@ begin
   end;
 end;
 
-function TConexaoFirst.NFEntrada(JsonValue: TJSONValue): Boolean;
+function TConexaoFirst.NFEntrada(JsonValue: TJSONValue; out Status : Integer; out Mensagem : String): Boolean;
 var
-  Pair1,
-  Pair2 : TJSONPair;
+  Pair : TJSONPair;
 begin
+  Status   := 999;
+  Mensagem := 'Montando dados da requisição!';
+
   Client.BaseURL    := URLPrincipal;
   Request.Method    := rmPUT;
   Request.Resource  := 'armazem/entrada?deposit={deposit}&token={token}';
@@ -275,6 +299,17 @@ begin
       ShowMessage(e.Message + sLineBreak + Response.JSONText);
     end;
   end;
+  if Response.JSONText <> EmptyStr then begin
+    if Response.JSONValue is TJSONObject then begin
+      for Pair in TJSONObject(Response.JSONValue) do begin
+        if Pair.JsonString.Value = 'status' then
+          Status := TJSONNumber(Pair.JsonValue).AsInt
+        else if Pair.JsonString.Value = 'body' then
+          Mensagem := Pair.JsonValue.Value;
+      end;
+    end;
+  end;
+
   Exit(Response.StatusCode = 200);
 end;
 
