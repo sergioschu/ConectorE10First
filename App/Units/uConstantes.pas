@@ -115,6 +115,7 @@ end;
 
 Const
   Alfabeto: String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  Producao: Boolean = False;
 
 Var
   LOGIN           : TDADOSLOGIN;

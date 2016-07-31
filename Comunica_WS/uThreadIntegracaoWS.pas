@@ -3,7 +3,7 @@ unit uThreadIntegracaoWS;
 interface
 
 uses
-  System.Classes;
+  System.Classes, Winapi.ActiveX;
 
 type
   ThreadIntegracaoWS = class(TThread)
@@ -13,8 +13,6 @@ type
     procedure Execute; override;
     procedure TrataWSFirst;
     procedure TrataWSKPL;
-    procedure BuscaToken;
-
   end;
 
 implementation
@@ -22,36 +20,18 @@ implementation
 uses
   uConstantes,
   uFuncoes,
+  uFuncoesWSFirst,
   System.SysUtils,
   uConexaoFirst;
 
 { ThreadIntegracaoWS }
-
-procedure ThreadIntegracaoWS.BuscaToken;
-var
-  WSFirst : TConexaoFirst;
-begin
-
-  if TOKEN_WS.STATUS_CODE = 200 then begin//SE FOR 200 APENAS PRECISA FAZER REFRESH
-
-  end else begin
-    WSFirst := TConexaoFirst.Create(False);
-    try
-      TOKEN_WS.TOKEN        := WSFirst.getToken;
-      TOKEN_WS.STATUS_CODE  := 200;
-    finally
-      FreeAndNil(WSFirst);
-    end;
-  end;
-
-end;
 
 procedure ThreadIntegracaoWS.Execute;
 begin
 
   while not Terminated do begin
 
-    Sleep(1000);
+    Sleep(CONFIG_LOCAL.Sleep * 1000);
 
     TrataWSFirst;
 
@@ -63,11 +43,7 @@ end;
 procedure ThreadIntegracaoWS.TrataWSFirst;
 begin
 
-  BuscaToken;
-
-  if TOKEN_WS.STATUS_CODE = 200 then begin //Se tem Token trabalha com o WS First
-
-  end;
+  EnviarProdutos;
 
 end;
 

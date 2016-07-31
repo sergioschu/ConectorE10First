@@ -13,23 +13,15 @@ type
     FResponse: TRESTResponse;
     FClient: TRESTClient;
     FURLPrincipal: string;
-    FID: string;
-    FKey_Secret: string;
-    FToken: string;
     procedure SetClient(const Value: TRESTClient);
     procedure SetRequest(const Value: TRESTRequest);
     procedure SetResponse(const Value: TRESTResponse);
     procedure SetURLPrincipal(const Value: string);
-
-    procedure SetID(const Value: string);
-    procedure SetKey_Secret(const Value: string);
-    procedure SetToken(const Value: string);
   public
-    constructor Create(); overload;
-    constructor Create(Producao : Boolean); overload;
+    constructor Create; overload;
     destructor Destroy; override;
 
-    function getToken : string;
+    procedure getToken;
     procedure Refresh;
     function CadastrarProdutos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
     function NFEntrada(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
@@ -39,9 +31,6 @@ type
     property Request   : TRESTRequest read FRequest write SetRequest;
     property Response  : TRESTResponse read FResponse write SetResponse;
     property URLPrincipal : string read FURLPrincipal write SetURLPrincipal;
-    property ID : string read FID write SetID;
-    property Key_Secret : string read FKey_Secret write SetKey_Secret;
-    property Token : string read FToken write SetToken;
 end;
 
 implementation
@@ -64,11 +53,11 @@ begin
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
   Request.Params.ParameterByIndex(0).name         := 'deposit';
-  Request.Params.ParameterByIndex(0).Value        := ID;
+  Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
   Request.Params.ParameterByIndex(1).name         := 'token';
-  Request.Params.ParameterByIndex(1).Value        := Token;
+  Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
   Request.Params.ParameterByIndex(2).name         := 'produtos';
@@ -77,13 +66,15 @@ begin
 
   Result := False;
   Request.Timeout := 60000;
+
   try
     Request.Execute;
   except
     on E : Exception do begin
-      ShowMessage(e.Message + sLineBreak + Response.JSONText);
+      SaveLog('Erro na Função CadastrarProdutos, ' + E.Message + sLineBreak + Response.JSONText);
     end;
   end;
+
   if Response.JSONText <> EmptyStr then begin
     if Response.JSONValue is TJSONObject then begin
       for Pair in TJSONObject(Response.JSONValue) do begin
@@ -108,25 +99,13 @@ begin
   Request.Client    := Client;
   Request.Response  := Response;
 
-  if CONFIG_LOCAL.ID_DEPOSIT_FIRST <> EmptyStr then
-    ID := CONFIG_LOCAL.ID_DEPOSIT_FIRST;
-  if CONFIG_LOCAL.SECRET_KEY_FIRST <> EmptyStr then
-    Key_Secret := CONFIG_LOCAL.SECRET_KEY_FIRST;
-  if TOKEN_WS.TOKEN <> EmptyStr then begin
-    if TOKEN_WS.DH_LOGIN + TOKEN_WS.SESSION_EXPIRES <= Now then
-      Refresh;
-    Token := TOKEN_WS.TOKEN;
-  end else
-    getToken;
-end;
-
-constructor TConexaoFirst.Create(Producao: Boolean);
-begin
   if Producao then
     URLPrincipal := 'http://api.firstlog.com.br/'
   else
     URLPrincipal := 'http://apiteste.firstlog.com.br/';
-  Create;
+
+  getToken;
+
 end;
 
 destructor TConexaoFirst.Destroy;
@@ -152,11 +131,11 @@ begin
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
   Request.Params.ParameterByIndex(0).name         := 'deposit';
-  Request.Params.ParameterByIndex(0).Value        := ID;
+  Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
   Request.Params.ParameterByIndex(1).name         := 'token';
-  Request.Params.ParameterByIndex(1).Value        := Token;
+  Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
   Request.Params.ParameterByIndex(2).name         := 'pedidos';
@@ -193,16 +172,6 @@ begin
   FClient := Value;
 end;
 
-procedure TConexaoFirst.SetID(const Value: string);
-begin
-  FID := Value;
-end;
-
-procedure TConexaoFirst.SetKey_Secret(const Value: string);
-begin
-  FKey_Secret := Value;
-end;
-
 procedure TConexaoFirst.SetRequest(const Value: TRESTRequest);
 begin
   FRequest := Value;
@@ -213,54 +182,78 @@ begin
   FResponse := Value;
 end;
 
-procedure TConexaoFirst.SetToken(const Value: string);
-begin
-  FToken := Value;
-end;
-
 procedure TConexaoFirst.SetURLPrincipal(const Value: string);
 begin
   FURLPrincipal := Value;
 end;
 
-function TConexaoFirst.getToken: string;
+procedure TConexaoFirst.getToken;
 var
   Pair1,
   Pair2 : TJSONPair;
   J: Integer;
 begin
-  Client.BaseURL    := URLPrincipal + 'auth';
-  Request.Method    := rmPOST;
-  Request.Resource  := '{id_deposit}';
 
-  Request.Params.Clear;
-  Request.Params.AddItem;
-  Request.Params.ParameterByIndex(0).Kind   := pkURLSEGMENT;
-  Request.Params.ParameterByIndex(0).name   := 'id_deposit';
-  Request.Params.ParameterByIndex(0).Value  := ID;
-  Request.Params.AddItem;
-  Request.Params.ParameterByIndex(1).Kind   := pkGETorPOST;
-  Request.Params.ParameterByIndex(1).name   := 'secret_key';
-  Request.Params.ParameterByIndex(1).Value  := Key_Secret;
+  if Length(Trim(CONFIG_LOCAL.ID_DEPOSIT_FIRST)) = 0 then begin
+    SaveLog('ID_DEPOSIT_FIRST Não informado nas Configurações, Verifique!');
+    Exit;
+  end;
 
-  Result := EmptyStr;
-  Request.Execute;
+  if Length(Trim(CONFIG_LOCAL.SECRET_KEY_FIRST)) = 0 then begin
+    SaveLog('SECRET_KEY_FIRST Não informado nas Configurações, Verifique!');
+    Exit;
+  end;
 
-  if Response.StatusCode = 200 then begin
-    for Pair1 in TJSONObject(Response.JSONValue) do begin
-      if Pair1.JsonString.Value = 'body' then begin
-        for Pair2 in TJSONObject(Pair1.JsonValue) do begin
-          if Pair2.JsonString.Value = 'token' then
-            TOKEN_WS.TOKEN          := Pair2.JsonValue.Value;
-          if Pair2.JsonString.Value = 'refresh_token' then
-            TOKEN_WS.REFRESH_TOKEN  := Pair2.JsonValue.Value;
-          if Pair2.JsonString.Value = 'time' then
-            TOKEN_WS.DH_LOGIN       := StrFirstToDateTime(Pair2.JsonValue.Value);
-          if Pair2.JsonString.Value = 'session_expires' then
-            TOKEN_WS.SESSION_EXPIRES:= StrToInt(Pair2.JsonValue.Value);
+  //Se Não tem Token ainda busca o Token, senão apenas faz o refresh
+  if Length(Trim(TOKEN_WS.TOKEN)) = 0 then begin
+
+    TOKEN_WS.STATUS_CODE  := 0;
+    TOKEN_WS.USER_ID      := CONFIG_LOCAL.ID_DEPOSIT_FIRST;
+
+    try
+
+      Client.BaseURL      := URLPrincipal + 'auth';
+      Request.Method      := rmPOST;
+      Request.Resource    := '{id_deposit}';
+
+      Request.Params.Clear;
+      Request.Params.AddItem;
+      Request.Params.ParameterByIndex(0).Kind   := pkURLSEGMENT;
+      Request.Params.ParameterByIndex(0).name   := 'id_deposit';
+      Request.Params.ParameterByIndex(0).Value  := CONFIG_LOCAL.ID_DEPOSIT_FIRST;
+      Request.Params.AddItem;
+      Request.Params.ParameterByIndex(1).Kind   := pkGETorPOST;
+      Request.Params.ParameterByIndex(1).name   := 'secret_key';
+      Request.Params.ParameterByIndex(1).Value  := CONFIG_LOCAL.SECRET_KEY_FIRST;
+
+      Request.Execute;
+
+      //Atualiza o status do Token com o Reultado
+      TOKEN_WS.STATUS_CODE := Response.StatusCode;
+
+      if Response.StatusCode = 200 then begin
+        for Pair1 in TJSONObject(Response.JSONValue) do begin
+          if Pair1.JsonString.Value = 'body' then begin
+            for Pair2 in TJSONObject(Pair1.JsonValue) do begin
+              if Pair2.JsonString.Value = 'token' then
+                TOKEN_WS.TOKEN          := Pair2.JsonValue.Value;
+              if Pair2.JsonString.Value = 'refresh_token' then
+                TOKEN_WS.REFRESH_TOKEN  := Pair2.JsonValue.Value;
+              if Pair2.JsonString.Value = 'time' then
+                TOKEN_WS.DH_LOGIN       := StrFirstToDateTime(Pair2.JsonValue.Value);
+              if Pair2.JsonString.Value = 'session_expires' then
+                TOKEN_WS.SESSION_EXPIRES:= StrToInt(Pair2.JsonValue.Value);
+            end;
+          end;
         end;
       end;
+    except
+      On E : Exception do
+        SaveLog('Erro no Procedimento getToken, ' + E.Message);
     end;
+  end else begin
+    if TOKEN_WS.DH_LOGIN + TOKEN_WS.SESSION_EXPIRES <= Now then
+      Refresh;
   end;
 end;
 
@@ -279,11 +272,11 @@ begin
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
   Request.Params.ParameterByIndex(0).name         := 'deposit';
-  Request.Params.ParameterByIndex(0).Value        := ID;
+  Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
   Request.Params.ParameterByIndex(1).name         := 'token';
-  Request.Params.ParameterByIndex(1).Value        := Token;
+  Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
   Request.Params.AddItem;
   Request.Params.ParameterByIndex(2).Kind         := pkREQUESTBODY;
   Request.Params.ParameterByIndex(2).name         := 'notas';
@@ -320,7 +313,10 @@ var
   J: Integer;
   JsonValue : TJSONObject;
 begin
-  JsonValue := TJSONObject.Create;
+
+  TOKEN_WS.STATUS_CODE  := 0;
+  JsonValue             := TJSONObject.Create;
+
   try
     JsonValue.AddPair(TJSONPair.Create('refresh_token', TOKEN_WS.REFRESH_TOKEN));
     Client.BaseURL    := URLPrincipal + 'refresh';
@@ -331,7 +327,7 @@ begin
     Request.Params.AddItem;
     Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
     Request.Params.ParameterByIndex(0).name         := 'id_deposit';
-    Request.Params.ParameterByIndex(0).Value        := ID;
+    Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
     Request.Params.AddItem;
     Request.Params.ParameterByIndex(1).Kind         := pkREQUESTBODY;
     Request.Params.ParameterByIndex(1).name         := 'refresh';
@@ -339,6 +335,9 @@ begin
     Request.Params.ParameterByIndex(1).ContentType  := ctAPPLICATION_JSON;
 
     Request.Execute;
+
+    //Atualiza o status do Token com o Reultado
+    TOKEN_WS.STATUS_CODE := Response.StatusCode;
 
     if Response.StatusCode = 200 then begin
       for Pair1 in TJSONObject(Response.JSONValue) do begin
@@ -356,8 +355,9 @@ begin
         end;
       end;
     end;
-  finally
-
+  except
+    On E : Exception do
+      SaveLog('Erro no Procedimento Refresh do Token, ' + E.Message);
   end;
 end;
 

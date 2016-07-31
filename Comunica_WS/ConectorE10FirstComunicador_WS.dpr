@@ -26,7 +26,8 @@ uses
   uConexaoFirst in 'uConexaoFirst.pas',
   uThreadIntegracaoWS in 'uThreadIntegracaoWS.pas',
   uBeanRequisicoesFirst in '..\App\Beans\uBeanRequisicoesFirst.pas',
-  uBeanReq_Itens in '..\App\Beans\uBeanReq_Itens.pas';
+  uBeanReq_Itens in '..\App\Beans\uBeanReq_Itens.pas',
+  uFuncoesWSFirst in 'uFuncoesWSFirst.pas';
 
 {$R *.res}
 
