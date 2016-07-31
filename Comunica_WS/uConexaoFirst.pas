@@ -144,12 +144,12 @@ begin
 
   Result := False;
   Request.Timeout := 60000;
+
   try
     Request.Execute;
   except
-    on E : Exception do begin
-      ShowMessage(e.Message + sLineBreak + Response.JSONText);
-    end;
+    on E : Exception do
+      SaveLog('Erro na Função EnviarPedidos, ' + E.Message + sLineBreak + Response.JSONText);
   end;
 
   if Response.JSONText <> EmptyStr then begin
@@ -163,8 +163,8 @@ begin
     end;
   end;
 
-
   Exit(Response.StatusCode = 200);
+
 end;
 
 procedure TConexaoFirst.SetClient(const Value: TRESTClient);

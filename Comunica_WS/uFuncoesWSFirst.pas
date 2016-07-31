@@ -7,6 +7,7 @@ uses
   System.SysUtils;
 
 procedure EnviarProdutos;
+procedure EnviarPedidos;
 
 implementation
 
@@ -18,7 +19,10 @@ uses
   uBeanProduto,
   uConexaoFirst,
   uBeanRequisicoesFirst,
-  uBeanReq_Itens;
+  uBeanReq_Itens,
+  uBeanPedido,
+  uBeanPedidoItens,
+  uBeanTransportadoras;
 
 procedure EnviarProdutos;
 var
@@ -35,6 +39,7 @@ var
   Cod_Retorno : Integer;
   Dsc_Retorno : string;
 begin
+
   FWC         := TFWConnection.Create;
   P           := TPRODUTO.Create(FWC);
   REQ         := TREQUISICOESFIRST.Create(FWC);
@@ -42,9 +47,11 @@ begin
   JSONObject  := TJSONObject.Create;
   JSONArray   := TJSONArray.Create;
   ConexaoFirst:= TConexaoFirst.Create;
+
   try
 
     if TOKEN_WS.STATUS_CODE = 200 then begin
+
       repeat
 
         FWC.StartTransaction;
@@ -83,8 +90,6 @@ begin
 
               JSONArray.Add(jso);
 
-              JSONArray.ToString;
-
               RD.ID.isNull            := True;
               RD.ID_REQUISICOES.Value := REQ.ID.Value;
               RD.ID_DADOS.Value       := TPRODUTO(P.Itens[I]).ID.Value;
@@ -107,7 +112,9 @@ begin
               Break;
             end;
           end;
+
           FWC.Commit;
+
         except
           on E : Exception do begin
             FWC.Rollback;
@@ -116,12 +123,138 @@ begin
           end;
         end;
       until P.Count = 0;
+
     end else
       SaveLog('TOKEN Inválido para Enviar Produtos, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
 
   finally
     FreeAndNil(JSONArray);
     FreeAndNil(P);
+    FreeAndNil(REQ);
+    FreeAndNil(RD);
+    FreeAndNil(FWC);
+    FreeAndNil(ConexaoFirst);
+  end;
+end;
+
+procedure EnviarPedidos;
+var
+  FWC         : TFWConnection;
+  PED         : TPEDIDO;
+  PI          : TPEDIDOITENS;
+  T           : TTRANSPORTADORA;
+  PR          : TPRODUTO;
+  REQ         : TREQUISICOESFIRST;
+  RD          : TREQ_ITENS;
+  JSONArray   : TJSONArray;
+  JSONObject,
+  jso         : TJSONObject;
+  ConexaoFirst: TConexaoFirst;
+  I, J        : Integer;
+  Cod_Retorno : Integer;
+  Dsc_Retorno : string;
+begin
+
+  FWC           := TFWConnection.Create;
+  REQ           := TREQUISICOESFIRST.Create(FWC);
+  RD            := TREQ_ITENS.Create(FWC);
+  PED           := TPEDIDO.Create(FWC);
+  PI            := TPEDIDOITENS.Create(FWC);
+  PR            := TPRODUTO.Create(FWC);
+  T             := TTRANSPORTADORA.Create(FWC);
+  JSONObject    := TJSONObject.Create;
+  JSONArray     := TJSONArray.Create;
+  ConexaoFirst  := TConexaoFirst.Create;
+
+  try
+
+    if TOKEN_WS.STATUS_CODE = 200 then begin
+
+      FWC.StartTransaction;
+
+      try
+
+        PED.SelectList('status = 1', 'id limit 100');
+
+        if PED.Count > 0 then begin
+
+          REQ.ID.isNull             := True;
+          REQ.DATAHORA.Value        := Now;
+          REQ.COD_STATUS.Value      := 900;
+          REQ.DSC_STATUS.Value      := 'Criando dados da Requisição';
+          REQ.TIPOREQUISICAO.Value  := TIPOREQUISICAOFIRST[rfSc];
+          REQ.Insert;
+
+          for I := 0 to Pred(PED.Count) do begin
+
+            PI.SelectList('id_pedido = ' + TPEDIDO(PED.Itens[I]).ID.asString);
+            for J := 0 to Pred(PI.Count) do begin
+
+              PR.SelectList('id = ' + TPEDIDOITENS(PI.Itens[J]).ID_PRODUTO.asString);
+              T.SelectList('id = ' + TPEDIDO(PED.Itens[I]).ID_TRANSPORTADORA.asString);
+
+              if (PR.Count > 0) and (T.Count > 0) then begin
+
+                jso := TJSONObject.Create;
+
+                jso.AddPair(TJSONPair.Create('cnpj_tran', TTRANSPORTADORA(T.Itens[0]).CNPJ.asString));
+                jso.AddPair(TJSONPair.Create('pedido', TPEDIDO(PED.Itens[I]).PEDIDO.asString));
+                jso.AddPair(TJSONPair.Create('num_viagem', TPEDIDO(PED.Itens[I]).VIAGEM.asString));
+                jso.AddPair(TJSONPair.Create('sequencial_embarq', TPEDIDO(PED.Itens[I]).SEQUENCIA.asString));
+                jso.AddPair(TJSONPair.Create('item', TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString));
+                jso.AddPair(TJSONPair.Create('unid_medida', TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString));
+                jso.AddPair(TJSONPair.Create('qtd_original_docum', TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString));
+                jso.AddPair(TJSONPair.Create('val_unit', TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString));
+                jso.AddPair(TJSONPair.Create('cnpj_cpf_destinat', TPEDIDO(PED.Itens[I]).DEST_CNPJ.asString));
+                jso.AddPair(TJSONPair.Create('nom_destinat', TPEDIDO(PED.Itens[I]).DEST_NOME.asString));
+                jso.AddPair(TJSONPair.Create('ende_dest', TPEDIDO(PED.Itens[I]).DEST_ENDERECO.asString));
+                jso.AddPair(TJSONPair.Create('compl_endereco', TPEDIDO(PED.Itens[I]).DEST_COMPLEMENTO.asString));
+                jso.AddPair(TJSONPair.Create('cep', TPEDIDO(PED.Itens[I]).DEST_CEP.asString));
+
+                JSONArray.Add(jso);
+
+                RD.ID.isNull            := True;
+                RD.ID_REQUISICOES.Value := REQ.ID.Value;
+                RD.ID_DADOS.Value       := TPEDIDO(PED.Itens[I]).ID.Value;
+                RD.Insert;
+              end;
+            end;
+          end;
+
+          ConexaoFirst.EnviarPedidos(JSONArray, Cod_Retorno, Dsc_Retorno);
+
+          REQ.COD_STATUS.Value := Cod_Retorno;
+          REQ.DSC_STATUS.Value := Dsc_Retorno;
+          REQ.Update;
+
+          if REQ.COD_STATUS.Value = 200 then begin
+            for I := 0 to Pred(PED.Count) do begin
+              PED.ID.Value     := TPEDIDO(PED.Itens[I]).ID.Value;
+              PED.STATUS.Value := 2;
+              PED.Update;
+            end;
+          end else
+            SaveLog('Problema ao EnviarPedidos, Retorno.: ' + IntToStr(Cod_Retorno) + ' - ' + Dsc_Retorno);
+        end;
+
+        FWC.Commit;
+
+      except
+        on E : Exception do begin
+          FWC.Rollback;
+          SaveLog('Erro no Procedimento EnviarPedidos, ' + E.Message);
+        end;
+      end;
+    end else
+      SaveLog('TOKEN Inválido para Enviar Pedidos, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
+
+  finally
+    FreeAndNil(JSONArray);
+    //FreeAndNil(JSONObject);
+    FreeAndNil(PED);
+    FreeAndNil(PR);
+    FreeAndNil(PI);
+    FreeAndNil(T);
     FreeAndNil(REQ);
     FreeAndNil(RD);
     FreeAndNil(FWC);

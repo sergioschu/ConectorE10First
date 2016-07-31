@@ -45,6 +45,8 @@ begin
 
   EnviarProdutos;
 
+  EnviarPedidos;
+
 end;
 
 procedure ThreadIntegracaoWS.TrataWSKPL;
