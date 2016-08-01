@@ -1,4 +1,4 @@
-program ConectorE10FirstComunicador_WS;
+program Conector_WS;
 
 uses
   Vcl.Forms,

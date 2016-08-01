@@ -8,6 +8,7 @@ uses
 
 procedure EnviarProdutos;
 procedure EnviarPedidos;
+procedure EnviarNFEntrada;
 
 implementation
 
@@ -22,7 +23,7 @@ uses
   uBeanReq_Itens,
   uBeanPedido,
   uBeanPedidoItens,
-  uBeanTransportadoras;
+  uBeanTransportadoras, uBeanNotaFiscal, uBeanNotaFiscalItens;
 
 procedure EnviarProdutos;
 var
@@ -30,7 +31,6 @@ var
   P           : TPRODUTO;
   I           : Integer;
   JSONArray   : TJSONArray;
-  JSONObject,
   jso         : TJSONObject;
   ConexaoFirst: TConexaoFirst;
 
@@ -44,7 +44,6 @@ begin
   P           := TPRODUTO.Create(FWC);
   REQ         := TREQUISICOESFIRST.Create(FWC);
   RD          := TREQ_ITENS.Create(FWC);
-  JSONObject  := TJSONObject.Create;
   JSONArray   := TJSONArray.Create;
   ConexaoFirst:= TConexaoFirst.Create;
 
@@ -147,7 +146,6 @@ var
   REQ         : TREQUISICOESFIRST;
   RD          : TREQ_ITENS;
   JSONArray   : TJSONArray;
-  JSONObject,
   jso         : TJSONObject;
   ConexaoFirst: TConexaoFirst;
   I, J        : Integer;
@@ -162,7 +160,6 @@ begin
   PI            := TPEDIDOITENS.Create(FWC);
   PR            := TPRODUTO.Create(FWC);
   T             := TTRANSPORTADORA.Create(FWC);
-  JSONObject    := TJSONObject.Create;
   JSONArray     := TJSONArray.Create;
   ConexaoFirst  := TConexaoFirst.Create;
 
@@ -250,11 +247,122 @@ begin
 
   finally
     FreeAndNil(JSONArray);
-    //FreeAndNil(JSONObject);
     FreeAndNil(PED);
     FreeAndNil(PR);
     FreeAndNil(PI);
     FreeAndNil(T);
+    FreeAndNil(REQ);
+    FreeAndNil(RD);
+    FreeAndNil(FWC);
+    FreeAndNil(ConexaoFirst);
+  end;
+end;
+
+procedure EnviarNFEntrada;
+var
+  FWC         : TFWConnection;
+  NF          : TNOTAFISCAL;
+  NFI         : TNOTAFISCALITENS;
+  P           : TPRODUTO;
+  JSONArray   : TJSONArray;
+  jso         : TJSONObject;
+  ConexaoFirst: TConexaoFirst;
+  I, J        : Integer;
+  REQ         : TREQUISICOESFIRST;
+  RD          : TREQ_ITENS;
+  Cod_Retorno : Integer;
+  Dsc_Retorno : string;
+begin
+
+  FWC           := TFWConnection.Create;
+  NF            := TNOTAFISCAL.Create(FWC);
+  NFI           := TNOTAFISCALITENS.Create(FWC);
+  P             := TPRODUTO.Create(FWC);
+  REQ           := TREQUISICOESFIRST.Create(FWC);
+  RD            := TREQ_ITENS.Create(FWC);
+  JSONArray     := TJSONArray.Create;
+  ConexaoFirst  := TConexaoFirst.Create;
+
+  try
+
+    if TOKEN_WS.STATUS_CODE = 200 then begin
+
+      FWC.StartTransaction;
+
+      try
+
+        NF.SelectList('status = 0', 'id limit 100');
+        if NF.Count > 0 then begin
+
+          REQ.ID.isNull             := True;
+          REQ.DATAHORA.Value        := Now;
+          REQ.COD_STATUS.Value      := 900;
+          REQ.DSC_STATUS.Value      := 'Criando dados da Requisição';
+          REQ.TIPOREQUISICAO.Value  := TIPOREQUISICAOFIRST[rfArmz];
+          REQ.Insert;
+
+          for I := 0 to Pred(NF.Count) do begin
+
+            NFI.SelectList('id_notafiscal = ' + TNOTAFISCAL(NF.Itens[I]).ID.asString);
+            for J := 0 to Pred(NFI.Count) do begin
+
+              P.SelectList('id = ' + TNOTAFISCALITENS(NFI.Itens[J]).ID_PRODUTO.asString);
+              if P.Count > 0 then begin
+
+                jso := TJSONObject.Create;
+
+                jso.AddPair(TJSONPair.Create('num_nf', TNOTAFISCAL(NF.Itens[I]).DOCUMENTO.asString));
+                jso.AddPair(TJSONPair.Create('ser_nf', TNOTAFISCAL(NF.Itens[I]).SERIE.asString));
+                jso.AddPair(TJSONPair.Create('dat_emis_nf', DateTimeToStrFirst(TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value)));
+                jso.AddPair(TJSONPair.Create('num_seq', TNOTAFISCALITENS(NFI.Itens[J]).SEQUENCIA.asString));
+                jso.AddPair(TJSONPair.Create('cod_item', TPRODUTO(P.Itens[0]).CODIGOPRODUTO.asString));
+                jso.AddPair(TJSONPair.Create('qtd_declarad_nf', TNOTAFISCALITENS(NFI.Itens[J]).QUANTIDADE.asString));
+                jso.AddPair(TJSONPair.Create('pre_unit_nf', TNOTAFISCALITENS(NFI.Itens[J]).VALORUNITARIO.asString));
+                jso.AddPair(TJSONPair.Create('val_liquido_item', TNOTAFISCALITENS(NFI.Itens[J]).VALORTOTAL.asString));
+                jso.AddPair(TJSONPair.Create('val_tot_nf_d', TNOTAFISCAL(NF.Itens[I]).VALORTOTAL.asString));
+
+                JSONArray.Add(jso);
+
+                RD.ID.isNull            := True;
+                RD.ID_REQUISICOES.Value := REQ.ID.Value;
+                RD.ID_DADOS.Value       := TNOTAFISCAL(NF.Itens[I]).ID.Value;
+                RD.Insert;
+              end;
+            end;
+          end;
+
+          ConexaoFirst.NFEntrada(JSONArray, Cod_Retorno, Dsc_Retorno);
+
+          REQ.COD_STATUS.Value := Cod_Retorno;
+          REQ.DSC_STATUS.Value := Dsc_Retorno;
+          REQ.Update;
+
+          if REQ.COD_STATUS.Value = 200 then begin
+            for I := 0 to Pred(NF.Count) do begin
+              NF.ID.Value     := TNOTAFISCAL(NF.Itens[I]).ID.Value;
+              NF.STATUS.Value := 1;
+              NF.Update;
+            end;
+          end else
+            SaveLog('Problema ao EnviarNFEntrada, Retorno.: ' + IntToStr(Cod_Retorno) + ' - ' + Dsc_Retorno);
+
+        end;
+
+        FWC.Commit;
+
+      except
+        on E : Exception do begin
+          FWC.Rollback;
+          SaveLog('Erro no Procedimento EnviarNFEntrada, ' + E.Message);
+        end;
+      end;
+    end else
+      SaveLog('TOKEN Inválido para Enviar NFEntrada, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
+  finally
+    FreeAndNil(JSONArray);
+    FreeAndNil(P);
+    FreeAndNil(NF);
+    FreeAndNil(NFI);
     FreeAndNil(REQ);
     FreeAndNil(RD);
     FreeAndNil(FWC);

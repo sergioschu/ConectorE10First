@@ -47,6 +47,8 @@ begin
 
   EnviarPedidos;
 
+  EnviarNFEntrada;
+
 end;
 
 procedure ThreadIntegracaoWS.TrataWSKPL;

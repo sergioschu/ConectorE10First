@@ -3,7 +3,7 @@
         <ProjectGuid>{9FBEAE62-497A-4C5E-896D-800A1356676C}</ProjectGuid>
         <ProjectVersion>16.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
-        <MainSource>ConectorE10FirstComunicador_WS.dpr</MainSource>
+        <MainSource>Conector_WS.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -41,7 +41,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <SanitizedProjectName>ConectorE10FirstComunicador_WS</SanitizedProjectName>
+        <SanitizedProjectName>Conector_WS</SanitizedProjectName>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
@@ -143,7 +143,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">ConectorE10FirstComunicador_WS.dpr</Source>
+                    <Source Name="MainSource">Conector_WS.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\15.0\Bpl\JvDotNetCtrlsDesign210.bpl">JVCL DotNet Controls</Excluded_Packages>
@@ -156,15 +156,15 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment>
-                <DeployFile LocalName="C:\ConectorE10First\ConectorE10FirstComunicador_WS.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="C:\ConectorE10First\Conector_WS.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>ConectorE10FirstComunicador_WS.exe</RemoteName>
+                        <RemoteName>Conector_WS.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\ConectorE10FirstComunicador_WS.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\Conector_WS.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>ConectorE10FirstComunicador_WS.exe</RemoteName>
+                        <RemoteName>Conector_WS.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

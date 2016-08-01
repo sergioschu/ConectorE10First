@@ -261,6 +261,7 @@ function TConexaoFirst.NFEntrada(JsonValue: TJSONValue; out Status : Integer; ou
 var
   Pair : TJSONPair;
 begin
+
   Status   := 999;
   Mensagem := 'Montando dados da requisição!';
 
@@ -283,15 +284,16 @@ begin
   Request.Params.ParameterByIndex(2).Value        := JsonValue.ToJSON;
   Request.Params.ParameterByIndex(2).ContentType  := ctAPPLICATION_JSON;
 
-  Result := False;
+  Result          := False;
   Request.Timeout := 60000;
+
   try
     Request.Execute;
   except
-    on E : Exception do begin
-      ShowMessage(e.Message + sLineBreak + Response.JSONText);
-    end;
+    on E : Exception do
+      SaveLog('Erro na Função NFEntrada, ' + E.Message + sLineBreak + Response.JSONText);
   end;
+
   if Response.JSONText <> EmptyStr then begin
     if Response.JSONValue is TJSONObject then begin
       for Pair in TJSONObject(Response.JSONValue) do begin
