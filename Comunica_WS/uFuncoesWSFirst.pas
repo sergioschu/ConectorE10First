@@ -10,6 +10,8 @@ procedure EnviarProdutos;
 procedure EnviarPedidos;
 procedure EnviarNFEntrada;
 
+procedure BuscarMDD;
+
 implementation
 
 uses
@@ -73,14 +75,14 @@ begin
               jso.AddPair(TJSONPair.Create('den_item_reduz', TPRODUTO(P.Itens[I]).DESCRICAOREDUZIDA.asString));
               jso.AddPair(TJSONPair.Create('des_sku', TPRODUTO(P.Itens[I]).DESCRICAOSKU.asString));
               jso.AddPair(TJSONPair.Create('des_reduz_sku', TPRODUTO(P.Itens[I]).DESCRICAOREDUZIDASKU.asString));
-              jso.AddPair(TJSONPair.Create('qtd_item', TPRODUTO(P.Itens[I]).QUANTIDADEPOREMBALAGEM.asString));
+              jso.AddPair(TJSONPair.Create('qtd_item', TJSONNumber.Create(TPRODUTO(P.Itens[I]).QUANTIDADEPOREMBALAGEM.Value)));
               jso.AddPair(TJSONPair.Create('cod_unid_med', TPRODUTO(P.Itens[I]).UNIDADEDEMEDIDA.asString));
               jso.AddPair(TJSONPair.Create('cod_barras', TPRODUTO(P.Itens[I]).CODIGOBARRAS.asString));
-              jso.AddPair(TJSONPair.Create('altura', TPRODUTO(P.Itens[I]).ALTURAEMBALAGEM.asString));
-              jso.AddPair(TJSONPair.Create('comprimento', TPRODUTO(P.Itens[I]).COMPRIMENTOEMBALAGEM.asString));
-              jso.AddPair(TJSONPair.Create('largura', TPRODUTO(P.Itens[I]).LARGURAEMBALAGEM.asString));
-              jso.AddPair(TJSONPair.Create('peso_bruto', TPRODUTO(P.Itens[I]).PESOEMBALAGEM.asString));
-              jso.AddPair(TJSONPair.Create('pes_unit', TPRODUTO(P.Itens[I]).PESOPRODUTO.asString));
+              jso.AddPair(TJSONPair.Create('altura', TJSONNumber.Create(TPRODUTO(P.Itens[I]).ALTURAEMBALAGEM.Value)));
+              jso.AddPair(TJSONPair.Create('comprimento', TJSONNumber.Create(TPRODUTO(P.Itens[I]).COMPRIMENTOEMBALAGEM.Value)));
+              jso.AddPair(TJSONPair.Create('largura', TJSONNumber.Create(TPRODUTO(P.Itens[I]).LARGURAEMBALAGEM.Value)));
+              jso.AddPair(TJSONPair.Create('peso_bruto', TJSONNumber.Create(TPRODUTO(P.Itens[I]).PESOEMBALAGEM.Value)));
+              jso.AddPair(TJSONPair.Create('pes_unit', TJSONNumber.Create(TPRODUTO(P.Itens[I]).PESOPRODUTO.Value)));
               jso.AddPair(TJSONPair.Create('qtd_caixa_altura', TPRODUTO(P.Itens[I]).QUANTIDADECAIXASALTURAPALET.asString));
               jso.AddPair(TJSONPair.Create('qtd_caixa_lastro', TPRODUTO(P.Itens[I]).QUANTIDADESCAIXASLASTROPALET.asString));
               jso.AddPair(TJSONPair.Create('pct_ipi', '0'));
@@ -200,8 +202,8 @@ begin
                 jso.AddPair(TJSONPair.Create('sequencial_embarq', TPEDIDO(PED.Itens[I]).SEQUENCIA.asString));
                 jso.AddPair(TJSONPair.Create('item', TPRODUTO(PR.Itens[0]).CODIGOPRODUTO.asString));
                 jso.AddPair(TJSONPair.Create('unid_medida', TPRODUTO(PR.Itens[0]).UNIDADEDEMEDIDA.asString));
-                jso.AddPair(TJSONPair.Create('qtd_original_docum', TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.asString));
-                jso.AddPair(TJSONPair.Create('val_unit', TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.asString));
+                jso.AddPair(TJSONPair.Create('qtd_original_docum', TJSONNumber.Create(TPEDIDOITENS(PI.Itens[J]).QUANTIDADE.Value)));
+                jso.AddPair(TJSONPair.Create('val_unit', TJSONNumber.Create(TPEDIDOITENS(PI.Itens[J]).VALOR_UNITARIO.Value)));
                 jso.AddPair(TJSONPair.Create('cnpj_cpf_destinat', TPEDIDO(PED.Itens[I]).DEST_CNPJ.asString));
                 jso.AddPair(TJSONPair.Create('nom_destinat', TPEDIDO(PED.Itens[I]).DEST_NOME.asString));
                 jso.AddPair(TJSONPair.Create('ende_dest', TPEDIDO(PED.Itens[I]).DEST_ENDERECO.asString));
@@ -316,10 +318,10 @@ begin
                 jso.AddPair(TJSONPair.Create('dat_emis_nf', DateTimeToStrFirst(TNOTAFISCAL(NF.Itens[I]).DATAEMISSAO.Value)));
                 jso.AddPair(TJSONPair.Create('num_seq', TNOTAFISCALITENS(NFI.Itens[J]).SEQUENCIA.asString));
                 jso.AddPair(TJSONPair.Create('cod_item', TPRODUTO(P.Itens[0]).CODIGOPRODUTO.asString));
-                jso.AddPair(TJSONPair.Create('qtd_declarad_nf', TNOTAFISCALITENS(NFI.Itens[J]).QUANTIDADE.asString));
-                jso.AddPair(TJSONPair.Create('pre_unit_nf', TNOTAFISCALITENS(NFI.Itens[J]).VALORUNITARIO.asString));
-                jso.AddPair(TJSONPair.Create('val_liquido_item', TNOTAFISCALITENS(NFI.Itens[J]).VALORTOTAL.asString));
-                jso.AddPair(TJSONPair.Create('val_tot_nf_d', TNOTAFISCAL(NF.Itens[I]).VALORTOTAL.asString));
+                jso.AddPair(TJSONPair.Create('qtd_declarad_nf', TJSONNumber.Create(TNOTAFISCALITENS(NFI.Itens[J]).QUANTIDADE.Value)));
+                jso.AddPair(TJSONPair.Create('pre_unit_nf', TJSONNumber.Create(TNOTAFISCALITENS(NFI.Itens[J]).VALORUNITARIO.Value)));
+                jso.AddPair(TJSONPair.Create('val_liquido_item', TJSONNumber.Create(TNOTAFISCALITENS(NFI.Itens[J]).VALORTOTAL.Value)));
+                jso.AddPair(TJSONPair.Create('val_tot_nf_d', TJSONNumber.Create(TNOTAFISCAL(NF.Itens[I]).VALORTOTAL.Value)));
 
                 JSONArray.Add(jso);
 
@@ -366,6 +368,28 @@ begin
     FreeAndNil(REQ);
     FreeAndNil(RD);
     FreeAndNil(FWC);
+    FreeAndNil(ConexaoFirst);
+  end;
+end;
+
+procedure BuscarMDD;
+var
+  ConexaoFirst: TConexaoFirst;
+
+begin
+
+  ConexaoFirst  := TConexaoFirst.Create;
+
+  try
+
+    if TOKEN_WS.STATUS_CODE = 200 then begin
+
+      ConexaoFirst.GetMDD;
+
+    end else
+      SaveLog('TOKEN Inválido para Enviar Pedidos, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
+
+  finally
     FreeAndNil(ConexaoFirst);
   end;
 end;

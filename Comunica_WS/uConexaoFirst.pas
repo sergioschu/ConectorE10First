@@ -23,6 +23,7 @@ type
 
     procedure getToken;
     procedure Refresh;
+    procedure GetMDD;
     function CadastrarProdutos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
     function NFEntrada(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
     function EnviarPedidos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
@@ -36,7 +37,12 @@ end;
 implementation
 uses
   uConstantes,
-  uFuncoes;
+  uFuncoes,
+  uFWConnection,
+  uBeanPedido,
+  uBeanRequisicoesFirst,
+  uBeanReq_Itens;
+
 { TConexaoFirst }
 
 function TConexaoFirst.CadastrarProdutos(JsonValue: TJSONValue; out Status : Integer; out Mensagem : String): Boolean;
@@ -361,6 +367,89 @@ begin
     On E : Exception do
       SaveLog('Erro no Procedimento Refresh do Token, ' + E.Message);
   end;
+end;
+
+procedure TConexaoFirst.GetMDD;
+var
+  FWC   : TFWConnection;
+  PED   : TPEDIDO;
+  REQ   : TREQUISICOESFIRST;
+  RD    : TREQ_ITENS;
+  I     : Integer;
+  Pair  : TJSONPair;
+begin
+
+  FWC := TFWConnection.Create;
+  PED := TPEDIDO.Create(FWC);
+  REQ := TREQUISICOESFIRST.Create(FWC);
+  RD  := TREQ_ITENS.Create(FWC);
+
+  try
+    try
+
+      PED.SelectList('status = 2 and id = 26679');
+
+      if PED.Count > 0 then begin
+
+        for I := 0 to Pred(PED.Count) do begin
+
+          FWC.StartTransaction;
+
+          REQ.ID.isNull             := True;
+          REQ.DATAHORA.Value        := Now;
+          REQ.COD_STATUS.Value      := 900;
+          REQ.DSC_STATUS.Value      := 'Criando dados da Requisição';
+          REQ.TIPOREQUISICAO.Value  := TIPOREQUISICAOFIRST[rfmdd];
+          REQ.Insert;
+
+          Client.BaseURL    := URLPrincipal;
+          Request.Method    := rmGET;
+          Request.Resource  := 'carga/mdd?deposit={deposit}&token={token}&pedido={pedido}';
+
+          Request.Params.Clear;
+          Request.Params.AddItem;
+          Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
+          Request.Params.ParameterByIndex(0).name         := 'deposit';
+          Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
+          Request.Params.AddItem;
+          Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
+          Request.Params.ParameterByIndex(1).name         := 'token';
+          Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
+          Request.Params.AddItem;
+          Request.Params.ParameterByIndex(2).Kind         := pkURLSEGMENT;
+          Request.Params.ParameterByIndex(2).name         := 'pedido';
+          Request.Params.ParameterByIndex(2).Value        := TPEDIDO(PED.Itens[I]).PEDIDO.Value;
+
+          Request.Timeout := 60000;
+
+          Request.Execute;
+
+          if Response.JSONText <> EmptyStr then begin
+            if Response.JSONValue is TJSONObject then begin
+              for Pair in TJSONObject(Response.JSONValue) do begin
+//                if Pair.JsonString.Value = 'status' then
+//                  Status := TJSONNumber(Pair.JsonValue).AsInt
+//                else if Pair.JsonString.Value = 'body' then
+//                  Mensagem := Pair.JsonValue.Value;
+              end;
+            end;
+          end;
+        end;
+      end;
+
+    except
+      on E : Exception do begin
+        FWC.Rollback;
+        SaveLog('Erro no Procedimento GetMDD, ' + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(PED);
+    FreeAndNil(REQ);
+    FreeAndNil(RD);
+    FreeAndNil(FWC);
+  end;
+
 end;
 
 end.

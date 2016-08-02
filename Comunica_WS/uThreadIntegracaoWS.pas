@@ -11,8 +11,7 @@ type
     { Private declarations }
   protected
     procedure Execute; override;
-    procedure TrataWSFirst;
-    procedure TrataWSKPL;
+    procedure TrataWS;
   end;
 
 implementation
@@ -33,14 +32,12 @@ begin
 
     Sleep(CONFIG_LOCAL.Sleep * 1000);
 
-    TrataWSFirst;
-
-    TrataWSKPL;
+    TrataWS;
 
   end;
 end;
 
-procedure ThreadIntegracaoWS.TrataWSFirst;
+procedure ThreadIntegracaoWS.TrataWS;
 begin
 
   EnviarProdutos;
@@ -49,11 +46,8 @@ begin
 
   EnviarNFEntrada;
 
-end;
+  BuscarMDD;
 
-procedure ThreadIntegracaoWS.TrataWSKPL;
-begin
-  //Ainda não Implementado;
 end;
 
 end.
