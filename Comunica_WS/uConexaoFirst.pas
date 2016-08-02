@@ -376,7 +376,8 @@ var
   REQ   : TREQUISICOESFIRST;
   RD    : TREQ_ITENS;
   I     : Integer;
-  Pair  : TJSONPair;
+  Pair,
+  Pair2 : TJSONPair;
 begin
 
   FWC := TFWConnection.Create;
@@ -385,6 +386,7 @@ begin
   RD  := TREQ_ITENS.Create(FWC);
 
   try
+    FWC.StartTransaction;
     try
 
       PED.SelectList('status = 2 and id = 26679');
@@ -426,17 +428,24 @@ begin
 
           if Response.JSONText <> EmptyStr then begin
             if Response.JSONValue is TJSONObject then begin
-              for Pair in TJSONObject(Response.JSONValue) do begin
-//                if Pair.JsonString.Value = 'status' then
-//                  Status := TJSONNumber(Pair.JsonValue).AsInt
-//                else if Pair.JsonString.Value = 'body' then
-//                  Mensagem := Pair.JsonValue.Value;
+              if TJSONNumber(TJSONObject(Response.JSONValue).GetValue('status')).AsInt = 200 then begin
+                for Pair in TJSONObject(Response.JSONValue) do begin
+                  if Pair.JsonString.Value = 'body' then begin
+                    if (Pair2 is TJSONArray) then begin
+                      for I := 0 to Pred(TJSONArray(Pair2).Count) do begin
+                        PED.ID.Value := TPEDIDO(PED.Itens[0]).ID.Value;
+                        PED.STATUS.Value := 3;
+                        PED.Update;
+                      end;
+                    end;
+                  end;
+                end;
               end;
             end;
           end;
         end;
       end;
-
+      FWC.Commit;
     except
       on E : Exception do begin
         FWC.Rollback;
