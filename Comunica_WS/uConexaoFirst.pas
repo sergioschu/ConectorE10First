@@ -40,6 +40,7 @@ uses
   uFuncoes,
   uFWConnection,
   uBeanPedido,
+  uBeanPedidoItens,
   uBeanRequisicoesFirst,
   uBeanReq_Itens;
 
@@ -373,15 +374,18 @@ procedure TConexaoFirst.GetMDD;
 var
   FWC   : TFWConnection;
   PED   : TPEDIDO;
+  PI    : TPEDIDOITENS;
   REQ   : TREQUISICOESFIRST;
   RD    : TREQ_ITENS;
-  I     : Integer;
+  I,
+  J     : Integer;
   Pair,
   Pair2 : TJSONPair;
 begin
 
   FWC := TFWConnection.Create;
   PED := TPEDIDO.Create(FWC);
+  PI  := TPEDIDOITENS.Create(FWC);
   REQ := TREQUISICOESFIRST.Create(FWC);
   RD  := TREQ_ITENS.Create(FWC);
 
@@ -431,8 +435,8 @@ begin
               if TJSONNumber(TJSONObject(Response.JSONValue).GetValue('status')).AsInt = 200 then begin
                 for Pair in TJSONObject(Response.JSONValue) do begin
                   if Pair.JsonString.Value = 'body' then begin
-                    if (Pair2 is TJSONArray) then begin
-                      for I := 0 to Pred(TJSONArray(Pair2).Count) do begin
+                    if (Pair2.JsonValue is TJSONArray) then begin
+                      if TJSONArray(Pair2).Count > 0 then begin
                         PED.ID.Value := TPEDIDO(PED.Itens[0]).ID.Value;
                         PED.STATUS.Value := 3;
                         PED.Update;
