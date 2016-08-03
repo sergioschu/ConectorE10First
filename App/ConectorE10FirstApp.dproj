@@ -178,6 +178,10 @@
             <Form>frmRelPedidoEmbarque</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="uConsultaRequisicoes.pas">
+            <Form>FrmConsultaRequisicoes</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -82,6 +82,13 @@ object frmPrincipal: TfrmPrincipal
         OnClick = RedefinirSenhaClick
       end
     end
+    object Monitoramento1: TMenuItem
+      Caption = 'Monitoramento'
+      object ConsultaRequisiesWS1: TMenuItem
+        Caption = 'Consulta Requisi'#231#245'es WS'
+        OnClick = ConsultaRequisiesWS1Click
+      end
+    end
     object Relatrios1: TMenuItem
       Caption = 'Relat'#243'rios'
       object Divergncias1: TMenuItem

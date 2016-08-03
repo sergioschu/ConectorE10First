@@ -33,6 +33,8 @@ type
     NotaFiscaldePedidos1: TMenuItem;
     PedidossemNotaFiscal1: TMenuItem;
     PedidoEmbarque1: TMenuItem;
+    Monitoramento1: TMenuItem;
+    ConsultaRequisiesWS1: TMenuItem;
     procedure miSairClick(Sender: TObject);
     procedure ConfigGerais1Click(Sender: TObject);
     procedure RedefinirSenhaClick(Sender: TObject);
@@ -54,6 +56,7 @@ type
     procedure NotaFiscaldePedidos1Click(Sender: TObject);
     procedure PedidossemNotaFiscal1Click(Sender: TObject);
     procedure PedidoEmbarque1Click(Sender: TObject);
+    procedure ConsultaRequisiesWS1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -86,7 +89,7 @@ uses
   uPedidosNotaFiscal,
   uRelNotaFiscalPedido,
   uRelPedidosSemNF,
-  uRelPedidoEmbarque;
+  uRelPedidoEmbarque, uConsultaRequisicoes;
 
 {$R *.dfm}
 
@@ -132,6 +135,17 @@ begin
     frmConfiguracoesSistema.ShowModal;
   finally
     FreeAndNil(frmConfiguracoesSistema);
+  end;
+end;
+
+procedure TfrmPrincipal.ConsultaRequisiesWS1Click(Sender: TObject);
+begin
+  try
+    if FrmConsultaRequisicoes = nil then
+      FrmConsultaRequisicoes := TFrmConsultaRequisicoes.Create(Self);
+    FrmConsultaRequisicoes.ShowModal;
+  finally
+    FreeAndNil(FrmConsultaRequisicoes);
   end;
 end;
 

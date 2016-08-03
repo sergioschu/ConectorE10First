@@ -41,7 +41,8 @@ uses
   uPedidosNotaFiscal in 'uPedidosNotaFiscal.pas' {FrmPedidosNotaFiscal},
   uRelNotaFiscalPedido in 'uRelNotaFiscalPedido.pas' {frmRelNotaFiscalPedido},
   uRelPedidosSemNF in 'uRelPedidosSemNF.pas' {frmRelPedidosSemNF},
-  uRelPedidoEmbarque in 'uRelPedidoEmbarque.pas' {frmRelPedidoEmbarque};
+  uRelPedidoEmbarque in 'uRelPedidoEmbarque.pas' {frmRelPedidoEmbarque},
+  uConsultaRequisicoes in 'uConsultaRequisicoes.pas' {FrmConsultaRequisicoes};
 
 {$R *.res}
 
@@ -52,6 +53,7 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
+  Application.CreateForm(TFrmConsultaRequisicoes, FrmConsultaRequisicoes);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);
