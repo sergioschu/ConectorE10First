@@ -2,9 +2,6 @@ unit uConstantes;
 
 interface
 
-uses
-  uThreadIntegracaoWS;
-
 type
   TTIPOREQUISICAOFIRST = (rfProd, rfArmz, rfConf, rfSc, rfmdd, rfScInc, rfScNf);
 
