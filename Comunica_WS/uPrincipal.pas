@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client;
+  FireDAC.Comp.Client, uThreadIntegracaoWS;
 
 type
   TfrmPrincipal = class(TForm)
@@ -23,6 +23,7 @@ type
     procedure btTesteClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
+    IntegracaoWS  : ThreadIntegracaoWS;
     { Private declarations }
   public
     { Public declarations }
@@ -48,7 +49,6 @@ uses
   uConstantes,
   uConexaoFirst,
   uBeanPedido_Embarque,
-  uThreadIntegracaoWS,
   uBeanRequisicoesFirst,
   uBeanReq_Itens,
   uMensagem;

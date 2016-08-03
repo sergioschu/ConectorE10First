@@ -129,7 +129,7 @@ Var
   DirArquivosFTP  : String;
   DirInstall      : String;
   DirArquivosExcel: String;
-  IntegracaoWS    : ThreadIntegracaoWS;
+
   //rfProd, rfArmz, rfConf, rfSc, rfmdd, rfScInc, rfScNf
   TIPOREQUISICAOFIRST : array[TTIPOREQUISICAOFIRST] of String = ('Produtos', 'Nota Fiscal Entrada', 'Confirma Nf Entrada', 'Envio Pedidos', 'MDD', 'Pedidos inconsistentes', 'Pedidos Nota Fiscal');
 
