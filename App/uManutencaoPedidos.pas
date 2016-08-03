@@ -317,18 +317,33 @@ begin
                     PED.DATA_IMPORTACAO.Value   := Now;
                     PED.VOLUMES_DOCUMENTO.Value := 1;
                     PED.Insert;
+
                     PedidoItens[I].ID_PEDIDO    := PED.ID.Value;
+
+                    PEDITENS.ID.isNull            := True;
+                    PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
+                    PEDITENS.ID_PRODUTO.Value     := PedidoItens[I].ID_PRODUTO;
+                    PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
+                    PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
+                    PEDITENS.RECEBIDO.Value       := False;
+                    PEDITENS.OBSERVACAO.Value     := '1 - ' + USUARIO.NOME + ' ' + DateTimeToStr(Now) + ' ' + DateTimeToStr(FileDateToDateTime(FileAge(Application.ExeName)));
+                    PEDITENS.Insert;
+
                   end else begin
                     PedidoItens[I].ID_PEDIDO    := TPEDIDO(PED.Itens[0]).ID.Value;
-                  end;
 
-                  PEDITENS.ID.isNull            := True;
-                  PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
-                  PEDITENS.ID_PRODUTO.Value     := PedidoItens[I].ID_PRODUTO;
-                  PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
-                  PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
-                  PEDITENS.RECEBIDO.Value       := False;
-                  PEDITENS.Insert;
+                    PEDITENS.SelectList('ID_PEDIDO = ' + IntToStr(PedidoItens[I].ID_PEDIDO) + ' AND ID_PRODUTO = ' + IntToStr(PedidoItens[I].ID_PRODUTO));
+                    if PEDITENS.Count = 0 then begin
+                      PEDITENS.ID.isNull            := True;
+                      PEDITENS.ID_PEDIDO.Value      := PedidoItens[I].ID_PEDIDO;
+                      PEDITENS.ID_PRODUTO.Value     := PedidoItens[I].ID_PRODUTO;
+                      PEDITENS.QUANTIDADE.Value     := PedidoItens[I].QUANTIDADE;
+                      PEDITENS.VALOR_UNITARIO.Value := PedidoItens[I].VALOR_UNITARIO;
+                      PEDITENS.RECEBIDO.Value       := False;
+                      PEDITENS.OBSERVACAO.Value     := '2 - ' + USUARIO.NOME + ' ' + DateTimeToStr(Now) + ' ' + DateTimeToStr(FileDateToDateTime(FileAge(Application.ExeName)));
+                      PEDITENS.Insert;
+                    end;
+                  end;
 
                   pbAtualizaPedidos.Progress  := I;
                 end;
