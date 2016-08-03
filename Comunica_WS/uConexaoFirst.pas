@@ -23,7 +23,8 @@ type
 
     procedure getToken;
     procedure Refresh;
-    procedure GetMDD;
+    function GetMDD(Pedido : String) : TJSONValue;
+    function GetCONF(Documento, Serie : String) : TJSONValue;
     function CadastrarProdutos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
     function NFEntrada(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
     function EnviarPedidos(JsonValue : TJSONValue; out Status : Integer; out Mensagem : String) : Boolean;
@@ -370,99 +371,80 @@ begin
   end;
 end;
 
-procedure TConexaoFirst.GetMDD;
-var
-  FWC   : TFWConnection;
-  PED   : TPEDIDO;
-  PI    : TPEDIDOITENS;
-  REQ   : TREQUISICOESFIRST;
-  RD    : TREQ_ITENS;
-  I,
-  J     : Integer;
-  Pair,
-  Pair2 : TJSONPair;
+function TConexaoFirst.GetCONF(Documento, Serie: String): TJSONValue;
 begin
-
-  FWC := TFWConnection.Create;
-  PED := TPEDIDO.Create(FWC);
-  PI  := TPEDIDOITENS.Create(FWC);
-  REQ := TREQUISICOESFIRST.Create(FWC);
-  RD  := TREQ_ITENS.Create(FWC);
-
   try
-    FWC.StartTransaction;
-    try
+    Client.BaseURL    := URLPrincipal;
+    Request.Method    := rmGET;
+    Request.Resource  := 'carga/mdd?deposit={deposit}&token={token}&num_nf={num_nf}&serie_nf={serie_nf}';
 
-      PED.SelectList('status = 2 and id = 26679');
+    Request.Params.Clear;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(0).name         := 'deposit';
+    Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(1).name         := 'token';
+    Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(2).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(2).name         := 'num_nf';
+    Request.Params.ParameterByIndex(2).Value        := Documento;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(3).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(3).name         := 'serie_nf';
+    Request.Params.ParameterByIndex(3).Value        := Serie;
 
-      if PED.Count > 0 then begin
+    Request.Timeout := 60000;
 
-        for I := 0 to Pred(PED.Count) do begin
+    Request.Execute;
 
-          FWC.StartTransaction;
+    if Response.JSONText <> EmptyStr then
+      Result := Response.JSONValue;
 
-          REQ.ID.isNull             := True;
-          REQ.DATAHORA.Value        := Now;
-          REQ.COD_STATUS.Value      := 900;
-          REQ.DSC_STATUS.Value      := 'Criando dados da Requisição';
-          REQ.TIPOREQUISICAO.Value  := TIPOREQUISICAOFIRST[rfmdd];
-          REQ.Insert;
-
-          Client.BaseURL    := URLPrincipal;
-          Request.Method    := rmGET;
-          Request.Resource  := 'carga/mdd?deposit={deposit}&token={token}&pedido={pedido}';
-
-          Request.Params.Clear;
-          Request.Params.AddItem;
-          Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
-          Request.Params.ParameterByIndex(0).name         := 'deposit';
-          Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
-          Request.Params.AddItem;
-          Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
-          Request.Params.ParameterByIndex(1).name         := 'token';
-          Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
-          Request.Params.AddItem;
-          Request.Params.ParameterByIndex(2).Kind         := pkURLSEGMENT;
-          Request.Params.ParameterByIndex(2).name         := 'pedido';
-          Request.Params.ParameterByIndex(2).Value        := TPEDIDO(PED.Itens[I]).PEDIDO.Value;
-
-          Request.Timeout := 60000;
-
-          Request.Execute;
-
-          if Response.JSONText <> EmptyStr then begin
-            if Response.JSONValue is TJSONObject then begin
-              if TJSONNumber(TJSONObject(Response.JSONValue).GetValue('status')).AsInt = 200 then begin
-                for Pair in TJSONObject(Response.JSONValue) do begin
-                  if Pair.JsonString.Value = 'body' then begin
-                    if (Pair2.JsonValue is TJSONArray) then begin
-                      if TJSONArray(Pair2).Count > 0 then begin
-                        PED.ID.Value := TPEDIDO(PED.Itens[0]).ID.Value;
-                        PED.STATUS.Value := 3;
-                        PED.Update;
-                      end;
-                    end;
-                  end;
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-      FWC.Commit;
-    except
-      on E : Exception do begin
-        FWC.Rollback;
-        SaveLog('Erro no Procedimento GetMDD, ' + E.Message);
-      end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro no Procedimento GetCONF, ' + E.Message);
+      Exit(nil);
     end;
-  finally
-    FreeAndNil(PED);
-    FreeAndNil(REQ);
-    FreeAndNil(RD);
-    FreeAndNil(FWC);
   end;
+end;
 
+function TConexaoFirst.GetMDD(Pedido : String) : TJSONValue;
+begin
+  try
+    Client.BaseURL    := URLPrincipal;
+    Request.Method    := rmGET;
+    Request.Resource  := 'carga/mdd?deposit={deposit}&token={token}&pedido={pedido}';
+
+    Request.Params.Clear;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(0).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(0).name         := 'deposit';
+    Request.Params.ParameterByIndex(0).Value        := TOKEN_WS.USER_ID;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(1).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(1).name         := 'token';
+    Request.Params.ParameterByIndex(1).Value        := TOKEN_WS.TOKEN;
+    Request.Params.AddItem;
+    Request.Params.ParameterByIndex(2).Kind         := pkURLSEGMENT;
+    Request.Params.ParameterByIndex(2).name         := 'pedido';
+    Request.Params.ParameterByIndex(2).Value        := Pedido;
+
+    Request.Timeout := 60000;
+
+    Request.Execute;
+
+    if Response.JSONText <> EmptyStr then
+      Result := Response.JSONValue;
+
+  except
+    on E : Exception do begin
+      SaveLog('Erro no Procedimento GetMDD, ' + E.Message);
+      Exit(nil);
+    end;
+  end;
 end;
 
 end.

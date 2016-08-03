@@ -4,13 +4,26 @@ interface
 
 uses
   System.JSON,
-  System.SysUtils;
+  System.SysUtils,
+  FireDAC.Stan.Intf,
+  FireDAC.Stan.Option,
+  FireDAC.Stan.Param,
+  FireDAC.Stan.Error,
+  FireDAC.DatS,
+  FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf,
+  FireDAC.Stan.Async,
+  FireDAC.DApt,
+  Data.DB,
+  FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
 
 procedure EnviarProdutos;
 procedure EnviarPedidos;
 procedure EnviarNFEntrada;
 
 procedure BuscarMDD;
+procedure BuscarCONF;
 
 implementation
 
@@ -228,8 +241,9 @@ begin
 
           if REQ.COD_STATUS.Value = 200 then begin
             for I := 0 to Pred(PED.Count) do begin
-              PED.ID.Value     := TPEDIDO(PED.Itens[I]).ID.Value;
-              PED.STATUS.Value := 2;
+              PED.ID.Value          := TPEDIDO(PED.Itens[I]).ID.Value;
+              PED.DATA_ENVIO.Value  := Now;
+              PED.STATUS.Value      := 2;
               PED.Update;
             end;
           end else
@@ -372,25 +386,239 @@ begin
   end;
 end;
 
+procedure BuscarCONF;
+var
+  ConexaoFirst: TConexaoFirst;
+  FWC   : TFWConnection;
+  NF    : TNOTAFISCAL;
+  NI    : TNOTAFISCALITENS;
+  PR    : TPRODUTO;
+  REQ   : TREQUISICOESFIRST;
+  RD    : TREQ_ITENS;
+  SQL   : TFDQuery;
+  JV    : TJSONValue;
+  Pair  : TJSONPair;
+  JSO   : TJSONValue;
+  I: Integer;
+begin
+  try
+    FWC           := TFWConnection.Create;
+
+    NF            := TNOTAFISCAL.Create(FWC);
+    NI            := TNOTAFISCALITENS.Create(FWC);
+    REQ           := TREQUISICOESFIRST.Create(FWC);
+    RD            := TREQ_ITENS.Create(FWC);
+    PR            := TPRODUTO.Create(FWC);
+
+    SQL           := TFDQuery.Create(nil);
+    ConexaoFirst  := TConexaoFirst.Create;
+    try
+      FWC.StartTransaction;
+      try
+        SQL.Close;
+        SQL.SQL.Clear;
+        SQL.SQL.Add('SELECT');
+        SQL.SQL.Add('nf.id,');
+        SQL.SQL.Add('nf.documento,');
+        SQL.SQL.Add('nf.serie');
+        SQL.SQL.Add('FROM notafiscal nf');
+        SQL.SQL.Add('WHERE nf.status = 1');
+        SQL.Connection := FWC.FDConnection;
+        SQL.Prepare;
+        SQL.Open();
+
+        if not SQL.IsEmpty then begin
+          if TOKEN_WS.STATUS_CODE = 200 then begin
+            SQL.First;
+            while not SQL.Eof do begin
+              REQ.ID.isNull             := True;
+              REQ.DATAHORA.Value        := Now;
+              REQ.COD_STATUS.Value      := 900;
+              REQ.DSC_STATUS.Value      := 'Criando dados da Requisição';
+              REQ.TIPOREQUISICAO.Value  := TIPOREQUISICAOFIRST[rfConf];
+              REQ.Insert;
+
+              RD.ID.isNull              := True;
+              RD.ID_REQUISICOES.Value   := REQ.ID.Value;
+              RD.ID_DADOS.Value         := SQL.Fields[0].Value;
+              RD.Insert;
+
+              JV                        := ConexaoFirst.GetCONF(SQL.Fields[1].AsString, SQL.Fields[2].AsString);
+              if Assigned(JV) then begin
+                if JV is TJSONObject then begin
+                  REQ.COD_STATUS.Value    := TJSONNumber(TJSONObject(JV).GetValue('status')).AsInt;
+                  REQ.DATAHORA.Value      := Now;
+
+                  if REQ.COD_STATUS.Value = 200 then begin
+                    for Pair in TJSONObject(JV) do begin
+                      if Pair.JsonString.Value = 'body' then begin
+                        if (Pair.JsonValue is TJSONArray) then begin
+                          if TJSONArray(Pair.JsonValue).Count > 0 then begin
+                            NF.ID.Value                := SQL.Fields[0].Value;
+                            NF.DATA_RECEBIDO.Value     := Now;
+                            NF.STATUS.Value            := 2;
+                            NF.Update;
+                            for I := 0 to Pred(TJSONArray(Pair.JsonValue).Count) do begin
+                              PR.SelectList('codigoproduto = ' + QuotedStr(TJSONArray(Pair.JsonValue).Items[I].GetValue<TJSONString>('cod_item').Value));
+                              if PR.Count > 0 then begin
+                                NI.SelectList('id_notafiscal = ' + SQL.Fields[0].AsString + ' and id_produto = ' + TPRODUTO(PR.Itens[0]).ID.asString);
+                                if NI.Count > 0 then begin
+                                  NI.ID.Value             := TNOTAFISCALITENS(NI.Itens[0]).ID.Value;
+                                  NI.QUANTIDADEREC.Value  := TJSONArray(Pair.JsonValue).Items[I].GetValue<TJSONNumber>('qtd_conferida').AsDouble;
+                                  NI.QUANTIDADEAVA.Value  := TJSONArray(Pair.JsonValue).Items[I].GetValue<TJSONNumber>('qtd_avariada').AsDouble;
+                                  NI.Update;
+                                end;
+                              end;
+                            end;
+
+                            REQ.DSC_STATUS.Value        := 'Conf Recebido com sucesso!';
+                          end;
+                        end;
+                      end;
+                    end;
+                  end;
+                  REQ.Update;
+                end;
+              end else begin
+                REQ.DATAHORA.Value      := Now;
+                REQ.DSC_STATUS.Value    := 'Não Houve Retorno';
+                REQ.Update;
+              end;
+              SQL.Next;
+            end;
+          end else
+            SaveLog('TOKEN Inválido para Buscar Conf, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
+        end;
+        FWC.Commit;
+      except
+        on E: Exception do begin
+          FWC.Rollback;
+          SaveLog('Erro ao buscar CONF' + E.Message);
+        end;
+      end;
+    finally
+      FreeAndNil(ConexaoFirst);
+      FreeAndNil(SQL);
+      FreeAndNil(NF);
+      FreeAndNil(NI);
+      FreeAndNil(PR);
+      FreeAndNil(REQ);
+      FreeAndNil(RD);
+      FreeAndNil(FWC);
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro na função BuscarCONF! Erro: ' + E.Message);
+    end;
+  end;
+end;
+
 procedure BuscarMDD;
 var
   ConexaoFirst: TConexaoFirst;
-
+  FWC   : TFWConnection;
+  PED   : TPEDIDO;
+  PI    : TPEDIDOITENS;
+  REQ   : TREQUISICOESFIRST;
+  RD    : TREQ_ITENS;
+  SQL   : TFDQuery;
+  JV    : TJSONValue;
+  Pair  : TJSONPair;
+  I: Integer;
 begin
-
-  ConexaoFirst  := TConexaoFirst.Create;
-
   try
+    FWC           := TFWConnection.Create;
 
-    if TOKEN_WS.STATUS_CODE = 200 then begin
+    PED           := TPEDIDO.Create(FWC);
+    PI            := TPEDIDOITENS.Create(FWC);
+    REQ           := TREQUISICOESFIRST.Create(FWC);
+    RD            := TREQ_ITENS.Create(FWC);
 
-      ConexaoFirst.GetMDD;
+    SQL           := TFDQuery.Create(nil);
+    ConexaoFirst  := TConexaoFirst.Create;
+    try
+      FWC.StartTransaction;
+      try
+        SQL.Close;
+        SQL.SQL.Clear;
+        SQL.SQL.Add('SELECT');
+        SQL.SQL.Add('p.id,');
+        SQL.SQL.Add('p.pedido');
+        SQL.SQL.Add('FROM pedido p');
+        SQL.SQL.Add('WHERE p.status = 2');
+        SQL.Prepare;
+        SQL.Open();
 
-    end else
-      SaveLog('TOKEN Inválido para Enviar Pedidos, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
+        if not SQL.IsEmpty then begin
+          if TOKEN_WS.STATUS_CODE = 200 then begin
+            SQL.First;
+            while not SQL.Eof do begin
+              REQ.ID.isNull             := True;
+              REQ.DATAHORA.Value        := Now;
+              REQ.COD_STATUS.Value      := 900;
+              REQ.DSC_STATUS.Value      := 'Criando dados da Requisição';
+              REQ.TIPOREQUISICAO.Value  := TIPOREQUISICAOFIRST[rfmdd];
+              REQ.Insert;
 
-  finally
-    FreeAndNil(ConexaoFirst);
+              RD.ID.isNull              := True;
+              RD.ID_REQUISICOES.Value   := REQ.ID.Value;
+              RD.ID_DADOS.Value         := SQL.Fields[0].Value;
+              RD.Insert;
+
+              JV                        := ConexaoFirst.GetMDD(SQL.Fields[1].AsString);
+              if Assigned(JV) then begin
+                if JV is TJSONObject then begin
+                  REQ.COD_STATUS.Value    := TJSONNumber(TJSONObject(JV).GetValue('status')).AsInt;
+                  REQ.DATAHORA.Value      := Now;
+
+                  if REQ.COD_STATUS.Value = 200 then begin
+                    for Pair in TJSONObject(JV) do begin
+                      if Pair.JsonString.Value = 'body' then begin
+                        if (Pair.JsonValue is TJSONArray) then begin
+                          if TJSONArray(Pair).Count > 0 then begin
+                            PED.ID.Value                := SQL.Fields[0].Value;
+                            PED.VOLUMES_DOCUMENTO.Value := TJSONArray(Pair.JsonValue).Items[0].GetValue<TJSONNumber>('qtd_volume').AsInt;
+                            PED.STATUS.Value            := 3;
+                            PED.Update;
+
+                            REQ.DSC_STATUS.Value        := 'Mdd Recebido com sucesso!';
+                          end;
+                        end;
+                      end;
+                    end;
+                  end;
+                  REQ.Update;
+                end;
+              end else begin
+                REQ.DATAHORA.Value      := Now;
+                REQ.DSC_STATUS.Value    := 'Não Houve Retorno';
+                REQ.Update;
+              end;
+              SQL.Next;
+            end;
+          end else
+            SaveLog('TOKEN Inválido para Enviar Pedidos, Status = ' + IntToStr(TOKEN_WS.STATUS_CODE));
+        end;
+        FWC.Commit;
+      except
+        on E: Exception do begin
+          FWC.Rollback;
+          SaveLog('Erro ao buscar MDD' + E.Message);
+        end;
+      end;
+    finally
+      FreeAndNil(ConexaoFirst);
+      FreeAndNil(SQL);
+      FreeAndNil(PED);
+      FreeAndNil(PI);
+      FreeAndNil(REQ);
+      FreeAndNil(RD);
+      FreeAndNil(FWC);
+    end;
+  except
+    on E : Exception do begin
+      SaveLog('Erro na função BuscarMDD! Erro: ' + E.Message);
+    end;
   end;
 end;
 

@@ -245,7 +245,7 @@ create table pedido_embarque
 CREATE TABLE requisicoesfirst
 (
   id serial NOT NULL,
-  datahora time without time zone,
+  datahora timestamp without time zone,
   cod_status integer,
   dsc_status character varying(255),
   tiporequisicao character varying(100),

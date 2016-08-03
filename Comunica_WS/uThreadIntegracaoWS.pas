@@ -48,6 +48,7 @@ begin
 
   BuscarMDD;
 
+  BuscarCONF;
 end;
 
 end.
