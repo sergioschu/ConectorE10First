@@ -53,7 +53,6 @@ begin
 
   Application.CreateForm(TDMUtil, DMUtil);
   Application.CreateForm(TFrmLogin, FrmLogin);
-  Application.CreateForm(TFrmConsultaRequisicoes, FrmConsultaRequisicoes);
   if FrmLogin.ShowModal = mrOk then begin
 
     FreeAndNil(FrmLogin);
